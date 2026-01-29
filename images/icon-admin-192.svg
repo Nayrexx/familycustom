@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0d0d1a"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4AF37"/>
+      <stop offset="100%" style="stop-color:#B8960C"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="192" height="192" rx="40" fill="url(#bg)"/>
+  
+  <!-- FC Letters -->
+  <text x="96" y="125" font-family="Georgia, serif" font-size="72" font-weight="bold" fill="url(#gold)" text-anchor="middle">FC</text>
+  
+  <!-- Admin badge -->
+  <circle cx="150" cy="42" r="28" fill="#D4AF37"/>
+  <text x="150" y="50" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#1a1a2e" text-anchor="middle">A</text>
+  
+  <!-- Subtle border -->
+  <rect width="188" height="188" x="2" y="2" rx="38" fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.3"/>
+</svg>

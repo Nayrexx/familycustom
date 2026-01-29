@@ -1,0 +1,460 @@
+/* ============================================
+   FAMILY CUSTOM - Features CSS
+   Animations, Newsletter, Promo, etc.
+   ============================================ */
+
+/* ==========================================
+   1. ANIMATIONS AU SCROLL
+   ========================================== */
+
+/* Base state - elements are hidden */
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Different animation variants */
+.scroll-reveal.fade-left {
+    transform: translateX(-40px);
+}
+.scroll-reveal.fade-left.revealed {
+    transform: translateX(0);
+}
+
+.scroll-reveal.fade-right {
+    transform: translateX(40px);
+}
+.scroll-reveal.fade-right.revealed {
+    transform: translateX(0);
+}
+
+.scroll-reveal.zoom-in {
+    transform: scale(0.9);
+}
+.scroll-reveal.zoom-in.revealed {
+    transform: scale(1);
+}
+
+/* Stagger delays for children */
+.scroll-reveal.delay-1 { transition-delay: 0.1s; }
+.scroll-reveal.delay-2 { transition-delay: 0.2s; }
+.scroll-reveal.delay-3 { transition-delay: 0.3s; }
+.scroll-reveal.delay-4 { transition-delay: 0.4s; }
+
+/* ==========================================
+   2. NEWSLETTER SECTION
+   ========================================== */
+
+.newsletter-section {
+    background: linear-gradient(135deg, #2d2a26 0%, #1a1816 100%);
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.newsletter-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(224, 122, 95, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.newsletter-inner {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.newsletter-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.newsletter-section .newsletter-subtitle {
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+.newsletter-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #e07a5f, #c9a87c);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 10px;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.newsletter-form input {
+    flex: 1;
+    padding: 14px 20px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.newsletter-form input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+.newsletter-form input:focus {
+    outline: none;
+    border-color: #e07a5f;
+    background: rgba(255,255,255,0.1);
+}
+
+.newsletter-form button {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #e07a5f, #c9a87c);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.newsletter-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(224, 122, 95, 0.4);
+}
+
+.newsletter-form button i {
+    margin-right: 8px;
+}
+
+.newsletter-privacy {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 1rem;
+}
+
+.newsletter-privacy i {
+    margin-right: 5px;
+}
+
+/* Newsletter success state */
+.newsletter-form.success input {
+    border-color: #4caf50;
+}
+
+.newsletter-success-msg {
+    color: #4caf50;
+    margin-top: 1rem;
+    display: none;
+}
+
+.newsletter-success-msg.show {
+    display: block;
+}
+
+@media (max-width: 500px) {
+    .newsletter-form {
+        flex-direction: column;
+    }
+    
+    .newsletter-form button {
+        width: 100%;
+    }
+}
+
+/* ==========================================
+   3. PARTAGE SOCIAL
+   ========================================== */
+
+.social-share {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f0ebe3;
+}
+
+.social-share-label {
+    font-size: 0.9rem;
+    color: #aaaaaa;
+}
+
+.social-share-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.social-share-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    color: white;
+}
+
+.social-share-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.social-share-btn.facebook { background: #1877f2; }
+.social-share-btn.twitter { background: #1da1f2; }
+.social-share-btn.whatsapp { background: #25d366; }
+.social-share-btn.pinterest { background: #e60023; }
+.social-share-btn.copy-link { background: #666; }
+
+.social-share-btn.copy-link.copied {
+    background: #4caf50;
+}
+
+/* ==========================================
+   4. ESTIMATION DE LIVRAISON
+   ========================================== */
+
+.delivery-estimate {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 100%);
+    border: 1px solid #cce5ff;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.delivery-estimate i {
+    font-size: 1.5rem;
+    color: #7ec8e3;
+}
+
+.delivery-estimate-content {
+    flex: 1;
+}
+
+.delivery-estimate-label {
+    font-size: 0.85rem;
+    color: #000;
+    margin-bottom: 2px;
+}
+
+.delivery-estimate-date {
+    font-weight: 600;
+    color: #000;
+    font-size: 1rem;
+}
+
+.delivery-estimate-date span {
+    color: #7ec8e3;
+}
+
+/* ==========================================
+   5. SYSTÈME DE CODE PROMO
+   ========================================== */
+
+.promo-code-section {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.promo-code-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #000;
+    width: 100%;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.promo-code-toggle:hover {
+    color: #e07a5f;
+}
+
+.promo-code-toggle i:first-child {
+    color: #c9a87c;
+}
+
+.promo-code-toggle .chevron {
+    margin-left: auto;
+    transition: transform 0.3s;
+}
+
+.promo-code-toggle.open .chevron {
+    transform: rotate(180deg);
+}
+
+.promo-code-form {
+    display: none;
+    margin-top: 1rem;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.promo-code-form.show {
+    display: flex;
+}
+
+.promo-code-form input {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 12px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: border-color 0.2s;
+    background: white;
+    color: #000;
+}
+
+.promo-code-form input::placeholder {
+    color: #666;
+    text-transform: uppercase;
+}
+
+.promo-code-form input:focus {
+    outline: none;
+    border-color: #c9a87c;
+}
+
+.promo-code-form button {
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #c9a87c, #b8976b);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.promo-code-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(201, 168, 124, 0.4);
+}
+
+.promo-code-form button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.promo-code-message {
+    margin-top: 0.75rem;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.promo-code-message.show {
+    display: block;
+}
+
+.promo-code-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.promo-code-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.promo-applied {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-top: 0.75rem;
+}
+
+.promo-applied .promo-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.promo-applied .promo-info i {
+    color: #155724;
+}
+
+.promo-applied .promo-code {
+    font-weight: 700;
+    color: #155724;
+    text-transform: uppercase;
+}
+
+.promo-applied .promo-discount {
+    color: #155724;
+    font-size: 0.9rem;
+}
+
+.promo-applied .remove-promo {
+    background: none;
+    border: none;
+    color: #721c24;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1rem;
+}
+
+.promo-applied .remove-promo:hover {
+    color: #c82333;
+}
+
+/* Summary discount row */
+.summary-row.discount {
+    color: #2e7d32;
+}
+
+.summary-row.discount span:last-child {
+    font-weight: 600;
+}
+
+

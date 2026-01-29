@@ -2147,6 +2147,252 @@ body {
     display: inline-block;
 }
 
+/* ===== ORDER TAGS ===== */
+.order-tags-section {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.order-tags-section label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+}
+
+.order-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.order-tag {
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.order-tag:hover {
+    opacity: 0.8;
+}
+
+.order-tag.active {
+    opacity: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.tag-urgent {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+.tag-urgent.active {
+    background: #dc2626;
+    color: white;
+}
+
+.tag-waiting {
+    background: #fffbeb;
+    color: #d97706;
+    border-color: #fde68a;
+}
+.tag-waiting.active {
+    background: #d97706;
+    color: white;
+}
+
+.tag-vip {
+    background: #fdf4ff;
+    color: #a855f7;
+    border-color: #e9d5ff;
+}
+.tag-vip.active {
+    background: #a855f7;
+    color: white;
+}
+
+.tag-problem {
+    background: #fef2f2;
+    color: #ef4444;
+    border-color: #fecaca;
+}
+.tag-problem.active {
+    background: #ef4444;
+    color: white;
+}
+
+.tag-gift {
+    background: #ecfdf5;
+    color: #10b981;
+    border-color: #a7f3d0;
+}
+.tag-gift.active {
+    background: #10b981;
+    color: white;
+}
+
+/* Tags dans la liste des commandes */
+.order-tags-mini {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.order-tag-mini {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: white;
+}
+
+.order-tag-mini.tag-urgent { background: #dc2626; }
+.order-tag-mini.tag-waiting { background: #d97706; }
+.order-tag-mini.tag-vip { background: #a855f7; }
+.order-tag-mini.tag-problem { background: #ef4444; }
+.order-tag-mini.tag-gift { background: #10b981; }
+
+/* ===== ORDER CHECKLIST ===== */
+.order-checklist-section {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--radius);
+}
+
+.order-checklist-section h4 {
+    font-size: 0.9rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: white;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--gray-200);
+}
+
+.checklist-item:hover {
+    border-color: var(--primary);
+}
+
+.checklist-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--success);
+}
+
+.checklist-item span {
+    font-size: 0.85rem;
+    color: var(--gray-700);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.checklist-item span i {
+    color: var(--gray-400);
+    width: 16px;
+}
+
+.checklist-item:has(input:checked) {
+    background: #ecfdf5;
+    border-color: var(--success);
+}
+
+.checklist-item:has(input:checked) span {
+    color: var(--success);
+    text-decoration: line-through;
+}
+
+.checklist-item:has(input:checked) span i {
+    color: var(--success);
+}
+
+/* ===== ORDER NOTES ===== */
+.order-notes-section {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fffbeb;
+    border-radius: var(--radius);
+    border: 1px solid #fde68a;
+}
+
+.order-notes-section h4 {
+    font-size: 0.9rem;
+    color: #d97706;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.order-notes-section textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    resize: vertical;
+    min-height: 60px;
+    font-family: inherit;
+}
+
+.order-notes-section textarea:focus {
+    outline: none;
+    border-color: #d97706;
+}
+
+.order-notes-section .btn {
+    margin-top: 0.5rem;
+}
+
+/* ===== MODAL FOOTER SPLIT ===== */
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.footer-left,
+.footer-right {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 .btn-sm {
     padding: 0.4rem 0.75rem;
     font-size: 0.85rem;

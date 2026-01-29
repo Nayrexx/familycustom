@@ -945,21 +945,81 @@
                 <button class="modal-close"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
+                <!-- Tags de la commande -->
+                <div class="order-tags-section">
+                    <label>Tags :</label>
+                    <div class="order-tags" id="order-tags">
+                        <button type="button" class="order-tag tag-urgent" data-tag="urgent"><i class="fas fa-exclamation"></i> Urgent</button>
+                        <button type="button" class="order-tag tag-waiting" data-tag="waiting"><i class="fas fa-clock"></i> En attente photo</button>
+                        <button type="button" class="order-tag tag-vip" data-tag="vip"><i class="fas fa-star"></i> VIP</button>
+                        <button type="button" class="order-tag tag-problem" data-tag="problem"><i class="fas fa-exclamation-triangle"></i> Problème</button>
+                        <button type="button" class="order-tag tag-gift" data-tag="gift"><i class="fas fa-gift"></i> Cadeau</button>
+                    </div>
+                </div>
+                
                 <div id="order-details-content">
                     <!-- Filled by JS -->
                 </div>
+                
+                <!-- Checklist de préparation -->
+                <div class="order-checklist-section">
+                    <h4><i class="fas fa-tasks"></i> Checklist de préparation</h4>
+                    <div class="checklist" id="order-checklist">
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="photo-verified">
+                            <span><i class="fas fa-image"></i> Photo client vérifiée</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="customization-ok">
+                            <span><i class="fas fa-pen"></i> Personnalisation correcte</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="product-ready">
+                            <span><i class="fas fa-box"></i> Produit préparé</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="quality-check">
+                            <span><i class="fas fa-check-double"></i> Contrôle qualité</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="packed">
+                            <span><i class="fas fa-box-open"></i> Emballé</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="label-printed">
+                            <span><i class="fas fa-print"></i> Étiquette imprimée</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Notes internes -->
+                <div class="order-notes-section">
+                    <h4><i class="fas fa-sticky-note"></i> Notes internes</h4>
+                    <textarea id="order-internal-notes" placeholder="Ajouter une note interne (visible uniquement par l'équipe)..." rows="2"></textarea>
+                    <button type="button" class="btn btn-sm" id="btn-save-notes"><i class="fas fa-save"></i> Enregistrer note</button>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost modal-cancel">Fermer</button>
-                <select id="order-status-select" class="order-status-select">
-                    <option value="pending">En attente</option>
-                    <option value="paid">Payée</option>
-                    <option value="shipped">Expédiée</option>
-                    <option value="completed">Terminée</option>
-                </select>
-                <button type="button" class="btn btn-primary" id="btn-update-order-status">
-                    <i class="fas fa-save"></i> Mettre à jour
-                </button>
+                <div class="footer-left">
+                    <button type="button" class="btn btn-outline" id="btn-print-order">
+                        <i class="fas fa-print"></i> Imprimer bon
+                    </button>
+                    <button type="button" class="btn btn-outline" id="btn-print-label">
+                        <i class="fas fa-tag"></i> Étiquette adresse
+                    </button>
+                </div>
+                <div class="footer-right">
+                    <button type="button" class="btn btn-ghost modal-cancel">Fermer</button>
+                    <select id="order-status-select" class="order-status-select">
+                        <option value="pending">En attente</option>
+                        <option value="paid">Payée</option>
+                        <option value="shipped">Expédiée</option>
+                        <option value="completed">Terminée</option>
+                    </select>
+                    <button type="button" class="btn btn-primary" id="btn-update-order-status">
+                        <i class="fas fa-save"></i> Mettre à jour
+                    </button>
+                </div>
             </div>
         </div>
     </div>

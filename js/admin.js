@@ -948,9 +948,27 @@
                 'completed': 'Terminée'
             }[order.status] || 'En attente';
             
+            // Render mini tags
+            const tagIcons = {
+                'urgent': '<i class="fas fa-exclamation"></i>',
+                'waiting': '<i class="fas fa-clock"></i>',
+                'vip': '<i class="fas fa-star"></i>',
+                'problem': '<i class="fas fa-exclamation-triangle"></i>',
+                'gift': '<i class="fas fa-gift"></i>'
+            };
+            const orderTags = order.tags || [];
+            const tagsHtml = orderTags.length > 0 ? `
+                <div class="order-tags-mini">
+                    ${orderTags.map(tag => `<span class="order-tag-mini tag-${tag}" title="${tag}">${tagIcons[tag] || ''}</span>`).join('')}
+                </div>
+            ` : '';
+            
             return `
                 <tr>
-                    <td><strong>${order.orderNumber || order.id.slice(0, 8)}</strong></td>
+                    <td>
+                        <strong>${order.orderNumber || order.id.slice(0, 8)}</strong>
+                        ${tagsHtml}
+                    </td>
                     <td>${date}</td>
                     <td>${order.customer?.firstName || ''} ${order.customer?.lastName || ''}<br>
                         <small>${order.customer?.email || ''}</small></td>
@@ -1065,8 +1083,268 @@
         // Set current status in select
         elements.orderStatusSelect.value = order.status || 'pending';
         
+        // Load tags
+        loadOrderTags(order);
+        
+        // Load checklist
+        loadOrderChecklist(order);
+        
+        // Load internal notes
+        loadOrderNotes(order);
+        
         openModal(elements.modalOrder);
         console.log('✅ Modal ouvert');
+    }
+    
+    // ===== ORDER TAGS =====
+    function loadOrderTags(order) {
+        const tags = order.tags || [];
+        document.querySelectorAll('.order-tag').forEach(btn => {
+            const tag = btn.dataset.tag;
+            btn.classList.toggle('active', tags.includes(tag));
+        });
+    }
+    
+    async function toggleOrderTag(tag) {
+        if (!currentOrderId) return;
+        const order = orders.find(o => o.id === currentOrderId);
+        if (!order) return;
+        
+        order.tags = order.tags || [];
+        const index = order.tags.indexOf(tag);
+        if (index > -1) {
+            order.tags.splice(index, 1);
+        } else {
+            order.tags.push(tag);
+        }
+        
+        // Save to Firebase
+        try {
+            await db.collection('orders').doc(currentOrderId).update({ tags: order.tags });
+            loadOrderTags(order);
+            renderOrders();
+            showToast('Tag mis à jour');
+        } catch (error) {
+            console.error('Error updating tags:', error);
+            showToast('Erreur', 'error');
+        }
+    }
+    
+    // ===== ORDER CHECKLIST =====
+    function loadOrderChecklist(order) {
+        const checklist = order.checklist || {};
+        document.querySelectorAll('#order-checklist input').forEach(input => {
+            const check = input.dataset.check;
+            input.checked = checklist[check] || false;
+        });
+    }
+    
+    async function updateOrderChecklist(checkName, checked) {
+        if (!currentOrderId) return;
+        const order = orders.find(o => o.id === currentOrderId);
+        if (!order) return;
+        
+        order.checklist = order.checklist || {};
+        order.checklist[checkName] = checked;
+        
+        // Save to Firebase
+        try {
+            await db.collection('orders').doc(currentOrderId).update({ checklist: order.checklist });
+        } catch (error) {
+            console.error('Error updating checklist:', error);
+        }
+    }
+    
+    // ===== ORDER NOTES =====
+    function loadOrderNotes(order) {
+        const notesEl = document.getElementById('order-internal-notes');
+        if (notesEl) {
+            notesEl.value = order.internalNotes || '';
+        }
+    }
+    
+    async function saveOrderNotes() {
+        if (!currentOrderId) return;
+        const order = orders.find(o => o.id === currentOrderId);
+        if (!order) return;
+        
+        const notesEl = document.getElementById('order-internal-notes');
+        const notes = notesEl ? notesEl.value : '';
+        order.internalNotes = notes;
+        
+        // Save to Firebase
+        try {
+            await db.collection('orders').doc(currentOrderId).update({ internalNotes: notes });
+            showToast('Note enregistrée');
+        } catch (error) {
+            console.error('Error saving notes:', error);
+            showToast('Erreur', 'error');
+        }
+    }
+    
+    // ===== PRINT ORDER =====
+    function printOrder() {
+        const order = orders.find(o => o.id === currentOrderId);
+        if (!order) return;
+        
+        const date = new Date(order.createdAt).toLocaleDateString('fr-FR', {
+            day: '2-digit', month: '2-digit', year: 'numeric'
+        });
+        
+        const itemsHtml = (order.items || []).map(item => `
+            <tr>
+                <td style="padding:8px;border-bottom:1px solid #ddd;">${item.name}</td>
+                <td style="padding:8px;border-bottom:1px solid #ddd;">${item.customization || '-'}</td>
+                <td style="padding:8px;border-bottom:1px solid #ddd;text-align:center;">${item.quantity}</td>
+                <td style="padding:8px;border-bottom:1px solid #ddd;text-align:right;">${(item.priceValue * item.quantity).toFixed(2)}€</td>
+            </tr>
+        `).join('');
+        
+        const printContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Bon de commande - ${order.orderNumber || order.id}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+                    h1 { color: #333; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; }
+                    .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+                    .info-box { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+                    .info-box h3 { margin: 0 0 10px 0; color: #D4AF37; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th { background: #333; color: white; padding: 10px; text-align: left; }
+                    .total { font-size: 1.2em; font-weight: bold; text-align: right; margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px; }
+                    .checklist { margin-top: 30px; padding: 15px; border: 2px dashed #ddd; border-radius: 8px; }
+                    .checklist h3 { margin: 0 0 15px 0; }
+                    .checklist-item { padding: 5px 0; display: flex; align-items: center; gap: 10px; }
+                    .checkbox { width: 18px; height: 18px; border: 2px solid #333; display: inline-block; }
+                    @media print { body { padding: 0; } }
+                </style>
+            </head>
+            <body>
+                <h1>🛍️ Bon de commande</h1>
+                <div class="header">
+                    <div>
+                        <strong>N° ${order.orderNumber || order.id}</strong><br>
+                        Date: ${date}
+                    </div>
+                    <div style="text-align:right;">
+                        <strong>Family Custom</strong><br>
+                        familycustom.fr
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>👤 Client</h3>
+                    <p><strong>${order.customer?.firstName || ''} ${order.customer?.lastName || ''}</strong></p>
+                    <p>${order.customer?.email || ''}</p>
+                    <p>${order.customer?.phone || ''}</p>
+                </div>
+                
+                <div class="info-box">
+                    <h3>📦 Adresse de livraison</h3>
+                    <p>${order.customer?.address || ''}</p>
+                    <p><strong>${order.customer?.postalCode || ''} ${order.customer?.city || ''}</strong></p>
+                    ${order.customer?.notes ? `<p style="color:#666;margin-top:10px;"><em>Note: ${order.customer.notes}</em></p>` : ''}
+                </div>
+                
+                <h3>🛒 Articles</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Personnalisation</th>
+                            <th style="text-align:center;">Qté</th>
+                            <th style="text-align:right;">Prix</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+                
+                <div class="total">
+                    Sous-total: ${order.subtotal?.toFixed(2) || '0.00'}€<br>
+                    Livraison: ${order.shipping === 0 ? 'Gratuite' : (order.shipping?.toFixed(2) || '0.00') + '€'}<br>
+                    <span style="font-size:1.3em;color:#D4AF37;">TOTAL: ${order.total?.toFixed(2) || '0.00'}€</span>
+                </div>
+                
+                <div class="checklist">
+                    <h3>✅ Checklist préparation</h3>
+                    <div class="checklist-item"><span class="checkbox"></span> Photo client vérifiée</div>
+                    <div class="checklist-item"><span class="checkbox"></span> Personnalisation correcte</div>
+                    <div class="checklist-item"><span class="checkbox"></span> Produit préparé</div>
+                    <div class="checklist-item"><span class="checkbox"></span> Contrôle qualité</div>
+                    <div class="checklist-item"><span class="checkbox"></span> Emballé</div>
+                    <div class="checklist-item"><span class="checkbox"></span> Étiquette imprimée</div>
+                </div>
+                
+                <script>window.onload = function() { window.print(); }</script>
+            </body>
+            </html>
+        `;
+        
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+    }
+    
+    // ===== PRINT LABEL =====
+    function printLabel() {
+        const order = orders.find(o => o.id === currentOrderId);
+        if (!order) return;
+        
+        const printContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Étiquette - ${order.orderNumber || order.id}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    .label { 
+                        width: 100mm; 
+                        padding: 15mm; 
+                        border: 3px solid #000; 
+                        border-radius: 5mm;
+                        margin: 0 auto;
+                    }
+                    .from { font-size: 10pt; color: #666; margin-bottom: 8mm; padding-bottom: 5mm; border-bottom: 1px solid #ddd; }
+                    .to-label { font-size: 9pt; color: #999; margin-bottom: 2mm; }
+                    .to { font-size: 14pt; font-weight: bold; }
+                    .address { font-size: 12pt; margin-top: 3mm; line-height: 1.5; }
+                    .city { font-size: 16pt; font-weight: bold; margin-top: 5mm; }
+                    .order-ref { margin-top: 8mm; padding-top: 5mm; border-top: 1px dashed #ddd; font-size: 10pt; color: #666; }
+                    @media print { 
+                        body { padding: 0; }
+                        .label { border: 2px solid #000; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="label">
+                    <div class="from">
+                        <strong>EXP:</strong> Family Custom - familycustom.fr
+                    </div>
+                    
+                    <div class="to-label">DESTINATAIRE :</div>
+                    <div class="to">${order.customer?.firstName || ''} ${order.customer?.lastName || ''}</div>
+                    <div class="address">${order.customer?.address || ''}</div>
+                    <div class="city">${order.customer?.postalCode || ''} ${order.customer?.city || ''}</div>
+                    ${order.customer?.phone ? `<div class="address">Tél: ${order.customer.phone}</div>` : ''}
+                    
+                    <div class="order-ref">
+                        Réf: ${order.orderNumber || order.id}
+                    </div>
+                </div>
+                
+                <script>window.onload = function() { window.print(); }</script>
+            </body>
+            </html>
+        `;
+        
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(printContent);
+        printWindow.document.close();
     }
     
     // Expose viewOrder globally for onclick
@@ -3444,6 +3722,38 @@
                     closeModal(elements.modalOrder);
                 }
             });
+        }
+        
+        // Order tags
+        document.querySelectorAll('.order-tag').forEach(btn => {
+            btn.addEventListener('click', function() {
+                toggleOrderTag(this.dataset.tag);
+            });
+        });
+        
+        // Order checklist
+        document.querySelectorAll('#order-checklist input').forEach(input => {
+            input.addEventListener('change', function() {
+                updateOrderChecklist(this.dataset.check, this.checked);
+            });
+        });
+        
+        // Order notes
+        const btnSaveNotes = document.getElementById('btn-save-notes');
+        if (btnSaveNotes) {
+            btnSaveNotes.addEventListener('click', saveOrderNotes);
+        }
+        
+        // Print order
+        const btnPrintOrder = document.getElementById('btn-print-order');
+        if (btnPrintOrder) {
+            btnPrintOrder.addEventListener('click', printOrder);
+        }
+        
+        // Print label
+        const btnPrintLabel = document.getElementById('btn-print-label');
+        if (btnPrintLabel) {
+            btnPrintLabel.addEventListener('click', printLabel);
         }
         
         // Newsletter export button

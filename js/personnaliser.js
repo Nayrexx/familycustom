@@ -874,38 +874,70 @@
         const reader = new FileReader();
         
         reader.onload = function(e) {
-            customerImageData = e.target.result;
-            
-            // Update upload zone
-            elements.uploadZone.classList.add('has-image');
-            elements.uploadZone.innerHTML = `
-                <div class="uploaded-preview">
-                    <img src="${customerImageData}" alt="Votre image">
-                    <div class="file-info">
-                        <div class="file-name">${file.name}</div>
-                        <div class="file-size">${formatFileSize(file.size)}</div>
+            // Compress image before storing
+            compressImage(e.target.result, 1200, 0.8).then(compressedImage => {
+                customerImageData = compressedImage;
+                
+                // Update upload zone
+                elements.uploadZone.classList.add('has-image');
+                elements.uploadZone.innerHTML = `
+                    <div class="uploaded-preview">
+                        <img src="${customerImageData}" alt="Votre image">
+                        <div class="file-info">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                        <button type="button" class="btn-remove" id="remove-image">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <button type="button" class="btn-remove" id="remove-image">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <input type="file" id="image-input" accept="image/*">
-            `;
-            
-            // Re-attach listeners
-            document.getElementById('image-input').addEventListener('change', handleFileSelect);
-            document.getElementById('remove-image').addEventListener('click', removeImage);
-            
-            // Show photo on the preview/mockup canvas
-            elements.customerPhoto.src = customerImageData;
-            elements.photoZone.style.display = 'block';
-            initDraggable();
-            
-            // Show editor controls
-            showEditorControls();
+                    <input type="file" id="image-input" accept="image/*">
+                `;
+                
+                // Re-attach listeners
+                document.getElementById('image-input').addEventListener('change', handleFileSelect);
+                document.getElementById('remove-image').addEventListener('click', removeImage);
+                
+                // Show photo on the preview/mockup canvas
+                elements.customerPhoto.src = customerImageData;
+                elements.photoZone.style.display = 'block';
+                initDraggable();
+                
+                // Show editor controls
+                showEditorControls();
+            });
         };
         
         reader.readAsDataURL(file);
+    }
+    
+    // Compress image to reduce file size for storage
+    function compressImage(base64, maxWidth, quality) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                // Scale down if larger than maxWidth
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convert to JPEG with quality setting
+                const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                resolve(compressedBase64);
+            };
+            img.src = base64;
+        });
     }
     
     function formatFileSize(bytes) {

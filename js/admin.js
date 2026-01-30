@@ -3553,7 +3553,8 @@
         const hasColors = document.getElementById('product-has-colors')?.checked && selectedColors.length > 0;
         const hasSizes = document.getElementById('product-has-sizes')?.checked && selectedSizes.length > 0;
         
-        // Show matrix only if both colors AND sizes are selected
+        // Show matrix if both colors AND sizes are selected
+        // If only sizes are available (no colors), show simple size stock management
         if (hasColors && hasSizes) {
             matrixContainer.style.display = 'block';
             
@@ -4020,8 +4021,10 @@
             sizePricesData = {};
         }
         
-        // Update stock matrix after colors and sizes are loaded
-        setTimeout(() => updateStockMatrix(product.stockMatrix), 150);
+        // Update stock matrix after colors and sizes are loaded (with longer delay to ensure DOM is ready)
+        setTimeout(() => {
+            updateStockMatrix(product.stockMatrix);
+        }, 200);
         
         // Load materials
         if (product.materials && product.materials.length > 0) {

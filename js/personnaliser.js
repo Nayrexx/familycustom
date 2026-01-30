@@ -26,6 +26,7 @@
     let selectedSize = null;
     let selectedMaterial = null;
     let selectedCustomOptions = {};
+    let selectedSaleOption = null; // Option de vente sélectionnée (lot, pack)
     
     // DOM Elements (initialized in DOMContentLoaded)
     let elements = {};
@@ -195,16 +196,29 @@
             stepNumber++;
         }
         
-        // Update text step number
-        elements.textStepNumber.textContent = stepNumber;
+        // Show/hide text customization section based on product config
+        const stepText = document.getElementById('step-text');
+        const hasText = product.hasText !== false; // true par défaut pour rétrocompatibilité
         
-        // Show text color options if enabled for this product
-        const textStyleOptions = document.getElementById('text-style-options');
-        if (product.allowTextColor) {
-            textStyleOptions.style.display = 'block';
-            setupTextColorPicker();
+        if (hasText) {
+            stepText.style.display = 'block';
+            // Update text step number
+            elements.textStepNumber.textContent = stepNumber;
+            
+            // Show text color options if enabled for this product
+            const textStyleOptions = document.getElementById('text-style-options');
+            if (product.allowTextColor && product.textColors && product.textColors.length > 0) {
+                textStyleOptions.style.display = 'block';
+                setupTextColorPicker(product.textColors);
+            } else if (product.allowTextColor) {
+                // Fallback: show default colors if allowTextColor is true but no colors defined
+                textStyleOptions.style.display = 'block';
+                setupTextColorPicker(null);
+            } else {
+                textStyleOptions.style.display = 'none';
+            }
         } else {
-            textStyleOptions.style.display = 'none';
+            stepText.style.display = 'none';
         }
     }
     
@@ -276,6 +290,7 @@
         selectedSize = null;
         selectedMaterial = null;
         selectedCustomOptions = {};
+        selectedSaleOption = null;
         
         // Check and render colors
         if (product.colors && product.colors.length > 0) {
@@ -283,22 +298,34 @@
             const colorOptions = document.getElementById('color-options');
             
             colorContainer.style.display = 'block';
-            colorOptions.innerHTML = product.colors.map((color, i) => `
-                <button type="button" 
-                        class="variant-btn ${i === 0 ? 'selected' : ''}" 
-                        data-color="${color.hex}"
-                        data-name="${color.name}"
-                        style="background: ${color.hex}; ${color.hex === '#FFFFFF' ? 'border: 2px solid #ccc;' : ''}"
-                        title="${color.name}">
-                    <span class="color-name-tooltip">${color.name}</span>
-                </button>
-            `).join('');
             
-            // Select first color by default
-            selectedColor = product.colors[0];
+            // Find first available color
+            const firstAvailableColor = product.colors.find(c => c.inStock !== false) || product.colors[0];
+            const firstAvailableIndex = product.colors.indexOf(firstAvailableColor);
+            
+            colorOptions.innerHTML = product.colors.map((color, i) => {
+                const isOutOfStock = color.inStock === false;
+                const isSelected = i === firstAvailableIndex;
+                return `
+                    <button type="button" 
+                            class="variant-btn ${isSelected ? 'selected' : ''} ${isOutOfStock ? 'out-of-stock' : ''}" 
+                            data-color="${color.hex}"
+                            data-name="${color.name}"
+                            data-available="${!isOutOfStock}"
+                            style="background: ${color.hex}; ${color.hex === '#FFFFFF' ? 'border: 2px solid #ccc;' : ''}"
+                            title="${color.name}${isOutOfStock ? ' (Indisponible)' : ''}"
+                            ${isOutOfStock ? 'disabled' : ''}>
+                        <span class="color-name-tooltip">${color.name}${isOutOfStock ? ' - Indisponible' : ''}</span>
+                        ${isOutOfStock ? '<span class="out-of-stock-badge"><i class="fas fa-ban"></i></span>' : ''}
+                    </button>
+                `;
+            }).join('');
+            
+            // Select first available color by default
+            selectedColor = firstAvailableColor;
             
             // Add click handlers
-            colorOptions.querySelectorAll('.variant-btn').forEach(btn => {
+            colorOptions.querySelectorAll('.variant-btn:not(.out-of-stock)').forEach(btn => {
                 btn.addEventListener('click', function() {
                     colorOptions.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
@@ -316,19 +343,36 @@
             const sizeOptions = document.getElementById('size-options');
             
             sizeContainer.style.display = 'block';
-            sizeOptions.innerHTML = product.sizes.map((size, i) => `
-                <button type="button" 
-                        class="variant-btn ${i === 0 ? 'selected' : ''}" 
-                        data-size="${size}">
-                    ${size}
-                </button>
-            `).join('');
             
-            // Select first size by default
-            selectedSize = product.sizes[0];
+            // Support both old format (string array) and new format (object array with inStock)
+            const sizesNormalized = product.sizes.map(size => {
+                if (typeof size === 'object') return size;
+                return { value: size, inStock: true };
+            });
+            
+            // Find first available size
+            const firstAvailableSize = sizesNormalized.find(s => s.inStock !== false) || sizesNormalized[0];
+            const firstAvailableIndex = sizesNormalized.indexOf(firstAvailableSize);
+            
+            sizeOptions.innerHTML = sizesNormalized.map((size, i) => {
+                const isOutOfStock = size.inStock === false;
+                const isSelected = i === firstAvailableIndex;
+                return `
+                    <button type="button" 
+                            class="variant-btn ${isSelected ? 'selected' : ''} ${isOutOfStock ? 'out-of-stock' : ''}" 
+                            data-size="${size.value}"
+                            ${isOutOfStock ? 'disabled' : ''}>
+                        ${size.value}
+                        ${isOutOfStock ? '<span class="out-of-stock-text">Indisponible</span>' : ''}
+                    </button>
+                `;
+            }).join('');
+            
+            // Select first available size by default
+            selectedSize = firstAvailableSize.value;
             
             // Add click handlers
-            sizeOptions.querySelectorAll('.variant-btn').forEach(btn => {
+            sizeOptions.querySelectorAll('.variant-btn:not(.out-of-stock)').forEach(btn => {
                 btn.addEventListener('click', function() {
                     sizeOptions.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
@@ -401,6 +445,54 @@
             });
         }
         
+        // Check and render sale options (lots, packs)
+        if (product.saleOptions && product.saleOptions.length > 0) {
+            hasAnyVariant = true;
+            
+            // Create sale options container if not exists
+            let saleContainer = document.getElementById('sale-options-container');
+            if (!saleContainer) {
+                saleContainer = document.createElement('div');
+                saleContainer.id = 'sale-options-container';
+                saleContainer.className = 'variant-group sale-options-group';
+                saleContainer.innerHTML = `
+                    <label><i class="fas fa-box"></i> Options de vente</label>
+                    <div class="variant-options sale-variant-options" id="sale-options"></div>
+                `;
+                customContainer.appendChild(saleContainer);
+            }
+            
+            const saleOptionsDiv = document.getElementById('sale-options');
+            saleOptionsDiv.innerHTML = product.saleOptions.map((option, i) => `
+                <button type="button" 
+                        class="variant-btn sale-option-btn ${i === 0 ? 'selected' : ''}" 
+                        data-name="${option.name}"
+                        data-price="${option.price}"
+                        data-quantity="${option.quantity || 1}">
+                    <span class="sale-option-name">${option.name}</span>
+                    <span class="sale-option-price">${option.price.toFixed(2)}€</span>
+                </button>
+            `).join('');
+            
+            // Select first sale option by default
+            selectedSaleOption = product.saleOptions[0];
+            updatePriceDisplay();
+            
+            // Add click handlers
+            saleOptionsDiv.querySelectorAll('.sale-option-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    saleOptionsDiv.querySelectorAll('.sale-option-btn').forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedSaleOption = {
+                        name: this.dataset.name,
+                        price: parseFloat(this.dataset.price),
+                        quantity: parseInt(this.dataset.quantity) || 1
+                    };
+                    updatePriceDisplay();
+                });
+            });
+        }
+        
         // Show/hide variants section based on whether any variant exists
         if (hasAnyVariant) {
             stepVariants.style.display = 'block';
@@ -429,9 +521,24 @@
     }
     
     // Setup text color picker
-    function setupTextColorPicker() {
+    function setupTextColorPicker(customColors) {
         const colorPicker = document.getElementById('text-color-picker');
         if (!colorPicker) return;
+        
+        // If custom colors are provided, render them instead of default
+        if (customColors && customColors.length > 0) {
+            colorPicker.innerHTML = customColors.map((color, index) => `
+                <button type="button" 
+                        class="color-btn ${index === 0 ? 'active' : ''}" 
+                        data-color="${color.hex}" 
+                        style="background:${color.hex}; ${color.hex.toUpperCase() === '#FFFFFF' ? 'border: 1px solid #ccc;' : ''}"
+                        title="${color.name}">
+                </button>
+            `).join('');
+            
+            // Set initial text color to first custom color
+            textColor = customColors[0].hex;
+        }
         
         colorPicker.querySelectorAll('.color-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -908,6 +1015,17 @@
         elements.quantityDisplay.textContent = quantity;
     }
     
+    // Update price display based on selected sale option
+    function updatePriceDisplay() {
+        if (!elements.productPrice) return;
+        
+        if (selectedSaleOption) {
+            elements.productPrice.textContent = selectedSaleOption.price.toFixed(2) + '€';
+        } else {
+            elements.productPrice.textContent = product.price + '€';
+        }
+    }
+    
     // Add to cart
     function addToCart() {
         // Validate - only require image if product needs it AND upload step is visible
@@ -919,7 +1037,10 @@
             }
         }
         
-        const customization = elements.customText.value.trim();
+        // Get customization text only if text section is visible
+        const stepText = document.getElementById('step-text');
+        const hasTextOption = stepText && stepText.style.display !== 'none';
+        const customization = hasTextOption && elements.customText ? elements.customText.value.trim() : '';
         
         // Get text position if text was added
         let textPosition = null;
@@ -940,13 +1061,21 @@
         if (Object.keys(selectedCustomOptions).length > 0) {
             variants.customOptions = selectedCustomOptions;
         }
+        if (selectedSaleOption) {
+            variants.saleOption = selectedSaleOption;
+        }
+        
+        // Use sale option price if selected, otherwise use product price
+        const finalPrice = selectedSaleOption ? selectedSaleOption.price : product.price;
+        const finalQuantity = selectedSaleOption ? (selectedSaleOption.quantity || 1) * quantity : quantity;
         
         const productData = {
             id: product.id,
             name: product.name,
-            price: product.price,
+            price: finalPrice,
             image: product.image || null,
-            variants: Object.keys(variants).length > 0 ? variants : null
+            variants: Object.keys(variants).length > 0 ? variants : null,
+            saleOptionName: selectedSaleOption ? selectedSaleOption.name : null
         };
         
         if (window.FCCart) {
@@ -974,7 +1103,10 @@
      * Achat express - Ajoute au panier et redirige direct vers checkout
      */
     function buyNow() {
-        const customization = elements.customText.value.trim();
+        // Get customization text only if text section is visible
+        const stepText = document.getElementById('step-text');
+        const hasTextOption = stepText && stepText.style.display !== 'none';
+        const customization = hasTextOption && elements.customText ? elements.customText.value.trim() : '';
         
         // Build variants object
         const variants = {};

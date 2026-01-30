@@ -106,12 +106,9 @@ function goToProduct(productId, category) {
 }
 
 function getCategoryName(category) {
-    const names = {
-        'neon': 'Néons',
-        'bois': 'Créations Bois',
-        'murales': 'Décorations Murales'
-    };
-    return names[category] || category || 'Création';
+    // Retourne le nom de la catégorie ou la catégorie elle-même
+    // Les noms sont maintenant stockés dans Firebase
+    return category || 'Création';
 }
 
 function shuffleArray(array) {

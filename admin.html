@@ -825,6 +825,10 @@
                                 <label>Personnalisation client</label>
                                 <div class="checkbox-group-inline">
                                     <label class="checkbox-label">
+                                        <input type="checkbox" id="product-has-text" checked>
+                                        <span>Texte personnalisable</span>
+                                    </label>
+                                    <label class="checkbox-label">
                                         <input type="checkbox" id="product-requires-image">
                                         <span>Photo requise</span>
                                     </label>
@@ -832,6 +836,32 @@
                                         <input type="checkbox" id="product-allow-text-color">
                                         <span>Couleur texte</span>
                                     </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Couleurs de texte disponibles -->
+                            <div class="variant-options text-colors-options hidden" id="text-colors-options">
+                                <label style="font-size: 0.85rem; color: #666; margin-bottom: 8px; display: block;">Couleurs de texte proposées au client :</label>
+                                <div class="color-picker-grid" id="text-color-picker-grid">
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FFFFFF" data-name="Blanc"><span class="color-swatch" style="background:#FFFFFF; border:1px solid #ccc"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#000000" data-name="Noir"><span class="color-swatch" style="background:#000000"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FF0000" data-name="Rouge"><span class="color-swatch" style="background:#FF0000"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FF69B4" data-name="Rose"><span class="color-swatch" style="background:#FF69B4"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FFA500" data-name="Orange"><span class="color-swatch" style="background:#FFA500"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FFD700" data-name="Or"><span class="color-swatch" style="background:#FFD700"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#00FF00" data-name="Vert vif"><span class="color-swatch" style="background:#00FF00"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#228B22" data-name="Vert forêt"><span class="color-swatch" style="background:#228B22"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#00FFFF" data-name="Cyan"><span class="color-swatch" style="background:#00FFFF"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#0000FF" data-name="Bleu"><span class="color-swatch" style="background:#0000FF"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#800080" data-name="Violet"><span class="color-swatch" style="background:#800080"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#C0C0C0" data-name="Argent"><span class="color-swatch" style="background:#C0C0C0"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#A52A2A" data-name="Marron"><span class="color-swatch" style="background:#A52A2A"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#F5DEB3" data-name="Beige"><span class="color-swatch" style="background:#F5DEB3"></span></label>
+                                </div>
+                                <div class="custom-color-add">
+                                    <input type="color" id="custom-text-color-picker" value="#FF5733">
+                                    <input type="text" id="custom-text-color-name" placeholder="Nom de la couleur">
+                                    <button type="button" class="btn btn-sm" id="add-custom-text-color"><i class="fas fa-plus"></i></button>
                                 </div>
                             </div>
                             
@@ -876,6 +906,11 @@
                                     <input type="text" id="custom-color-name" placeholder="Nom de la couleur">
                                     <button type="button" class="btn btn-sm" id="add-custom-color"><i class="fas fa-plus"></i></button>
                                 </div>
+                                <!-- Stock des couleurs -->
+                                <div class="stock-management" id="colors-stock-management">
+                                    <label style="font-size: 0.85rem; color: #666; margin: 10px 0 5px; display: block;"><i class="fas fa-box"></i> Gestion du stock couleurs :</label>
+                                    <div class="stock-list" id="colors-stock-list"></div>
+                                </div>
                             </div>
                             
                             <!-- Tailles -->
@@ -898,6 +933,11 @@
                                     <input type="text" id="custom-size-value" placeholder="Taille perso (30cm, 50x70...)">
                                     <button type="button" class="btn btn-sm" id="add-custom-size"><i class="fas fa-plus"></i></button>
                                 </div>
+                                <!-- Stock des tailles -->
+                                <div class="stock-management" id="sizes-stock-management">
+                                    <label style="font-size: 0.85rem; color: #666; margin: 10px 0 5px; display: block;"><i class="fas fa-box"></i> Gestion du stock tailles :</label>
+                                    <div class="stock-list" id="sizes-stock-list"></div>
+                                </div>
                             </div>
                             
                             <!-- Matériaux -->
@@ -914,6 +954,24 @@
                                     <label class="material-option"><input type="checkbox" name="materials" value="Acrylique"><span class="material-tag">Acrylique</span></label>
                                     <label class="material-option"><input type="checkbox" name="materials" value="PVC"><span class="material-tag">PVC</span></label>
                                     <label class="material-option"><input type="checkbox" name="materials" value="Métal"><span class="material-tag">Métal</span></label>
+                                </div>
+                            </div>
+                            
+                            <!-- Options de vente (lots, packs) -->
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="product-has-sale-options">
+                                    <span>Proposer des options de vente (lots, packs)</span>
+                                </label>
+                            </div>
+                            <div class="variant-options sale-options hidden" id="sale-options">
+                                <p class="variant-help"><i class="fas fa-info-circle"></i> Ajoutez des options comme "À l'unité", "Lot de 10", etc. avec leur prix respectif.</p>
+                                <div id="sale-options-list" class="sale-options-list"></div>
+                                <div class="sale-option-add">
+                                    <input type="text" id="sale-option-name" placeholder="Nom (ex: Lot de 10)">
+                                    <input type="number" id="sale-option-price" placeholder="Prix €" step="0.01" min="0">
+                                    <input type="number" id="sale-option-quantity" placeholder="Qté" min="1" value="1">
+                                    <button type="button" class="btn btn-sm" id="add-sale-option"><i class="fas fa-plus"></i></button>
                                 </div>
                             </div>
                             
@@ -998,6 +1056,21 @@
                     <textarea id="order-internal-notes" placeholder="Ajouter une note interne (visible uniquement par l'équipe)..." rows="2"></textarea>
                     <button type="button" class="btn btn-sm" id="btn-save-notes"><i class="fas fa-save"></i> Enregistrer note</button>
                 </div>
+                
+                <!-- Infos expédition Mondial Relay -->
+                <div class="shipping-info-section" id="shipping-info-section" style="display: none;">
+                    <h4><i class="fas fa-shipping-fast"></i> Expédition</h4>
+                    <div class="shipping-details">
+                        <span class="shipping-carrier"><i class="fas fa-truck"></i> <span id="shipping-carrier">-</span></span>
+                        <span class="shipping-tracking">N° <span id="shipping-tracking">-</span></span>
+                        <a href="#" id="shipping-label-link" target="_blank" class="btn btn-sm btn-outline">
+                            <i class="fas fa-file-pdf"></i> Étiquette
+                        </a>
+                        <a href="#" id="shipping-tracking-link" target="_blank" class="btn btn-sm btn-outline">
+                            <i class="fas fa-map-marker-alt"></i> Suivi
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <div class="footer-left">
@@ -1006,6 +1079,9 @@
                     </button>
                     <button type="button" class="btn btn-outline" id="btn-print-label">
                         <i class="fas fa-tag"></i> Étiquette adresse
+                    </button>
+                    <button type="button" class="btn btn-mondial-relay" id="btn-mondial-relay">
+                        <i class="fas fa-shipping-fast"></i> Mondial Relay
                     </button>
                 </div>
                 <div class="footer-right">

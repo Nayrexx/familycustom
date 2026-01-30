@@ -18,26 +18,6 @@
     let currentCategoryImageUrl = null;
     let isLoading = false;
     
-    // ===== Default Data =====
-    const defaultCategories = [
-        { id: 'murales', name: 'Décorations Murales', slug: 'murales', icon: 'fa-image', description: 'Sublimez vos murs avec style', color: '#f5e6d3' },
-        { id: 'neon', name: 'Néons LED', slug: 'neon', icon: 'fa-bolt', description: 'Illuminez votre intérieur', color: '#1a1a2e' },
-        { id: 'bois', name: 'Créations Bois', slug: 'bois', icon: 'fa-tree', description: "L'élégance naturelle", color: '#8b6f47' }
-    ];
-    
-    const defaultProducts = [
-        { id: '1', categoryId: 'murales', name: "Décoration Murale Prénom", description: "Prénom personnalisé pour chambre d'enfant", price: "À partir de 29€", badge: "Populaire", image: null },
-        { id: '2', categoryId: 'murales', name: "Citation Murale", description: "Votre citation préférée en décoration", price: "À partir de 39€", badge: null, image: null },
-        { id: '3', categoryId: 'murales', name: "Décoration Famille", description: "Les prénoms de toute la famille", price: "À partir de 49€", badge: "Nouveau", image: null },
-        { id: '4', categoryId: 'neon', name: "Néon Prénom", description: "Votre prénom en néon LED lumineux", price: "À partir de 59€", badge: "Best-seller", image: null },
-        { id: '5', categoryId: 'neon', name: "Néon Gaming", description: "Parfait pour votre setup gaming", price: "À partir de 69€", badge: null, image: null },
-        { id: '6', categoryId: 'neon', name: "Néon Citation", description: "Une phrase qui vous inspire", price: "À partir de 79€", badge: null, image: null },
-        { id: '7', categoryId: 'neon', name: "Néon Logo", description: "Votre logo d'entreprise lumineux", price: "Sur devis", badge: "Pro", image: null },
-        { id: '8', categoryId: 'bois', name: "Prénom Bois Gravé", description: "Prénom sculpté dans du bois massif", price: "À partir de 35€", badge: "Artisanal", image: null },
-        { id: '9', categoryId: 'bois', name: "Plaque de Porte", description: "Personnalisez vos portes avec élégance", price: "À partir de 25€", badge: null, image: null },
-        { id: '10', categoryId: 'bois', name: "Cadre Photo Bois", description: "Cadre gravé avec message personnalisé", price: "À partir de 45€", badge: "Nouveau", image: null }
-    ];
-    
     // ===== DOM Elements =====
     const elements = {
         loginScreen: document.getElementById('login-screen'),
@@ -706,38 +686,10 @@
     
     // ===== Firebase Functions =====
     
-    async function checkIfInitialized() {
-        try {
-            const initDoc = await db.collection('settings').doc('initialized').get();
-            return initDoc.exists && initDoc.data().done === true;
-        } catch (error) {
-            return false;
-        }
-    }
-    
-    async function markAsInitialized() {
-        try {
-            await db.collection('settings').doc('initialized').set({ done: true });
-        } catch (error) {
-            console.error('Error marking as initialized:', error);
-        }
-    }
-    
     async function loadCategories() {
         try {
             const snapshot = await db.collection('categories').get();
-            const isInitialized = await checkIfInitialized();
-            
-            if (snapshot.empty && !isInitialized) {
-                console.log('Initializing default categories...');
-                for (const cat of defaultCategories) {
-                    await db.collection('categories').doc(cat.id).set(cat);
-                }
-                categories = [...defaultCategories];
-                await markAsInitialized();
-            } else {
-                categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            }
+            categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
             return categories;
         } catch (error) {
@@ -750,18 +702,7 @@
     async function loadProducts() {
         try {
             const snapshot = await db.collection('products').get();
-            const isInitialized = await checkIfInitialized();
-            
-            if (snapshot.empty && !isInitialized) {
-                console.log('Initializing default products...');
-                for (const prod of defaultProducts) {
-                    await db.collection('products').doc(prod.id).set(prod);
-                }
-                products = [...defaultProducts];
-                await markAsInitialized();
-            } else {
-                products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            }
+            products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
             return products;
         } catch (error) {
@@ -1092,8 +1033,39 @@
         // Load internal notes
         loadOrderNotes(order);
         
+        // Display shipping info if exists
+        displayShippingInfo(order);
+        
         openModal(elements.modalOrder);
         console.log('✅ Modal ouvert');
+    }
+    
+    // ===== DISPLAY SHIPPING INFO =====
+    function displayShippingInfo(order) {
+        const shippingSection = document.getElementById('shipping-info-section');
+        if (!shippingSection) return;
+        
+        if (order.shipping?.trackingNumber) {
+            shippingSection.style.display = 'block';
+            document.getElementById('shipping-carrier').textContent = order.shipping.carrier || 'Mondial Relay';
+            document.getElementById('shipping-tracking').textContent = order.shipping.trackingNumber;
+            
+            const labelLink = document.getElementById('shipping-label-link');
+            const trackingLink = document.getElementById('shipping-tracking-link');
+            
+            if (labelLink && order.shipping.labelUrl) {
+                labelLink.href = order.shipping.labelUrl;
+                labelLink.style.display = 'inline-flex';
+            }
+            
+            if (trackingLink) {
+                trackingLink.href = order.shipping.trackingUrl || 
+                    `https://www.mondialrelay.fr/suivi-de-colis/?numeroExpedition=${order.shipping.trackingNumber}`;
+                trackingLink.style.display = 'inline-flex';
+            }
+        } else {
+            shippingSection.style.display = 'none';
+        }
     }
     
     // ===== ORDER TAGS =====
@@ -1346,6 +1318,228 @@
         printWindow.document.write(printContent);
         printWindow.document.close();
     }
+    
+    // ===== MONDIAL RELAY INTEGRATION =====
+    const MONDIAL_RELAY_API_URL = 'https://api-two-pi-35.vercel.app/api';
+    
+    async function generateMondialRelayLabel() {
+        const order = orders.find(o => o.id === currentOrderId);
+        if (!order) {
+            alert('Commande non trouvée');
+            return;
+        }
+        
+        // Vérifier si l'étiquette existe déjà
+        if (order.shipping?.trackingNumber) {
+            const confirm = window.confirm(
+                `Une étiquette existe déjà (N° ${order.shipping.trackingNumber}).\n\n` +
+                'Voulez-vous ouvrir l\'étiquette existante ?'
+            );
+            if (confirm) {
+                window.open(order.shipping.labelUrl, '_blank');
+            }
+            return;
+        }
+        
+        // Modal pour saisir les infos d'expédition
+        const modal = document.createElement('div');
+        modal.className = 'modal mondial-relay-modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3><i class="fas fa-shipping-fast"></i> Créer étiquette Mondial Relay</h3>
+                    <button class="close-modal" onclick="this.closest('.modal').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mr-shipment-form">
+                        <h4>📦 Informations du colis</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Poids (grammes) *</label>
+                                <input type="number" id="mr-weight" value="500" min="1" max="30000" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mode de livraison</label>
+                                <select id="mr-delivery-mode">
+                                    <option value="24R">Point Relais (24R)</option>
+                                    <option value="24L">Domicile (24L)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" id="mr-parcelshop-group">
+                            <label>Numéro Point Relais (si livraison en relais)</label>
+                            <div class="parcelshop-search">
+                                <input type="text" id="mr-parcelshop-id" placeholder="Ex: 123456">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="searchParcelShops()">
+                                    <i class="fas fa-search"></i> Chercher
+                                </button>
+                            </div>
+                            <div id="mr-parcelshop-results"></div>
+                        </div>
+                        
+                        <hr style="margin: 20px 0;">
+                        
+                        <h4>📍 Destinataire</h4>
+                        <div class="recipient-preview">
+                            <p><strong>${order.customer?.firstName || ''} ${order.customer?.lastName || ''}</strong></p>
+                            <p>${order.customer?.address || 'Adresse non renseignée'}</p>
+                            <p>${order.customer?.postalCode || ''} ${order.customer?.city || ''}</p>
+                            <p>📞 ${order.customer?.phone || 'Non renseigné'}</p>
+                            <p>📧 ${order.customer?.email || 'Non renseigné'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                        Annuler
+                    </button>
+                    <button class="btn btn-primary" onclick="submitMondialRelayShipment()">
+                        <i class="fas fa-tag"></i> Générer l'étiquette
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    async function searchParcelShops() {
+        const order = orders.find(o => o.id === currentOrderId);
+        const postalCode = order?.customer?.postalCode || '';
+        
+        if (!postalCode) {
+            alert('Code postal du client non disponible');
+            return;
+        }
+        
+        const resultsDiv = document.getElementById('mr-parcelshop-results');
+        resultsDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Recherche en cours...</p>';
+        
+        try {
+            const response = await fetch(`${MONDIAL_RELAY_API_URL}/search-relay-points`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ postalCode: postalCode, country: 'FR', nbResults: 5 })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.shops.length > 0) {
+                resultsDiv.innerHTML = `
+                    <div class="parcelshop-list">
+                        ${data.shops.map(shop => `
+                            <div class="parcelshop-item" onclick="selectParcelShop('${shop.id}', '${shop.name}')">
+                                <strong>${shop.name}</strong>
+                                <span>${shop.address}, ${shop.postalCode} ${shop.city}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = '<p class="text-muted">Aucun point relais trouvé</p>';
+            }
+        } catch (error) {
+            console.error('Erreur recherche points relais:', error);
+            resultsDiv.innerHTML = '<p class="text-danger">Erreur lors de la recherche</p>';
+        }
+    }
+    
+    window.selectParcelShop = function(id, name) {
+        document.getElementById('mr-parcelshop-id').value = id;
+        document.getElementById('mr-parcelshop-results').innerHTML = 
+            `<p class="text-success"><i class="fas fa-check"></i> Point relais sélectionné: ${name}</p>`;
+    };
+    
+    window.searchParcelShops = searchParcelShops;
+    
+    async function submitMondialRelayShipment() {
+        const order = orders.find(o => o.id === currentOrderId);
+        if (!order) return;
+        
+        const weight = parseInt(document.getElementById('mr-weight').value);
+        const deliveryMode = document.getElementById('mr-delivery-mode').value;
+        const parcelShopId = document.getElementById('mr-parcelshop-id').value;
+        
+        if (!weight || weight < 1) {
+            alert('Veuillez entrer un poids valide');
+            return;
+        }
+        
+        if (deliveryMode === '24R' && !parcelShopId) {
+            alert('Veuillez sélectionner un point relais pour la livraison en relais');
+            return;
+        }
+        
+        // Afficher le loader
+        const submitBtn = document.querySelector('.mondial-relay-modal .btn-primary');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création en cours...';
+        submitBtn.disabled = true;
+        
+        try {
+            const response = await fetch(`${MONDIAL_RELAY_API_URL}/create-shipment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: order.id,
+                    recipient: {
+                        name: `${order.customer?.firstName || ''} ${order.customer?.lastName || ''}`.trim(),
+                        address: order.customer?.address || '',
+                        postalCode: order.customer?.postalCode || '',
+                        city: order.customer?.city || '',
+                        country: 'FR',
+                        phone: order.customer?.phone || '',
+                        email: order.customer?.email || ''
+                    },
+                    weight: weight,
+                    deliveryMode: deliveryMode,
+                    parcelShopId: parcelShopId || null
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(`✅ Étiquette créée avec succès!\n\nN° Expédition: ${data.shipmentNumber}`);
+                
+                // Fermer la modal
+                document.querySelector('.mondial-relay-modal').remove();
+                
+                // Mettre à jour l'affichage de la commande
+                const orderIndex = orders.findIndex(o => o.id === currentOrderId);
+                if (orderIndex !== -1) {
+                    orders[orderIndex].shipping = {
+                        carrier: 'Mondial Relay',
+                        trackingNumber: data.shipmentNumber,
+                        labelUrl: data.labelUrl,
+                        trackingUrl: data.trackingUrl
+                    };
+                }
+                
+                // Ouvrir l'étiquette
+                window.open(data.labelUrl, '_blank');
+                
+                // Rafraîchir l'affichage
+                viewOrder(currentOrderId);
+                
+            } else {
+                alert(`❌ Erreur: ${data.error}`);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+            
+        } catch (error) {
+            console.error('Erreur création expédition:', error);
+            alert('Erreur lors de la création de l\'étiquette');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+    
+    window.submitMondialRelayShipment = submitMondialRelayShipment;
+    window.generateMondialRelayLabel = generateMondialRelayLabel;
     
     // Expose viewOrder globally for onclick
     window.viewOrder = viewOrder;
@@ -2588,6 +2782,7 @@
         const hasColors = document.getElementById('product-has-colors');
         const hasSizes = document.getElementById('product-has-sizes');
         const hasMaterials = document.getElementById('product-has-materials');
+        const hasText = document.getElementById('product-has-text');
         const requiresImage = document.getElementById('product-requires-image');
         const allowTextColor = document.getElementById('product-allow-text-color');
         
@@ -2596,6 +2791,8 @@
         if (hasMaterials?.checked) hasMaterials.click();
         if (requiresImage?.checked) requiresImage.click();
         if (allowTextColor?.checked) allowTextColor.click();
+        // Récocher le texte par défaut
+        if (!hasText?.checked) hasText?.click();
         
         // Appliquer selon le type
         switch(type) {
@@ -2802,6 +2999,7 @@
         const deliveryDaysValue = product.deliveryDays || '8-14';
         document.getElementById('product-delivery-days').value = deliveryDaysValue;
         document.getElementById('product-badge').value = product.badge || '';
+        document.getElementById('product-has-text').checked = product.hasText !== false; // true par défaut
         document.getElementById('product-requires-image').checked = product.requiresImage || false;
         document.getElementById('product-allow-text-color').checked = product.allowTextColor || false;
         elements.productImageUrl.value = '';
@@ -2940,6 +3138,7 @@
         const cost = document.getElementById('product-cost').value.trim();
         const deliveryDays = document.getElementById('product-delivery-days').value.trim();
         const badge = document.getElementById('product-badge').value.trim();
+        const hasText = document.getElementById('product-has-text').checked;
         const requiresImage = document.getElementById('product-requires-image').checked;
         const allowTextColor = document.getElementById('product-allow-text-color').checked;
         const editId = document.getElementById('product-id').value;
@@ -2968,9 +3167,11 @@
         
         // Get variants
         const colors = getSelectedColors();
+        const textColors = getSelectedTextColors();
         const sizes = getSelectedSizes();
         const materials = getSelectedMaterials();
         const customOptions = getCustomOptions();
+        const productSaleOptions = getSaleOptions();
         
         showLoading(true);
         
@@ -2988,13 +3189,16 @@
             badge: badge || null,
             image: mainImage,
             images: images,
+            hasText: hasText,
             requiresImage: requiresImage,
             allowTextColor: allowTextColor,
+            textColors: textColors,
             mockup: mockupConfig,
             colors: colors,
             sizes: sizes,
             materials: materials,
             customOptions: customOptions,
+            saleOptions: productSaleOptions,
             updatedAt: new Date().toISOString()
         };
         
@@ -3082,6 +3286,7 @@
     
     // ===== VARIANTS MANAGEMENT =====
     let customProductOptions = [];
+    let saleOptions = []; // Options de vente (lots, packs)
     
     function initVariantsHandlers() {
         // Toggle colors options
@@ -3090,6 +3295,25 @@
         if (hasColorsCheckbox && colorsOptions) {
             hasColorsCheckbox.addEventListener('change', function() {
                 colorsOptions.classList.toggle('hidden', !this.checked);
+                if (!this.checked) {
+                    document.getElementById('colors-stock-list').innerHTML = '';
+                }
+            });
+        }
+        
+        // Listen for color selection changes to update stock list
+        document.getElementById('color-picker-grid').addEventListener('change', function(e) {
+            if (e.target.name === 'colors') {
+                updateColorsStockList();
+            }
+        });
+        
+        // Toggle text colors options
+        const allowTextColorCheckbox = document.getElementById('product-allow-text-color');
+        const textColorsOptions = document.getElementById('text-colors-options');
+        if (allowTextColorCheckbox && textColorsOptions) {
+            allowTextColorCheckbox.addEventListener('change', function() {
+                textColorsOptions.classList.toggle('hidden', !this.checked);
             });
         }
         
@@ -3099,8 +3323,18 @@
         if (hasSizesCheckbox && sizesOptions) {
             hasSizesCheckbox.addEventListener('change', function() {
                 sizesOptions.classList.toggle('hidden', !this.checked);
+                if (!this.checked) {
+                    document.getElementById('sizes-stock-list').innerHTML = '';
+                }
             });
         }
+        
+        // Listen for size selection changes to update stock list
+        document.getElementById('size-picker-grid').addEventListener('change', function(e) {
+            if (e.target.name === 'sizes') {
+                updateSizesStockList();
+            }
+        });
         
         // Toggle materials options
         const hasMaterialsCheckbox = document.getElementById('product-has-materials');
@@ -3145,6 +3379,19 @@
             });
         }
         
+        // Add custom text color
+        const addCustomTextColorBtn = document.getElementById('add-custom-text-color');
+        if (addCustomTextColorBtn) {
+            addCustomTextColorBtn.addEventListener('click', function() {
+                const colorPicker = document.getElementById('custom-text-color-picker');
+                const colorNameInput = document.getElementById('custom-text-color-name');
+                const colorHex = colorPicker.value.toUpperCase();
+                const colorName = colorNameInput.value.trim() || colorHex;
+                addTextColorToGrid(colorHex, colorName);
+                colorNameInput.value = '';
+            });
+        }
+        
         // Add custom material
         const addCustomMaterialBtn = document.getElementById('add-custom-material');
         if (addCustomMaterialBtn) {
@@ -3171,6 +3418,38 @@
                 }
             });
         }
+        
+        // Toggle sale options
+        const hasSaleOptionsCheckbox = document.getElementById('product-has-sale-options');
+        const saleOptionsDiv = document.getElementById('sale-options');
+        if (hasSaleOptionsCheckbox && saleOptionsDiv) {
+            hasSaleOptionsCheckbox.addEventListener('change', function() {
+                saleOptionsDiv.classList.toggle('hidden', !this.checked);
+            });
+        }
+        
+        // Add sale option
+        const addSaleOptionBtn = document.getElementById('add-sale-option');
+        if (addSaleOptionBtn) {
+            addSaleOptionBtn.addEventListener('click', function() {
+                const nameInput = document.getElementById('sale-option-name');
+                const priceInput = document.getElementById('sale-option-price');
+                const qtyInput = document.getElementById('sale-option-quantity');
+                
+                const name = nameInput.value.trim();
+                const price = parseFloat(priceInput.value);
+                const quantity = parseInt(qtyInput.value) || 1;
+                
+                if (name && !isNaN(price) && price >= 0) {
+                    addSaleOption(name, price, quantity);
+                    nameInput.value = '';
+                    priceInput.value = '';
+                    qtyInput.value = '1';
+                } else {
+                    alert('Veuillez remplir le nom et le prix de l\'option');
+                }
+            });
+        }
     }
     
     function addColorToGrid(colorHex, colorName) {
@@ -3180,6 +3459,28 @@
         label.innerHTML = `
             <input type="checkbox" name="colors" value="${colorHex}" data-name="${colorName}" checked>
             <span class="color-swatch" style="background:${colorHex}"></span>
+            <span class="color-name">${colorName}</span>
+        `;
+        grid.appendChild(label);
+        // Update stock list after adding
+        setTimeout(updateColorsStockList, 50);
+    }
+    
+    function addTextColorToGrid(colorHex, colorName) {
+        const grid = document.getElementById('text-color-picker-grid');
+        // Check if color already exists
+        const existingInput = grid.querySelector(`input[value="${colorHex}"]`);
+        if (existingInput) {
+            existingInput.checked = true;
+            return;
+        }
+        
+        const label = document.createElement('label');
+        label.className = 'color-option';
+        const isWhite = colorHex.toUpperCase() === '#FFFFFF';
+        label.innerHTML = `
+            <input type="checkbox" name="textColors" value="${colorHex}" data-name="${colorName}" checked>
+            <span class="color-swatch" style="background:${colorHex}; ${isWhite ? 'border:1px solid #ccc;' : ''}"></span>
             <span class="color-name">${colorName}</span>
         `;
         grid.appendChild(label);
@@ -3194,6 +3495,86 @@
             <span class="size-tag">${sizeValue}</span>
         `;
         grid.appendChild(label);
+        // Update stock list after adding
+        setTimeout(updateSizesStockList, 50);
+    }
+    
+    // Update colors stock list
+    function updateColorsStockList(existingStock = null) {
+        const stockList = document.getElementById('colors-stock-list');
+        if (!stockList) return;
+        
+        const selectedColors = [];
+        document.querySelectorAll('input[name="colors"]:checked').forEach(input => {
+            selectedColors.push({
+                hex: input.value,
+                name: input.dataset.name || input.value
+            });
+        });
+        
+        if (selectedColors.length === 0) {
+            stockList.innerHTML = '<p style="font-size: 0.8rem; color: #999; padding: 0.5rem;">Sélectionnez des couleurs ci-dessus</p>';
+            return;
+        }
+        
+        stockList.innerHTML = selectedColors.map(color => {
+            // Check if we have existing stock info
+            let inStock = true;
+            if (existingStock) {
+                const existing = existingStock.find(c => c.hex === color.hex);
+                if (existing) inStock = existing.inStock !== false;
+            }
+            
+            return `
+                <div class="stock-item ${!inStock ? 'out-of-stock' : ''}">
+                    <div class="stock-item-info">
+                        <span class="stock-item-color" style="background: ${color.hex}; ${color.hex.toUpperCase() === '#FFFFFF' ? 'border: 1px solid #ccc;' : ''}"></span>
+                        <span class="stock-item-name">${color.name}</span>
+                    </div>
+                    <div class="stock-toggle">
+                        <label>En stock</label>
+                        <input type="checkbox" name="color-stock" data-hex="${color.hex}" ${inStock ? 'checked' : ''}>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Update sizes stock list
+    function updateSizesStockList(existingStock = null) {
+        const stockList = document.getElementById('sizes-stock-list');
+        if (!stockList) return;
+        
+        const selectedSizes = [];
+        document.querySelectorAll('input[name="sizes"]:checked').forEach(input => {
+            selectedSizes.push(input.value);
+        });
+        
+        if (selectedSizes.length === 0) {
+            stockList.innerHTML = '<p style="font-size: 0.8rem; color: #999; padding: 0.5rem;">Sélectionnez des tailles ci-dessus</p>';
+            return;
+        }
+        
+        stockList.innerHTML = selectedSizes.map(size => {
+            // Check if we have existing stock info
+            let inStock = true;
+            if (existingStock) {
+                const existing = existingStock.find(s => (typeof s === 'object' ? s.value : s) === size);
+                if (existing && typeof existing === 'object') inStock = existing.inStock !== false;
+            }
+            
+            return `
+                <div class="stock-item ${!inStock ? 'out-of-stock' : ''}">
+                    <div class="stock-item-info">
+                        <span class="stock-item-name">${size}</span>
+                    </div>
+                    <div class="stock-toggle">
+                        <label>En stock</label>
+                        <input type="checkbox" name="size-stock" data-value="${size}" ${inStock ? 'checked' : ''}>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
     
     function addMaterialToGrid(materialValue) {
@@ -3239,12 +3620,69 @@
         removeCustomOption(index);
     };
     
+    // ===== SALE OPTIONS (LOTS, PACKS) =====
+    function addSaleOption(name, price, quantity) {
+        saleOptions.push({ name, price, quantity });
+        renderSaleOptionsList();
+    }
+    
+    function removeSaleOption(index) {
+        saleOptions.splice(index, 1);
+        renderSaleOptionsList();
+    }
+    
+    function renderSaleOptionsList() {
+        const list = document.getElementById('sale-options-list');
+        if (!list) return;
+        
+        list.innerHTML = saleOptions.map((opt, i) => `
+            <div class="sale-option-item">
+                <div class="option-info">
+                    <span class="option-name">${opt.name}</span>
+                    <span class="option-details">${opt.price.toFixed(2)}€ ${opt.quantity > 1 ? `(${opt.quantity} pièces)` : ''}</span>
+                </div>
+                <button type="button" class="btn-remove" onclick="window.removeSaleOption(${i})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+    
+    window.removeSaleOption = function(index) {
+        removeSaleOption(index);
+    };
+    
+    function getSaleOptions() {
+        const hasSaleOptions = document.getElementById('product-has-sale-options');
+        if (!hasSaleOptions || !hasSaleOptions.checked || saleOptions.length === 0) return null;
+        return saleOptions;
+    }
+    
     function getSelectedColors() {
         const hasColors = document.getElementById('product-has-colors').checked;
         if (!hasColors) return null;
         
         const selected = [];
         document.querySelectorAll('input[name="colors"]:checked').forEach(input => {
+            // Check if there's a stock toggle for this color
+            const stockToggle = document.querySelector(`input[name="color-stock"][data-hex="${input.value}"]`);
+            const inStock = stockToggle ? stockToggle.checked : true;
+            
+            selected.push({
+                hex: input.value,
+                name: input.dataset.name || input.value,
+                inStock: inStock
+            });
+        });
+        return selected.length > 0 ? selected : null;
+    }
+    
+    function getSelectedTextColors() {
+        const allowTextColor = document.getElementById('product-allow-text-color').checked;
+        if (!allowTextColor) return null;
+        
+        const selected = [];
+        document.querySelectorAll('input[name="textColors"]:checked').forEach(input => {
             selected.push({
                 hex: input.value,
                 name: input.dataset.name || input.value
@@ -3259,7 +3697,14 @@
         
         const selected = [];
         document.querySelectorAll('input[name="sizes"]:checked').forEach(input => {
-            selected.push(input.value);
+            // Check if there's a stock toggle for this size
+            const stockToggle = document.querySelector(`input[name="size-stock"][data-value="${input.value}"]`);
+            const inStock = stockToggle ? stockToggle.checked : true;
+            
+            selected.push({
+                value: input.value,
+                inStock: inStock
+            });
         });
         return selected.length > 0 ? selected : null;
     }
@@ -3284,27 +3729,37 @@
     
     function resetVariantsForm() {
         // Reset checkboxes
-        const checkboxIds = ['product-has-colors', 'product-has-sizes', 'product-has-materials', 'product-has-custom-options'];
+        const checkboxIds = ['product-has-colors', 'product-has-sizes', 'product-has-materials', 'product-has-custom-options', 'product-has-sale-options', 'product-allow-text-color'];
         checkboxIds.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.checked = false;
         });
         
         // Hide all variant options
-        const optionIds = ['colors-options', 'sizes-options', 'materials-options', 'custom-options'];
+        const optionIds = ['colors-options', 'sizes-options', 'materials-options', 'custom-options', 'sale-options', 'text-colors-options'];
         optionIds.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
         });
         
-        // Uncheck all color/size/material checkboxes
-        document.querySelectorAll('input[name="colors"], input[name="sizes"], input[name="materials"]').forEach(input => {
+        // Uncheck all color/size/material/text color checkboxes
+        document.querySelectorAll('input[name="colors"], input[name="sizes"], input[name="materials"], input[name="textColors"]').forEach(input => {
             input.checked = false;
         });
+        
+        // Clear stock lists
+        const colorsStockList = document.getElementById('colors-stock-list');
+        const sizesStockList = document.getElementById('sizes-stock-list');
+        if (colorsStockList) colorsStockList.innerHTML = '';
+        if (sizesStockList) sizesStockList.innerHTML = '';
         
         // Reset custom options
         customProductOptions = [];
         renderCustomOptionsList();
+        
+        // Reset sale options
+        saleOptions = [];
+        renderSaleOptionsList();
     }
     
     function loadVariantsForEdit(product) {
@@ -3320,6 +3775,23 @@
                     addColorToGrid(color.hex, color.name);
                 }
             });
+            // Update stock list with existing stock info
+            setTimeout(() => updateColorsStockList(product.colors), 100);
+        }
+        
+        // Load text colors
+        if (product.textColors && product.textColors.length > 0) {
+            document.getElementById('product-allow-text-color').checked = true;
+            document.getElementById('text-colors-options').classList.remove('hidden');
+            product.textColors.forEach(color => {
+                const input = document.querySelector(`input[name="textColors"][value="${color.hex}"]`);
+                if (input) {
+                    input.checked = true;
+                } else {
+                    // Add custom color that's not in the default grid
+                    addTextColorToGrid(color.hex, color.name);
+                }
+            });
         }
         
         // Load sizes
@@ -3327,13 +3799,17 @@
             document.getElementById('product-has-sizes').checked = true;
             document.getElementById('sizes-options').classList.remove('hidden');
             product.sizes.forEach(size => {
-                const input = document.querySelector(`input[name="sizes"][value="${size}"]`);
+                // Support both old format (string) and new format (object with inStock)
+                const sizeValue = typeof size === 'object' ? size.value : size;
+                const input = document.querySelector(`input[name="sizes"][value="${sizeValue}"]`);
                 if (input) {
                     input.checked = true;
                 } else {
-                    addSizeToGrid(size);
+                    addSizeToGrid(sizeValue);
                 }
             });
+            // Update stock list with existing stock info
+            setTimeout(() => updateSizesStockList(product.sizes), 100);
         }
         
         // Load materials
@@ -3356,6 +3832,14 @@
             document.getElementById('custom-options').classList.remove('hidden');
             customProductOptions = [...product.customOptions];
             renderCustomOptionsList();
+        }
+        
+        // Load sale options
+        if (product.saleOptions && product.saleOptions.length > 0) {
+            document.getElementById('product-has-sale-options').checked = true;
+            document.getElementById('sale-options').classList.remove('hidden');
+            saleOptions = [...product.saleOptions];
+            renderSaleOptionsList();
         }
     }
     
@@ -3754,6 +4238,12 @@
         const btnPrintLabel = document.getElementById('btn-print-label');
         if (btnPrintLabel) {
             btnPrintLabel.addEventListener('click', printLabel);
+        }
+        
+        // Mondial Relay button
+        const btnMondialRelay = document.getElementById('btn-mondial-relay');
+        if (btnMondialRelay) {
+            btnMondialRelay.addEventListener('click', generateMondialRelayLabel);
         }
         
         // Newsletter export button

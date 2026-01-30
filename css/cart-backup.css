@@ -591,21 +591,23 @@
     font-size: 1.4rem;
 }
 
-/* Form Layout - Simplified Single Column */
+/* Form Layout */
 .checkout-form {
-    max-width: 600px;
-    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    align-items: start;
 }
 
-.checkout-main-column {
+.checkout-left-column {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
 }
 
 @media (max-width: 900px) {
     .checkout-form {
-        max-width: 100%;
+        grid-template-columns: 1fr;
     }
 }
 
@@ -763,50 +765,6 @@
     border-color: rgba(212, 175, 55, 0.3);
 }
 
-/* Pro Toggle Checkbox */
-.pro-toggle {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.pro-toggle-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.85rem;
-    transition: color 0.3s ease;
-}
-
-.pro-toggle-label:hover {
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.pro-toggle-label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #D4AF37;
-    cursor: pointer;
-}
-
-.pro-fields-inline {
-    margin-top: 15px;
-    padding: 15px;
-    background: rgba(212, 175, 55, 0.05);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    border-radius: 10px;
-}
-
-.pro-fields-inline .form-group {
-    margin-bottom: 12px;
-}
-
-.pro-fields-inline .form-group:last-child {
-    margin-bottom: 0;
-}
-
 .pro-info-notice {
     display: flex;
     align-items: center;
@@ -847,45 +805,6 @@
 /* Promo Code / Gift Card Styles */
 .promo-code-wrapper {
     margin-top: 5px;
-}
-
-/* Promo Section Collapsible */
-.promo-section-collapsible {
-    padding: 0 !important;
-    overflow: hidden;
-}
-
-.promo-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 20px;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.promo-header:hover {
-    color: #D4AF37;
-    background: rgba(212, 175, 55, 0.05);
-}
-
-.promo-header i:first-child {
-    margin-right: 10px;
-    color: #D4AF37;
-}
-
-.promo-chevron {
-    transition: transform 0.3s ease;
-}
-
-.promo-chevron.open {
-    transform: rotate(180deg);
-}
-
-.promo-content {
-    padding: 0 20px 20px;
 }
 
 .promo-input-group {
@@ -1113,76 +1032,6 @@
 .secure-badge i {
     color: #4caf50;
     font-size: 1rem;
-}
-
-/* Secure Badges Row */
-.secure-badges {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 20px;
-    padding: 16px 20px;
-    background: rgba(76, 175, 80, 0.06);
-    border: 1px solid rgba(76, 175, 80, 0.12);
-    border-radius: 10px;
-}
-
-.secure-badges .secure-badge {
-    margin: 0;
-    padding: 0;
-    background: none;
-    border: none;
-}
-
-.payment-icons {
-    display: flex;
-    gap: 10px;
-    font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.5);
-}
-
-/* Checkout Summary Inline */
-.checkout-summary-inline {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 20px;
-}
-
-.checkout-summary-inline .summary-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
-}
-
-.checkout-summary-inline .summary-row:not(:last-child) {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.checkout-summary-inline .total-row {
-    padding-top: 12px;
-    margin-top: 4px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-bottom: none !important;
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #D4AF37;
-}
-
-.checkout-summary-inline .discount-amount {
-    color: #4caf50;
-}
-
-.checkout-summary-inline .free-shipping-notice {
-    text-align: center;
-    color: #4caf50;
-    font-size: 0.85rem;
-    margin-top: 12px;
-    padding: 10px;
-    background: rgba(76, 175, 80, 0.1);
-    border-radius: 8px;
 }
 
 /* Test Mode Notice */
@@ -1546,18 +1395,6 @@
     opacity: 1;
 }
 
-/* Mondial Relay Badge */
-.mr-badge {
-    background: linear-gradient(135deg, #e30613, #c00510);
-    color: white;
-    font-weight: 800;
-    font-size: 0.75rem;
-    padding: 6px 10px;
-    border-radius: 6px;
-    letter-spacing: 1px;
-    flex-shrink: 0;
-}
-
 .delivery-section-title {
     font-size: 0.9rem;
     font-weight: 600;
@@ -1811,49 +1648,5 @@
     .btn-select-relay {
         width: 100%;
         margin-top: 10px;
-    }
-    
-    /* Simplified checkout mobile */
-    .checkout-form {
-        padding: 0 10px;
-    }
-    
-    .form-section {
-        padding: 20px 15px;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-    
-    .delivery-method-selector {
-        flex-direction: column;
-    }
-    
-    .delivery-option {
-        width: 100%;
-    }
-    
-    .promo-input-group {
-        flex-direction: column;
-    }
-    
-    .promo-input-group input {
-        width: 100%;
-    }
-    
-    .btn-apply-promo {
-        width: 100%;
-    }
-    
-    .secure-badges {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-    
-    .checkout-summary-inline .total-row {
-        font-size: 1rem;
     }
 }

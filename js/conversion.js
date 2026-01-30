@@ -6,7 +6,7 @@
 const FCConversion = (function() {
     
     // Configuration
-    const FREE_SHIPPING_THRESHOLD = 100;
+    const FREE_SHIPPING_THRESHOLD = 69;
     
     // =============================================
     // 1. BARRE LIVRAISON GRATUITE (DÉSACTIVÉE)

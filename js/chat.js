@@ -45,13 +45,13 @@ const FCChat = (function() {
         
         // Frais de port
         'frais de port|frais de livraison|port gratuit|livraison gratuite|combien coûte la livraison|prix livraison': {
-            response: 'La livraison est **100% gratuite** en France métropolitaine, sans minimum d\'achat ! Pour les DOM-TOM et l\'international, les frais sont calculés au checkout. 📦',
+            response: 'La livraison est **gratuite** en France métropolitaine à partir de 79€ d\'achat ! Pour les DOM-TOM et l\'Europe, les frais sont calculés au checkout. 📦',
             quickReplies: ['Livraison internationale', 'Délais de livraison', 'Autre question']
         },
         
         // Livraison internationale
         'international|étranger|belgique|suisse|canada|hors france|dom tom': {
-            response: 'Nous livrons dans toute l\'Europe et au Canada ! Les frais de livraison internationale sont calculés automatiquement lors du paiement selon votre pays. Comptez 10 à 15 jours ouvrés. 🌍',
+            response: 'Nous livrons dans toute l\'Europe ! Les frais de livraison sont calculés automatiquement lors du paiement selon votre pays. Comptez 10 à 15 jours ouvrés. 🌍',
             quickReplies: ['Délais de livraison', 'Autre question']
         },
         

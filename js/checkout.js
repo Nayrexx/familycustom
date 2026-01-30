@@ -25,6 +25,16 @@
     let discountAmount = 0;
     let isFreeShipping = false;
     
+    // Delivery method
+    let deliveryMethod = 'home'; // 'home' or 'relay'
+    let selectedRelayPoint = null;
+    const HOME_SHIPPING_COST = 6.90;
+    const RELAY_SHIPPING_COST = 4.50;
+    const FREE_SHIPPING_THRESHOLD = 69;
+    
+    // API Vercel URL for Mondial Relay
+    const MONDIAL_RELAY_API_URL = 'https://api-two-pi-35.vercel.app/api';
+    
     document.addEventListener('DOMContentLoaded', function() {
         // Check if cart is empty
         const cart = FCCart.getCart();
@@ -37,6 +47,7 @@
         initStripe();
         setupForm();
         setupCustomerTypeSelector();
+        setupDeliverySelector();
         setupPromoCode();
     });
     
@@ -87,6 +98,99 @@
                 e.target.value = formatted;
             });
         }
+    }
+    
+    // ===== DELIVERY METHOD SELECTOR =====
+    function setupDeliverySelector() {
+        const deliveryOptions = document.querySelectorAll('.delivery-option');
+        const homeSection = document.getElementById('home-delivery-section');
+        const relaySection = document.getElementById('relay-delivery-section');
+        const addressInput = document.getElementById('address');
+        const postalCodeInput = document.getElementById('postalCode');
+        const cityInput = document.getElementById('city');
+        
+        if (!deliveryOptions.length) return;
+        
+        // Listen for relay point selection from MR Widget
+        window.addEventListener('relayPointSelected', function(e) {
+            const data = e.detail;
+            selectedRelayPoint = {
+                id: data.ID,
+                name: data.Nom,
+                address: data.Adresse1,
+                postalCode: data.CP,
+                city: data.Ville,
+                country: data.Pays
+            };
+            console.log('Relay point selected via widget:', selectedRelayPoint);
+        });
+        
+        // Handle delivery method selection
+        deliveryOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                deliveryOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                deliveryMethod = this.dataset.method;
+                
+                if (deliveryMethod === 'home') {
+                    homeSection.style.display = 'block';
+                    relaySection.style.display = 'none';
+                    addressInput.required = true;
+                    postalCodeInput.required = true;
+                    cityInput.required = true;
+                    selectedRelayPoint = null;
+                } else {
+                    homeSection.style.display = 'none';
+                    relaySection.style.display = 'block';
+                    addressInput.required = false;
+                    postalCodeInput.required = false;
+                    cityInput.required = false;
+                }
+                
+                // Recalculate order total
+                renderOrderSummary();
+            });
+        });
+
+        // Update home delivery price display
+        updateHomeDeliveryPrice();
+    }
+    
+    function updateHomeDeliveryPrice() {
+        const subtotal = FCCart.getCartTotal();
+        const priceEl = document.getElementById('home-delivery-price');
+        if (priceEl) {
+            if (subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipping) {
+                priceEl.textContent = 'Gratuit';
+                priceEl.classList.add('free');
+            } else {
+                priceEl.textContent = HOME_SHIPPING_COST.toFixed(2).replace('.', ',') + '€';
+                priceEl.classList.remove('free');
+            }
+        }
+    }
+    
+    // Validate relay point is selected before payment
+    function validateRelaySelection() {
+        if (deliveryMethod === 'relay') {
+            const relayId = document.getElementById('selected-relay-id')?.value;
+            if (!relayId) {
+                alert('Veuillez sélectionner un point relais sur la carte');
+                return false;
+            }
+            // Set selectedRelayPoint from hidden field if not already set
+            if (!selectedRelayPoint) {
+                const relayData = document.getElementById('selected-relay-data')?.value;
+                if (relayData) {
+                    selectedRelayPoint = JSON.parse(relayData);
+                }
+            }
+        }
+        return true;
     }
     
     // Setup Promo Code / Gift Card
@@ -235,14 +339,20 @@
         const cart = FCCart.getCart();
         
         const subtotal = FCCart.getCartTotal();
-        let shipping = subtotal >= 100 ? 0 : 9.90;
         
-        // Free shipping promo
-        if (isFreeShipping && shipping > 0) {
+        // Calculate shipping based on delivery method
+        let shipping = 0;
+        if (subtotal >= FREE_SHIPPING_THRESHOLD) {
             shipping = 0;
+        } else if (isFreeShipping) {
+            shipping = 0;
+        } else if (deliveryMethod === 'relay') {
+            shipping = RELAY_SHIPPING_COST;
+        } else {
+            shipping = HOME_SHIPPING_COST;
         }
         
-        originalTotal = subtotal + (isFreeShipping ? 0 : (subtotal >= 100 ? 0 : 9.90));
+        originalTotal = subtotal + (isFreeShipping ? 0 : (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : (deliveryMethod === 'relay' ? RELAY_SHIPPING_COST : HOME_SHIPPING_COST)));
         
         // Calculate discount (not applied to free shipping type)
         let actualDiscount = discountAmount;
@@ -284,10 +394,11 @@
             `;
         }
         
-        // Shipping display
+        // Shipping display with delivery method info
         let shippingDisplay = '';
-        if (subtotal >= 100 || isFreeShipping) {
-            shippingDisplay = `<span class="order-item-price" style="color: #2ecc71;">Gratuite${isFreeShipping && subtotal < 100 ? ' <small>(promo)</small>' : ''}</span>`;
+        let shippingLabel = deliveryMethod === 'relay' ? 'Point Relais' : 'Livraison domicile';
+        if (subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipping) {
+            shippingDisplay = `<span class="order-item-price" style="color: #2ecc71;">Gratuite${isFreeShipping && subtotal < FREE_SHIPPING_THRESHOLD ? ' <small>(promo)</small>' : ''}</span>`;
         } else {
             shippingDisplay = `<span class="order-item-price">${shipping.toFixed(2)}€</span>`;
         }
@@ -298,7 +409,10 @@
                 ${itemsHTML}
             </div>
             <div class="order-item">
-                <span class="order-item-name">Livraison</span>
+                <span class="order-item-name">
+                    ${shippingLabel}
+                    ${deliveryMethod === 'relay' ? '<small style="color: var(--gold);"> <i class="fas fa-map-marker-alt"></i> Mondial Relay</small>' : ''}
+                </span>
                 ${shippingDisplay}
             </div>
             ${discountHTML}
@@ -310,8 +424,61 @@
         
         document.getElementById('total-amount').textContent = orderTotal.toFixed(2);
         
+        // Update inline summary in payment section
+        updateInlineSummary(subtotal, shipping, actualDiscount);
+        
+        // Update home delivery price in selector
+        updateHomeDeliveryPrice();
+        
         // Gérer l'affichage du formulaire de paiement si commande gratuite
         updatePaymentFormVisibility();
+    }
+    
+    // Update the inline checkout summary
+    function updateInlineSummary(subtotal, shipping, discount) {
+        const summarySubtotal = document.getElementById('summary-subtotal');
+        const summaryDiscount = document.getElementById('summary-discount');
+        const discountRow = document.getElementById('summary-discount-row');
+        const discountLabel = document.getElementById('discount-label');
+        const summaryShipping = document.getElementById('summary-shipping');
+        const summaryTotal = document.getElementById('summary-total');
+        const freeShippingNotice = document.getElementById('free-shipping-notice');
+        
+        if (summarySubtotal) {
+            summarySubtotal.textContent = subtotal.toFixed(2).replace('.', ',') + '€';
+        }
+        
+        if (discountRow && summaryDiscount) {
+            if (discount > 0) {
+                discountRow.style.display = 'flex';
+                summaryDiscount.textContent = '-' + discount.toFixed(2).replace('.', ',') + '€';
+                if (discountLabel) {
+                    if (appliedGiftCard) {
+                        discountLabel.textContent = 'Carte cadeau';
+                    } else if (appliedPromoCode) {
+                        discountLabel.textContent = 'Code promo';
+                    }
+                }
+            } else {
+                discountRow.style.display = 'none';
+            }
+        }
+        
+        if (summaryShipping) {
+            if (subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipping) {
+                summaryShipping.textContent = 'Gratuit';
+                summaryShipping.style.color = '#4caf50';
+                if (freeShippingNotice) freeShippingNotice.style.display = 'block';
+            } else {
+                summaryShipping.textContent = shipping.toFixed(2).replace('.', ',') + '€';
+                summaryShipping.style.color = '';
+                if (freeShippingNotice) freeShippingNotice.style.display = 'none';
+            }
+        }
+        
+        if (summaryTotal) {
+            summaryTotal.textContent = orderTotal.toFixed(2).replace('.', ',') + '€';
+        }
     }
     
     // Afficher/Masquer le formulaire de paiement selon le total
@@ -454,6 +621,16 @@
             const btnText = document.getElementById('btn-text');
             const spinner = document.getElementById('spinner');
             
+            // Validate relay point if delivery method is relay
+            if (deliveryMethod === 'relay') {
+                if (!validateRelaySelection()) {
+                    submitBtn.disabled = false;
+                    btnText.style.display = 'block';
+                    spinner.style.display = 'none';
+                    return;
+                }
+            }
+            
             // Disable button
             submitBtn.disabled = true;
             btnText.style.display = 'none';
@@ -466,11 +643,27 @@
                 lastName: document.getElementById('lastName').value,
                 email: document.getElementById('email').value,
                 phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value,
-                postalCode: document.getElementById('postalCode').value,
-                city: document.getElementById('city').value,
-                notes: document.getElementById('notes').value
+                deliveryMethod: deliveryMethod,
+                address: deliveryMethod === 'home' ? document.getElementById('address').value : '',
+                postalCode: deliveryMethod === 'home' ? document.getElementById('postalCode').value : '',
+                city: deliveryMethod === 'home' ? document.getElementById('city').value : '',
+                notes: document.getElementById('notes')?.value || ''
             };
+            
+            // Add relay point info if applicable
+            if (deliveryMethod === 'relay' && selectedRelayPoint) {
+                formData.relayPoint = {
+                    id: selectedRelayPoint.id,
+                    name: selectedRelayPoint.name,
+                    address: selectedRelayPoint.address,
+                    postalCode: selectedRelayPoint.postalCode,
+                    city: selectedRelayPoint.city
+                };
+                // Use relay point address for shipping
+                formData.address = selectedRelayPoint.address;
+                formData.postalCode = selectedRelayPoint.postalCode;
+                formData.city = selectedRelayPoint.city;
+            }
             
             // Add pro fields if professional
             if (customerType === 'professionnel') {
@@ -633,11 +826,17 @@
     async function saveOrder(customerData, paymentMethod, paymentRef, sendEmails = true) {
         const cart = FCCart.getCart();
         const subtotal = FCCart.getCartTotal();
-        let shipping = subtotal >= 100 ? 0 : 9.90;
         
-        // Apply free shipping promo
-        if (isFreeShipping) {
+        // Calculate shipping based on delivery method
+        let shipping = 0;
+        if (subtotal >= FREE_SHIPPING_THRESHOLD) {
             shipping = 0;
+        } else if (isFreeShipping) {
+            shipping = 0;
+        } else if (deliveryMethod === 'relay') {
+            shipping = RELAY_SHIPPING_COST;
+        } else {
+            shipping = HOME_SHIPPING_COST;
         }
         
         const totalBeforeDiscount = subtotal + shipping;
@@ -667,6 +866,8 @@
             items: cart,
             subtotal: subtotal,
             shipping: shipping,
+            shippingMethod: deliveryMethod,
+            relayPoint: customerData.relayPoint || null,
             discount: discountInfo,
             total: finalTotal,
             paymentMethod: paymentMethod,

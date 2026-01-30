@@ -448,6 +448,62 @@
     color: #fff;
 }
 
+/* Out of Stock Variants */
+.variant-btn.out-of-stock {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    position: relative;
+}
+
+.color-options .variant-btn.out-of-stock {
+    filter: grayscale(70%);
+}
+
+.color-options .variant-btn.out-of-stock::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #ff4444;
+    transform: rotate(-45deg);
+}
+
+.color-options .variant-btn .out-of-stock-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff4444;
+    color: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+}
+
+.size-options .variant-btn.out-of-stock {
+    background: #f0f0f0;
+    color: #999;
+    text-decoration: line-through;
+}
+
+.size-options .variant-btn.out-of-stock .out-of-stock-text {
+    display: block;
+    font-size: 0.65rem;
+    color: #ff4444;
+    text-decoration: none;
+    margin-top: 2px;
+}
+
+.variant-btn.out-of-stock:hover {
+    border-color: #ff4444;
+    transform: none;
+}
+
 /* Material Options */
 .material-options .variant-btn {
     padding: 0.6rem 1rem;
@@ -513,6 +569,82 @@
     background: #1a1a2e;
     border-color: #1a1a2e;
     color: #fff;
+}
+
+/* Sale Options (Lots, Packs) */
+.sale-options-group {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.sale-options-group label {
+    color: #1a1a2e;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sale-options-group label i {
+    color: #c9a87c;
+}
+
+.sale-variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.sale-option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.sale-option-btn:hover {
+    border-color: #c9a87c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.sale-option-btn.selected {
+    background: linear-gradient(135deg, #1a1a2e, #2a2a4e);
+    border-color: #c9a87c;
+    color: #fff;
+}
+
+.sale-option-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.sale-option-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #c9a87c;
+}
+
+.sale-option-btn.selected .sale-option-price {
+    color: #ffd700;
+}
+
+/* Price display with sale option */
+.product-price .sale-option-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #666;
+    margin-top: 0.25rem;
 }
 
 /* Upload Zone */

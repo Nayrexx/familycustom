@@ -903,6 +903,93 @@ body {
     border-top: 1px dashed #ddd;
 }
 
+/* Stock Management */
+.stock-management {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #eee;
+}
+
+.stock-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.stock-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.stock-item-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stock-item-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.stock-item-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.stock-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stock-toggle label {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.stock-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.stock-item.out-of-stock {
+    background: #fee2e2;
+    opacity: 0.7;
+}
+
+.stock-item.out-of-stock .stock-item-name {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.stock-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.stock-badge.in-stock {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.stock-badge.out-of-stock {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
 .custom-size-add input,
 .custom-material-add input,
 .custom-color-add input[type="text"] {
@@ -1023,6 +1110,77 @@ body {
     cursor: pointer;
     padding: 0.25rem;
     font-size: 1rem;
+}
+
+/* Sale Options (Lots, Packs) */
+.sale-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.sale-option-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #a5d6a7;
+}
+
+.sale-option-item .option-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.sale-option-item .option-name {
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+.sale-option-item .option-details {
+    font-size: 0.85rem;
+    color: #388e3c;
+}
+
+.sale-option-item .btn-remove {
+    background: none;
+    border: none;
+    color: #c62828;
+    cursor: pointer;
+    padding: 0.25rem;
+    font-size: 1rem;
+}
+
+.sale-option-add {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.sale-option-add input[type="text"] {
+    flex: 2;
+    min-width: 120px;
+}
+
+.sale-option-add input[type="number"] {
+    flex: 1;
+    min-width: 70px;
+}
+
+.variant-help {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.variant-help i {
+    color: #2196f3;
 }
 
 .btn-sm {
@@ -2375,6 +2533,184 @@ body {
 
 .order-notes-section .btn {
     margin-top: 0.5rem;
+}
+
+/* ===== MONDIAL RELAY INTEGRATION ===== */
+.btn-mondial-relay {
+    background: linear-gradient(135deg, #C41230 0%, #8B0D22 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-mondial-relay:hover {
+    background: linear-gradient(135deg, #D4233F 0%, #A01029 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(196, 18, 48, 0.3);
+}
+
+.btn-mondial-relay i {
+    font-size: 1rem;
+}
+
+/* Shipping Info Section */
+.shipping-info-section {
+    background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.shipping-info-section h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.shipping-info-section h4 i {
+    color: #C41230;
+}
+
+.shipping-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.shipping-carrier {
+    font-weight: 600;
+    color: #C41230;
+}
+
+.shipping-tracking {
+    font-family: monospace;
+    background: #f0f0f0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Mondial Relay Modal Styles */
+.mondial-relay-modal .modal-content {
+    max-width: 600px;
+}
+
+.mr-shipment-form h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.mr-shipment-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.mr-shipment-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.mr-shipment-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.mr-shipment-form input,
+.mr-shipment-form select {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.mr-shipment-form input:focus,
+.mr-shipment-form select:focus {
+    border-color: #C41230;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(196, 18, 48, 0.1);
+}
+
+.parcelshop-search {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.parcelshop-search input {
+    flex: 1;
+}
+
+.parcelshop-list {
+    margin-top: 0.75rem;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+
+.parcelshop-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.parcelshop-item:last-child {
+    border-bottom: none;
+}
+
+.parcelshop-item:hover {
+    background: #f8f9ff;
+}
+
+.parcelshop-item strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.parcelshop-item span {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.recipient-preview {
+    background: #f9f9f9;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #C41230;
+}
+
+.recipient-preview p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.text-success {
+    color: #22c55e;
+}
+
+.text-danger {
+    color: #ef4444;
+}
+
+.text-muted {
+    color: #888;
+    font-style: italic;
 }
 
 /* ===== MODAL FOOTER SPLIT ===== */

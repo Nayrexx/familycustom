@@ -607,8 +607,8 @@ async function initVisitorsCounter() {
         }
         
         if (typeof firebase !== 'undefined' && firebase.database) {
-            // Initialiser Realtime Database si pas déjà fait
-            const database = firebase.database();
+            // Utiliser l'URL de la région europe-west1
+            const database = firebase.app().database('https://family-custom-default-rtdb.europe-west1.firebasedatabase.app');
             
             // Référence au compteur de visiteurs
             visitorCountRef = database.ref('presence/count');

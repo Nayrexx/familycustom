@@ -370,6 +370,8 @@
                         currentSizeBtn.classList.remove('selected');
                         firstAvailableBtn.classList.add('selected');
                         selectedSize = firstAvailableBtn.dataset.size;
+                        // Update price when size changes due to availability
+                        updatePriceDisplay();
                     }
                 }
             };
@@ -447,8 +449,13 @@
                     sizeOptions.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
                     selectedSize = this.dataset.size;
+                    // Update price display when size changes
+                    updatePriceDisplay();
                 });
             });
+            
+            // Update price display for initial size selection
+            updatePriceDisplay();
         }
         
         // Check and render materials
@@ -1085,15 +1092,34 @@
         elements.quantityDisplay.textContent = quantity;
     }
     
-    // Update price display based on selected sale option
+    // Update price display based on selected sale option and size price
     function updatePriceDisplay() {
         if (!elements.productPrice) return;
         
+        let currentPrice = product.price;
+        
+        // Check if there's a size-specific price
+        if (selectedSize && product.sizePrices && product.sizePrices[selectedSize] !== undefined) {
+            currentPrice = product.sizePrices[selectedSize];
+        }
+        
+        // Sale option overrides everything
         if (selectedSaleOption) {
             elements.productPrice.textContent = selectedSaleOption.price.toFixed(2) + '€';
         } else {
-            elements.productPrice.textContent = product.price + '€';
+            elements.productPrice.textContent = parseFloat(currentPrice).toFixed(2) + '€';
         }
+    }
+    
+    // Get current price based on selected size
+    function getCurrentPrice() {
+        if (selectedSaleOption) {
+            return selectedSaleOption.price;
+        }
+        if (selectedSize && product.sizePrices && product.sizePrices[selectedSize] !== undefined) {
+            return product.sizePrices[selectedSize];
+        }
+        return product.price;
     }
     
     // Add to cart
@@ -1135,8 +1161,8 @@
             variants.saleOption = selectedSaleOption;
         }
         
-        // Use sale option price if selected, otherwise use product price
-        const finalPrice = selectedSaleOption ? selectedSaleOption.price : product.price;
+        // Use sale option price if selected, then size price, otherwise use product price
+        const finalPrice = getCurrentPrice();
         const finalQuantity = selectedSaleOption ? (selectedSaleOption.quantity || 1) * quantity : quantity;
         
         const productData = {
@@ -1205,7 +1231,7 @@
         const productData = {
             id: product.id,
             name: product.name,
-            price: product.price,
+            price: getCurrentPrice(),
             image: product.image || null,
             variants: Object.keys(variants).length > 0 ? variants : null
         };

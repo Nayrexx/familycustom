@@ -2,6 +2,9 @@
 const LAUNCH_DATE = new Date('2026-02-02T20:00:00').getTime();
 const ADMIN_PASSWORD = 'Louane2009'; // Changez ce mot de passe
 
+// Firebase Realtime Database config (pour le compteur de visiteurs)
+const FIREBASE_RTDB_URL = 'https://family-custom-default-rtdb.europe-west1.firebasedatabase.app';
+
 // Cacher immédiatement le contenu si le site n'est pas lancé
 (function() {
     const now = Date.now();
@@ -41,6 +44,13 @@ function createComingSoonOverlay() {
             <div class="cs-grain"></div>
             <div class="cs-glow cs-glow-1"></div>
             <div class="cs-glow cs-glow-2"></div>
+        </div>
+        
+        <!-- Compteur de visiteurs en haut à droite -->
+        <div class="cs-visitors-topright" id="cs-visitors">
+            <div class="cs-visitors-dot"></div>
+            <span class="cs-visitors-count" id="visitors-count">0</span>
+            <span class="cs-visitors-text">visiteurs en ligne</span>
         </div>
         
         <div class="cs-container">
@@ -311,6 +321,62 @@ function createComingSoonOverlay() {
             font-weight: 500;
         }
         
+        /* Visitors Counter - Top Right */
+        .cs-visitors-topright {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(-10px);
+            animation: fadeInDown 0.8s ease 0.3s forwards;
+        }
+        
+        @keyframes fadeInDown {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .cs-visitors-topright .cs-visitors-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: visitorPulse 2s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
+        
+        @keyframes visitorPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+        
+        .cs-visitors-topright .cs-visitors-count {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+            min-width: 25px;
+            text-align: center;
+        }
+        
+        .cs-visitors-topright .cs-visitors-text {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+        }
+        
         /* Socials */
         .cs-socials {
             display: flex;
@@ -454,6 +520,21 @@ function createComingSoonOverlay() {
         
         /* Responsive */
         @media (max-width: 480px) {
+            .cs-visitors-topright {
+                top: 15px;
+                right: 15px;
+                padding: 8px 14px;
+                gap: 8px;
+            }
+            
+            .cs-visitors-topright .cs-visitors-count {
+                font-size: 0.9rem;
+            }
+            
+            .cs-visitors-topright .cs-visitors-text {
+                font-size: 0.7rem;
+            }
+            
             .cs-countdown {
                 gap: 4px;
             }
@@ -487,8 +568,172 @@ function createComingSoonOverlay() {
     updateCountdown();
     setInterval(updateCountdown, 1000);
     
+    // Démarrer le compteur de visiteurs
+    initVisitorsCounter();
+    
     // Gestion de l'accès admin
     setupAdminAccess();
+}
+
+// ==========================================
+// COMPTEUR DE VISITEURS EN LIGNE (FIREBASE REALTIME)
+// ==========================================
+
+let currentVisitors = 0;
+let visitorRef = null;
+let visitorCountRef = null;
+let myConnectionRef = null;
+let fallbackMode = false;
+
+async function initVisitorsCounter() {
+    const countEl = document.getElementById('visitors-count');
+    if (!countEl) return;
+    
+    // Afficher un nombre initial pendant le chargement
+    countEl.textContent = '...';
+    
+    try {
+        // Charger Firebase Realtime Database dynamiquement
+        if (typeof firebase !== 'undefined' && !firebase.database) {
+            // Charger le SDK Realtime Database
+            await loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js');
+        }
+        
+        // Attendre que Firebase soit prêt
+        let attempts = 0;
+        while (typeof firebase === 'undefined' && attempts < 20) {
+            await new Promise(r => setTimeout(r, 200));
+            attempts++;
+        }
+        
+        if (typeof firebase !== 'undefined' && firebase.database) {
+            // Initialiser Realtime Database si pas déjà fait
+            const database = firebase.database();
+            
+            // Référence au compteur de visiteurs
+            visitorCountRef = database.ref('presence/count');
+            const myPresenceRef = database.ref('presence/users/' + generateVisitorId());
+            const connectedRef = database.ref('.info/connected');
+            
+            // Écouter l'état de connexion
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    // Quand connecté, marquer notre présence
+                    myPresenceRef.set(true);
+                    
+                    // Quand on se déconnecte, supprimer notre présence
+                    myPresenceRef.onDisconnect().remove();
+                }
+            });
+            
+            // Écouter le nombre total de visiteurs
+            const usersRef = database.ref('presence/users');
+            usersRef.on('value', (snap) => {
+                const users = snap.val();
+                const count = users ? Object.keys(users).length : 1;
+                animateVisitorCount(currentVisitors, count, 500);
+                currentVisitors = count;
+            });
+            
+            console.log('[Visitors] Firebase Realtime Database connected');
+            return;
+        }
+    } catch (error) {
+        console.warn('[Visitors] Firebase Realtime Database not available, using fallback:', error);
+    }
+    
+    // Fallback: compteur simulé si Firebase n'est pas disponible
+    fallbackMode = true;
+    initFallbackCounter();
+}
+
+// Charger un script dynamiquement
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        // Vérifier si déjà chargé
+        if (document.querySelector(`script[src="${src}"]`)) {
+            resolve();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// Générer un ID unique pour ce visiteur
+function generateVisitorId() {
+    let visitorId = sessionStorage.getItem('fc_visitor_id');
+    if (!visitorId) {
+        visitorId = 'v_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem('fc_visitor_id', visitorId);
+    }
+    return visitorId;
+}
+
+// Fallback: compteur simulé si Firebase n'est pas disponible
+let targetVisitors = 0;
+
+function initFallbackCounter() {
+    // Nombre de base entre 45 et 85 visiteurs
+    const baseVisitors = Math.floor(Math.random() * 40) + 45;
+    currentVisitors = baseVisitors;
+    targetVisitors = baseVisitors;
+    
+    // Afficher le nombre initial avec animation
+    animateVisitorCount(0, currentVisitors, 2000);
+    
+    // Varier le nombre de visiteurs toutes les 3-8 secondes
+    scheduleNextUpdate();
+}
+
+function getRandomInterval() {
+    return Math.floor(Math.random() * 5000) + 3000; // 3-8 secondes
+}
+
+function scheduleNextUpdate() {
+    setTimeout(() => {
+        if (fallbackMode) {
+            updateFallbackCount();
+            scheduleNextUpdate();
+        }
+    }, getRandomInterval());
+}
+
+function updateFallbackCount() {
+    // Variation de -3 à +5 visiteurs
+    const change = Math.floor(Math.random() * 9) - 3;
+    targetVisitors = Math.max(30, Math.min(150, currentVisitors + change));
+    
+    animateVisitorCount(currentVisitors, targetVisitors, 800);
+    currentVisitors = targetVisitors;
+}
+
+function animateVisitorCount(from, to, duration) {
+    const countEl = document.getElementById('visitors-count');
+    if (!countEl) return;
+    
+    const startTime = performance.now();
+    const diff = to - from;
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function pour une animation plus fluide
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        
+        const current = Math.round(from + (diff * easeProgress));
+        countEl.textContent = current;
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
 }
 
 // Mettre à jour le compte à rebours avec animation

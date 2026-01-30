@@ -5,10 +5,9 @@ const ADMIN_PASSWORD = 'Louane2009'; // Changez ce mot de passe
 // Cacher immédiatement le contenu si le site n'est pas lancé
 (function() {
     const now = Date.now();
-    const hasAccess = localStorage.getItem('fc_admin_access') === 'granted';
     const isLaunched = now >= LAUNCH_DATE;
     
-    if (!isLaunched && !hasAccess) {
+    if (!isLaunched) {
         // Injecter immédiatement un style pour cacher le body
         const hideStyle = document.createElement('style');
         hideStyle.id = 'cs-hide-body';
@@ -19,7 +18,7 @@ const ADMIN_PASSWORD = 'Louane2009'; // Changez ce mot de passe
 
 // Vérifier si l'utilisateur a déjà un accès admin
 function hasAdminAccess() {
-    return localStorage.getItem('fc_admin_access') === 'granted';
+    return false; // Toujours demander le mot de passe
 }
 
 // Vérifier si le site est lancé
@@ -583,7 +582,6 @@ function setupAdminAccess() {
         const password = passwordInput.value;
         
         if (password === ADMIN_PASSWORD) {
-            localStorage.setItem('fc_admin_access', 'granted');
             revealSite();
             const overlay = document.getElementById('coming-soon-overlay');
             if (overlay) {
@@ -611,7 +609,6 @@ function setupAdminAccess() {
 
 // Fonction pour révoquer l'accès admin (utile pour tester)
 function revokeAdminAccess() {
-    localStorage.removeItem('fc_admin_access');
     location.reload();
 }
 

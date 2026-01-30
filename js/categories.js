@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     html += '</button>';
                 }
                 html += '</h4>';
-                html += '<p>' + (product.description || '') + '</p>';
+                html += '<p>' + (product.description || '').replace(/\n/g, ' ') + '</p>';
                 
                 // Affichage du prix avec promo
                 if (product.originalPrice) {

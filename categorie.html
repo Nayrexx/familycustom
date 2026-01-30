@@ -662,7 +662,7 @@
                             </div>
                             <div class="product-info">
                                 <h3>${product.name}</h3>
-                                <p>${product.description || ''}</p>
+                                <p>${(product.description || '').replace(/\n/g, ' ')}</p>
                                 <div class="product-footer">
                                     <span class="product-price">${product.price || ''}</span>
                                     <button class="btn-customize">

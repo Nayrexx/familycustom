@@ -106,7 +106,9 @@
     function renderProduct() {
         // Update page info
         elements.productTitle.textContent = product.name;
-        elements.productDescription.textContent = product.description || '';
+        // Préserver les sauts de ligne dans la description
+        const descriptionHtml = (product.description || '').replace(/\n/g, '<br>');
+        elements.productDescription.innerHTML = descriptionHtml;
         
         // Affichage du prix avec promo si applicable
         if (product.originalPrice) {

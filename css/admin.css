@@ -892,6 +892,63 @@ body {
     border-color: #ff6b9d;
 }
 
+/* Size Prices Grid */
+.size-prices-container {
+    margin-top: 10px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.size-prices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.size-price-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.size-price-item label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.size-price-item label .size-badge {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.size-price-item input {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+
+.size-price-item input:focus {
+    outline: none;
+    border-color: #ff6b9d;
+}
+
+.size-price-item input::placeholder {
+    color: #adb5bd;
+    font-size: 0.8rem;
+}
+
 .custom-size-add,
 .custom-material-add,
 .custom-color-add {

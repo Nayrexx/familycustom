@@ -3184,6 +3184,7 @@
         const customOptions = getCustomOptions();
         const productSaleOptions = getSaleOptions();
         const stockMatrix = getStockMatrix();
+        const sizePrices = getSizePrices();
         
         showLoading(true);
         
@@ -3208,6 +3209,7 @@
             mockup: mockupConfig,
             colors: colors,
             sizes: sizes,
+            sizePrices: sizePrices,
             stockMatrix: stockMatrix,
             materials: materials,
             customOptions: customOptions,
@@ -3335,6 +3337,7 @@
             hasSizesCheckbox.addEventListener('change', function() {
                 sizesOptions.classList.toggle('hidden', !this.checked);
                 updateStockMatrix();
+                updateSizePricesGrid();
             });
         }
         
@@ -3342,8 +3345,21 @@
         document.getElementById('size-picker-grid').addEventListener('change', function(e) {
             if (e.target.name === 'sizes') {
                 updateStockMatrix();
+                updateSizePricesGrid();
             }
         });
+        
+        // Toggle size prices option
+        const hasSizePricesCheckbox = document.getElementById('product-has-size-prices');
+        const sizePricesContainer = document.getElementById('size-prices-container');
+        if (hasSizePricesCheckbox && sizePricesContainer) {
+            hasSizePricesCheckbox.addEventListener('change', function() {
+                sizePricesContainer.classList.toggle('hidden', !this.checked);
+                if (this.checked) {
+                    updateSizePricesGrid();
+                }
+            });
+        }
         
         // Toggle materials options
         const hasMaterialsCheckbox = document.getElementById('product-has-materials');
@@ -3634,6 +3650,84 @@
         setupStockMatrixActions();
     }
     
+    // Variable to store size prices temporarily
+    let sizePricesData = {};
+    
+    // Update size prices grid
+    function updateSizePricesGrid(existingPrices = null) {
+        const container = document.getElementById('size-prices-grid');
+        const hasSizePrices = document.getElementById('product-has-size-prices');
+        
+        if (!container) return;
+        
+        // Get selected sizes
+        const selectedSizes = [];
+        document.querySelectorAll('input[name="sizes"]:checked').forEach(input => {
+            selectedSizes.push(input.value);
+        });
+        
+        if (selectedSizes.length === 0) {
+            container.innerHTML = '<p style="color: #888; font-size: 0.85rem;">Sélectionnez d\'abord des tailles ci-dessus.</p>';
+            return;
+        }
+        
+        // Get base price for placeholder
+        const basePrice = document.getElementById('product-price')?.value || '';
+        
+        // Build the price inputs grid
+        container.innerHTML = selectedSizes.map(size => {
+            // Check existing price
+            let priceValue = '';
+            if (existingPrices && existingPrices[size] !== undefined) {
+                priceValue = existingPrices[size];
+            } else if (sizePricesData[size] !== undefined) {
+                priceValue = sizePricesData[size];
+            }
+            
+            return `
+                <div class="size-price-item">
+                    <label>
+                        <span class="size-badge">${size}</span>
+                    </label>
+                    <input type="number" 
+                           step="0.01" 
+                           min="0" 
+                           class="size-price-input"
+                           data-size="${size}"
+                           value="${priceValue}"
+                           placeholder="${basePrice ? basePrice + '€' : 'Prix de base'}">
+                </div>
+            `;
+        }).join('');
+        
+        // Add event listeners to save values temporarily
+        container.querySelectorAll('.size-price-input').forEach(input => {
+            input.addEventListener('change', function() {
+                sizePricesData[this.dataset.size] = this.value ? parseFloat(this.value) : null;
+            });
+            input.addEventListener('input', function() {
+                sizePricesData[this.dataset.size] = this.value ? parseFloat(this.value) : null;
+            });
+        });
+    }
+    
+    // Get size prices for saving
+    function getSizePrices() {
+        const hasSizePrices = document.getElementById('product-has-size-prices')?.checked;
+        if (!hasSizePrices) return null;
+        
+        const prices = {};
+        document.querySelectorAll('.size-price-input').forEach(input => {
+            const size = input.dataset.size;
+            const value = input.value ? parseFloat(input.value) : null;
+            if (value !== null && !isNaN(value)) {
+                prices[size] = value;
+            }
+        });
+        
+        return Object.keys(prices).length > 0 ? prices : null;
+    }
+    
     // Setup stock matrix actions (all/none buttons)
     function setupStockMatrixActions() {
         const allBtn = document.getElementById('stock-matrix-all');
@@ -3828,14 +3922,14 @@
     
     function resetVariantsForm() {
         // Reset checkboxes
-        const checkboxIds = ['product-has-colors', 'product-has-sizes', 'product-has-materials', 'product-has-custom-options', 'product-has-sale-options', 'product-allow-text-color'];
+        const checkboxIds = ['product-has-colors', 'product-has-sizes', 'product-has-materials', 'product-has-custom-options', 'product-has-sale-options', 'product-allow-text-color', 'product-has-size-prices'];
         checkboxIds.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.checked = false;
         });
         
         // Hide all variant options
-        const optionIds = ['colors-options', 'sizes-options', 'materials-options', 'custom-options', 'sale-options', 'text-colors-options'];
+        const optionIds = ['colors-options', 'sizes-options', 'materials-options', 'custom-options', 'sale-options', 'text-colors-options', 'size-prices-container'];
         optionIds.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
@@ -3850,6 +3944,11 @@
         const matrixContainer = document.getElementById('stock-matrix-management');
         if (matrixContainer) matrixContainer.style.display = 'none';
         stockMatrixData = {};
+        
+        // Clear size prices
+        sizePricesData = {};
+        const sizePricesGrid = document.getElementById('size-prices-grid');
+        if (sizePricesGrid) sizePricesGrid.innerHTML = '';
         
         // Reset custom options
         customProductOptions = [];
@@ -3909,6 +4008,16 @@
                     addSizeToGrid(sizeValue);
                 }
             });
+        }
+        
+        // Load size prices
+        if (product.sizePrices && Object.keys(product.sizePrices).length > 0) {
+            document.getElementById('product-has-size-prices').checked = true;
+            document.getElementById('size-prices-container').classList.remove('hidden');
+            sizePricesData = { ...product.sizePrices };
+            setTimeout(() => updateSizePricesGrid(product.sizePrices), 100);
+        } else {
+            sizePricesData = {};
         }
         
         // Update stock matrix after colors and sizes are loaded

@@ -7,7 +7,9 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
-    "stripe": "^14.0.0",
-    "soap": "^1.0.0"
+    "@sparticuz/chromium": "^143.0.4",
+    "puppeteer-core": "^24.36.1",
+    "soap": "^1.0.0",
+    "stripe": "^14.0.0"
   }
 }

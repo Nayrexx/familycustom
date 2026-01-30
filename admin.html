@@ -902,6 +902,20 @@
                                     <input type="text" id="custom-size-value" placeholder="Taille perso (30cm, 50x70...)">
                                     <button type="button" class="btn btn-sm" id="add-custom-size"><i class="fas fa-plus"></i></button>
                                 </div>
+                                
+                                <!-- Prix par taille -->
+                                <div class="form-group" style="margin-top: 15px;">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="product-has-size-prices">
+                                        <span>Prix différent par taille</span>
+                                    </label>
+                                </div>
+                                <div class="size-prices-container hidden" id="size-prices-container">
+                                    <p class="variant-help"><i class="fas fa-info-circle"></i> Définissez un prix spécifique pour chaque taille. Laissez vide pour utiliser le prix de base.</p>
+                                    <div class="size-prices-grid" id="size-prices-grid">
+                                        <!-- Generated dynamically -->
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- Matrice de stock couleur/taille -->

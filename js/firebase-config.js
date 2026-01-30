@@ -7,6 +7,7 @@ console.log('firebase-config.js loading...');
 const firebaseConfig = {
     apiKey: "AIzaSyCA6B5uZwUXAES0J_stFVXOQiPuhNl5CJU",
     authDomain: "family-custom.firebaseapp.com",
+    databaseURL: "https://family-custom-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "family-custom",
     storageBucket: "family-custom.firebasestorage.app",
     messagingSenderId: "265539608218",

@@ -252,7 +252,13 @@ const FCMassPromo = (function() {
         // Filtrer les produits
         let filteredProducts = products;
         if (categoryFilter) {
-            filteredProducts = products.filter(p => p.categoryId === categoryFilter);
+            filteredProducts = products.filter(p => {
+                // Support ancien format (categoryId) et nouveau format (categoryIds)
+                if (p.categoryIds && Array.isArray(p.categoryIds)) {
+                    return p.categoryIds.includes(categoryFilter);
+                }
+                return p.categoryId === categoryFilter;
+            });
         }
         
         container.innerHTML = filteredProducts.map(product => `
@@ -302,7 +308,13 @@ const FCMassPromo = (function() {
         const categoryFilter = document.getElementById('promo-category-filter').value;
         let toSelect = products;
         if (categoryFilter) {
-            toSelect = products.filter(p => p.categoryId === categoryFilter);
+            toSelect = products.filter(p => {
+                // Support ancien format (categoryId) et nouveau format (categoryIds)
+                if (p.categoryIds && Array.isArray(p.categoryIds)) {
+                    return p.categoryIds.includes(categoryFilter);
+                }
+                return p.categoryId === categoryFilter;
+            });
         }
         
         toSelect.forEach(p => selectedProducts.add(p.id));

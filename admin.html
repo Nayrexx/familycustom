@@ -600,41 +600,44 @@
                         <input type="text" id="category-description" placeholder="Ex: Illuminez votre intérieur">
                     </div>
                     
-                    <!-- Templates visuels -->
+                    <!-- Icône -->
                     <div class="form-group">
-                        <label>Choisir un style</label>
-                        <div class="category-templates-grid" id="category-templates">
-                            <div class="template-card selected" data-gradient1="#1a0a1a" data-gradient2="#2d0a2d" data-icon-color="#ff2d75" data-icon="fa-bolt" data-style="light">
-                                <div class="template-preview" style="background: linear-gradient(135deg, #1a0a1a, #2d0a2d);"><i class="fas fa-bolt" style="color: #ff2d75;"></i></div>
-                                <span>Néon Rose</span>
+                        <label>Icône</label>
+                        <select id="category-icon" class="icon-select">
+                            <option value="fa-bolt">⚡ Néon</option>
+                            <option value="fa-tree">🌲 Bois</option>
+                            <option value="fa-heart">❤️ Cœur</option>
+                            <option value="fa-gift">🎁 Cadeau</option>
+                            <option value="fa-star">⭐ Étoile</option>
+                            <option value="fa-crown">👑 Premium</option>
+                            <option value="fa-gamepad">🎮 Gaming</option>
+                            <option value="fa-leaf">🍃 Nature</option>
+                            <option value="fa-glass-cheers">🥂 Fête</option>
+                            <option value="fa-cube">📦 Autre</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Couleurs du dégradé -->
+                    <div class="form-group">
+                        <label>Couleurs du dégradé</label>
+                        <div class="gradient-colors-row">
+                            <div class="color-picker-group">
+                                <input type="color" id="category-gradient1" value="#1a0a1a">
+                                <span>Couleur 1</span>
                             </div>
-                            <div class="template-card" data-gradient1="#0a1a2d" data-gradient2="#0a0f1a" data-icon-color="#00d4ff" data-icon="fa-bolt" data-style="light">
-                                <div class="template-preview" style="background: linear-gradient(135deg, #0a1a2d, #0a0f1a);"><i class="fas fa-bolt" style="color: #00d4ff;"></i></div>
-                                <span>Néon Bleu</span>
+                            <div class="gradient-arrow">
+                                <i class="fas fa-arrow-right"></i>
                             </div>
-                            <div class="template-card" data-gradient1="#3d2914" data-gradient2="#1a1208" data-icon-color="#c9a87c" data-icon="fa-tree" data-style="light">
-                                <div class="template-preview" style="background: linear-gradient(135deg, #3d2914, #1a1208);"><i class="fas fa-tree" style="color: #c9a87c;"></i></div>
-                                <span>Bois</span>
+                            <div class="color-picker-group">
+                                <input type="color" id="category-gradient2" value="#2d0a2d">
+                                <span>Couleur 2</span>
                             </div>
-                            <div class="template-card" data-gradient1="#1a1a0a" data-gradient2="#0d0d05" data-icon-color="#D4AF37" data-icon="fa-crown" data-style="light">
-                                <div class="template-preview" style="background: linear-gradient(135deg, #1a1a0a, #0d0d05);"><i class="fas fa-crown" style="color: #D4AF37;"></i></div>
-                                <span>Premium</span>
+                            <div class="gradient-arrow">
+                                <i class="fas fa-palette"></i>
                             </div>
-                            <div class="template-card" data-gradient1="#0f0a1a" data-gradient2="#1a0a2d" data-icon-color="#9945FF" data-icon="fa-gamepad" data-style="light">
-                                <div class="template-preview" style="background: linear-gradient(135deg, #0f0a1a, #1a0a2d);"><i class="fas fa-gamepad" style="color: #9945FF;"></i></div>
-                                <span>Gaming</span>
-                            </div>
-                            <div class="template-card" data-gradient1="#2d1a1a" data-gradient2="#1a0a0a" data-icon-color="#e07a5f" data-icon="fa-heart" data-style="light">
-                                <div class="template-preview" style="background: linear-gradient(135deg, #2d1a1a, #1a0a0a);"><i class="fas fa-heart" style="color: #e07a5f;"></i></div>
-                                <span>Amour</span>
-                            </div>
-                            <div class="template-card" data-gradient1="#0a1a0f" data-gradient2="#051a0a" data-icon-color="#4CAF50" data-icon="fa-leaf" data-style="light">
-                                <div class="template-preview" style="background: linear-gradient(135deg, #0a1a0f, #051a0a);"><i class="fas fa-leaf" style="color: #4CAF50;"></i></div>
-                                <span>Nature</span>
-                            </div>
-                            <div class="template-card" data-gradient1="#2d1a2d" data-gradient2="#1a0a1a" data-icon-color="#FFD700" data-icon="fa-glass-cheers" data-style="light">
-                                <div class="template-preview" style="background: linear-gradient(135deg, #2d1a2d, #1a0a1a);"><i class="fas fa-glass-cheers" style="color: #FFD700;"></i></div>
-                                <span>Fête</span>
+                            <div class="color-picker-group">
+                                <input type="color" id="category-icon-color" value="#ff2d75">
+                                <span>Icône</span>
                             </div>
                         </div>
                     </div>
@@ -661,35 +664,6 @@
                                 <div class="form-group">
                                     <label>Ordre</label>
                                     <input type="number" id="category-order" value="0" min="0">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Icône</label>
-                                <select id="category-icon" class="icon-select">
-                                    <option value="fa-bolt">⚡ Néon</option>
-                                    <option value="fa-tree">🌲 Bois</option>
-                                    <option value="fa-heart">❤️ Cœur</option>
-                                    <option value="fa-gift">🎁 Cadeau</option>
-                                    <option value="fa-star">⭐ Étoile</option>
-                                    <option value="fa-crown">👑 Premium</option>
-                                    <option value="fa-gamepad">🎮 Gaming</option>
-                                    <option value="fa-leaf">🍃 Nature</option>
-                                    <option value="fa-glass-cheers">🥂 Fête</option>
-                                    <option value="fa-cube">📦 Autre</option>
-                                </select>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Couleur 1</label>
-                                    <input type="color" id="category-gradient1" value="#1a0a1a">
-                                </div>
-                                <div class="form-group">
-                                    <label>Couleur 2</label>
-                                    <input type="color" id="category-gradient2" value="#2d0a2d">
-                                </div>
-                                <div class="form-group">
-                                    <label>Icône</label>
-                                    <input type="color" id="category-icon-color" value="#ff2d75">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -906,11 +880,6 @@
                                     <input type="text" id="custom-color-name" placeholder="Nom de la couleur">
                                     <button type="button" class="btn btn-sm" id="add-custom-color"><i class="fas fa-plus"></i></button>
                                 </div>
-                                <!-- Stock des couleurs -->
-                                <div class="stock-management" id="colors-stock-management">
-                                    <label style="font-size: 0.85rem; color: #666; margin: 10px 0 5px; display: block;"><i class="fas fa-box"></i> Gestion du stock couleurs :</label>
-                                    <div class="stock-list" id="colors-stock-list"></div>
-                                </div>
                             </div>
                             
                             <!-- Tailles -->
@@ -933,11 +902,24 @@
                                     <input type="text" id="custom-size-value" placeholder="Taille perso (30cm, 50x70...)">
                                     <button type="button" class="btn btn-sm" id="add-custom-size"><i class="fas fa-plus"></i></button>
                                 </div>
-                                <!-- Stock des tailles -->
-                                <div class="stock-management" id="sizes-stock-management">
-                                    <label style="font-size: 0.85rem; color: #666; margin: 10px 0 5px; display: block;"><i class="fas fa-box"></i> Gestion du stock tailles :</label>
-                                    <div class="stock-list" id="sizes-stock-list"></div>
+                            </div>
+                            
+                            <!-- Matrice de stock couleur/taille -->
+                            <div class="stock-matrix-management" id="stock-matrix-management" style="display: none;">
+                                <label style="font-size: 0.85rem; color: #666; margin: 10px 0 5px; display: block;">
+                                    <i class="fas fa-th"></i> Matrice de stock (cochez les combinaisons en stock) :
+                                </label>
+                                <div class="stock-matrix-actions">
+                                    <button type="button" class="btn btn-sm btn-ghost" id="stock-matrix-all"><i class="fas fa-check-double"></i> Tout cocher</button>
+                                    <button type="button" class="btn btn-sm btn-ghost" id="stock-matrix-none"><i class="fas fa-times"></i> Tout décocher</button>
                                 </div>
+                                <div class="stock-matrix-container">
+                                    <table class="stock-matrix-table" id="stock-matrix-table">
+                                        <thead id="stock-matrix-header"></thead>
+                                        <tbody id="stock-matrix-body"></tbody>
+                                    </table>
+                                </div>
+                                <p class="stock-matrix-hint"><i class="fas fa-info-circle"></i> Case cochée = en stock. Si une couleur n'a aucune taille en stock, elle sera affichée comme indisponible.</p>
                             </div>
                             
                             <!-- Matériaux -->

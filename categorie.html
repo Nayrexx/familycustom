@@ -528,12 +528,31 @@
                 document.getElementById('category-icon').className = 'fas ' + (category.icon || 'fa-cube');
                 document.title = category.name + ' - Family Custom';
                 
-                // Load products
-                const productsSnapshot = await db.collection('products')
+                // Load products - using array-contains for categoryIds
+                // We need to load products that have this category in their categoryIds array
+                // OR for backward compatibility, have this categoryId as their categoryId
+                let products = [];
+                
+                // Try to get products with categoryIds array first
+                const productsWithArraySnapshot = await db.collection('products')
+                    .where('categoryIds', 'array-contains', categoryId)
+                    .get();
+                
+                const productsWithArray = productsWithArraySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Also get products with old format (single categoryId)
+                const productsWithSingleSnapshot = await db.collection('products')
                     .where('categoryId', '==', categoryId)
                     .get();
                 
-                const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const productsWithSingle = productsWithSingleSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Merge and deduplicate
+                const productMap = new Map();
+                [...productsWithArray, ...productsWithSingle].forEach(p => {
+                    productMap.set(p.id, p);
+                });
+                products = Array.from(productMap.values());
                 
                 // Stocker les produits pour le tri
                 window.allProducts = products;

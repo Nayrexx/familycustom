@@ -10,7 +10,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden;
+    /* overflow: hidden retiré - bloquait le scroll du carrousel */
+    overflow-x: clip; /* Empêche le débordement horizontal de la page sans bloquer le scroll interne */
+    overflow-y: visible;
 }
 
 .categories-section .section-title {
@@ -38,13 +40,17 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 60px;
+    overflow: visible; /* Important pour permettre le débordement visuel des effets */
 }
 
 /* ===== CARROUSEL ===== */
-.categories-carousel {
-    display: flex;
+.categories-carousel,
+#categories-grid {
+    display: flex !important;
+    flex-wrap: nowrap !important;
     gap: 1.5rem;
     overflow-x: auto;
+    overflow-y: hidden;
     scroll-behavior: smooth;
     scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch;
@@ -53,6 +59,9 @@
     -ms-overflow-style: none;
     /* Amélioration mobile */
     overscroll-behavior-x: contain;
+    /* S'assurer que le contenu peut déborder */
+    width: 100%;
+    max-width: 100%;
 }
 
 .categories-carousel::-webkit-scrollbar {

@@ -727,12 +727,43 @@
         try {
             await db.collection('categories').doc(categoryId).delete();
             
-            const productsSnapshot = await db.collection('products')
+            // Find products with this category in categoryIds array
+            const productsWithArraySnapshot = await db.collection('products')
+                .where('categoryIds', 'array-contains', categoryId)
+                .get();
+            
+            // Also find products with old format (single categoryId)
+            const productsWithSingleSnapshot = await db.collection('products')
                 .where('categoryId', '==', categoryId)
                 .get();
             
             const batch = db.batch();
-            productsSnapshot.docs.forEach(doc => batch.delete(doc.ref));
+            
+            // For products with categoryIds array, remove this category from the array
+            productsWithArraySnapshot.docs.forEach(doc => {
+                const data = doc.data();
+                const updatedCategoryIds = (data.categoryIds || []).filter(id => id !== categoryId);
+                
+                // If product has no more categories, delete it
+                if (updatedCategoryIds.length === 0) {
+                    batch.delete(doc.ref);
+                } else {
+                    // Otherwise just update the categoryIds
+                    batch.update(doc.ref, { 
+                        categoryIds: updatedCategoryIds,
+                        categoryId: updatedCategoryIds[0] // Update categoryId for backward compat
+                    });
+                }
+            });
+            
+            // Delete products that only have old format categoryId
+            productsWithSingleSnapshot.docs.forEach(doc => {
+                // Skip if already handled in categoryIds
+                if (!productsWithArraySnapshot.docs.some(d => d.id === doc.id)) {
+                    batch.delete(doc.ref);
+                }
+            });
+            
             await batch.commit();
             
             return true;
@@ -2711,44 +2742,24 @@
         `;
     }
     
-    // ===== Category Templates =====
-    function initCategoryTemplates() {
-        const templatesContainer = document.getElementById('category-templates');
-        if (!templatesContainer) return;
+    // ===== Category Color Pickers =====
+    function initCategoryColorPickers() {
+        const gradient1Input = document.getElementById('category-gradient1');
+        const gradient2Input = document.getElementById('category-gradient2');
+        const iconColorInput = document.getElementById('category-icon-color');
+        const iconSelect = document.getElementById('category-icon');
         
-        templatesContainer.addEventListener('click', function(e) {
-            const templateCard = e.target.closest('.template-card');
-            if (!templateCard) return;
-            
-            // Retirer la sélection des autres templates
-            templatesContainer.querySelectorAll('.template-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            templateCard.classList.add('selected');
-            
-            // Appliquer les valeurs du template
-            const gradient1 = templateCard.dataset.gradient1;
-            const gradient2 = templateCard.dataset.gradient2;
-            const iconColor = templateCard.dataset.iconColor;
-            const icon = templateCard.dataset.icon;
-            const textStyle = templateCard.dataset.style;
-            
-            document.getElementById('category-gradient1').value = gradient1;
-            document.getElementById('category-gradient2').value = gradient2;
-            document.getElementById('category-icon-color').value = iconColor;
-            document.getElementById('category-text-style').value = textStyle;
-            
-            // Mettre à jour l'icône si spécifiée
-            if (icon) {
-                const iconSelect = document.getElementById('category-icon');
-                iconSelect.value = icon;
-                // Déclencher le changement pour mettre à jour la prévisualisation
-                iconSelect.dispatchEvent(new Event('change'));
-            }
-            
-            // Mettre à jour la prévisualisation
-            updateCategoryPreview();
+        if (!gradient1Input || !gradient2Input || !iconColorInput) return;
+        
+        // Mettre à jour l'aperçu quand les couleurs changent
+        [gradient1Input, gradient2Input, iconColorInput].forEach(input => {
+            input.addEventListener('input', updateCategoryPreview);
         });
+        
+        // Mettre à jour quand l'icône change
+        if (iconSelect) {
+            iconSelect.addEventListener('change', updateCategoryPreview);
+        }
     }
     
     // ===== Product Templates =====
@@ -3172,6 +3183,7 @@
         const materials = getSelectedMaterials();
         const customOptions = getCustomOptions();
         const productSaleOptions = getSaleOptions();
+        const stockMatrix = getStockMatrix();
         
         showLoading(true);
         
@@ -3196,6 +3208,7 @@
             mockup: mockupConfig,
             colors: colors,
             sizes: sizes,
+            stockMatrix: stockMatrix,
             materials: materials,
             customOptions: customOptions,
             saleOptions: productSaleOptions,
@@ -3295,16 +3308,14 @@
         if (hasColorsCheckbox && colorsOptions) {
             hasColorsCheckbox.addEventListener('change', function() {
                 colorsOptions.classList.toggle('hidden', !this.checked);
-                if (!this.checked) {
-                    document.getElementById('colors-stock-list').innerHTML = '';
-                }
+                updateStockMatrix();
             });
         }
         
-        // Listen for color selection changes to update stock list
+        // Listen for color selection changes to update stock matrix
         document.getElementById('color-picker-grid').addEventListener('change', function(e) {
             if (e.target.name === 'colors') {
-                updateColorsStockList();
+                updateStockMatrix();
             }
         });
         
@@ -3323,16 +3334,14 @@
         if (hasSizesCheckbox && sizesOptions) {
             hasSizesCheckbox.addEventListener('change', function() {
                 sizesOptions.classList.toggle('hidden', !this.checked);
-                if (!this.checked) {
-                    document.getElementById('sizes-stock-list').innerHTML = '';
-                }
+                updateStockMatrix();
             });
         }
         
-        // Listen for size selection changes to update stock list
+        // Listen for size selection changes to update stock matrix
         document.getElementById('size-picker-grid').addEventListener('change', function(e) {
             if (e.target.name === 'sizes') {
-                updateSizesStockList();
+                updateStockMatrix();
             }
         });
         
@@ -3462,8 +3471,8 @@
             <span class="color-name">${colorName}</span>
         `;
         grid.appendChild(label);
-        // Update stock list after adding
-        setTimeout(updateColorsStockList, 50);
+        // Update stock matrix after adding
+        setTimeout(updateStockMatrix, 50);
     }
     
     function addTextColorToGrid(colorHex, colorName) {
@@ -3495,15 +3504,22 @@
             <span class="size-tag">${sizeValue}</span>
         `;
         grid.appendChild(label);
-        // Update stock list after adding
-        setTimeout(updateSizesStockList, 50);
+        // Update stock matrix after adding
+        setTimeout(updateStockMatrix, 50);
     }
     
-    // Update colors stock list
-    function updateColorsStockList(existingStock = null) {
-        const stockList = document.getElementById('colors-stock-list');
-        if (!stockList) return;
+    // Stock matrix data storage
+    let stockMatrixData = {};
+    
+    // Update stock matrix table
+    function updateStockMatrix(existingMatrix = null) {
+        const matrixContainer = document.getElementById('stock-matrix-management');
+        const tableHeader = document.getElementById('stock-matrix-header');
+        const tableBody = document.getElementById('stock-matrix-body');
         
+        if (!matrixContainer || !tableHeader || !tableBody) return;
+        
+        // Get selected colors
         const selectedColors = [];
         document.querySelectorAll('input[name="colors"]:checked').forEach(input => {
             selectedColors.push({
@@ -3512,69 +3528,140 @@
             });
         });
         
-        if (selectedColors.length === 0) {
-            stockList.innerHTML = '<p style="font-size: 0.8rem; color: #999; padding: 0.5rem;">Sélectionnez des couleurs ci-dessus</p>';
-            return;
-        }
-        
-        stockList.innerHTML = selectedColors.map(color => {
-            // Check if we have existing stock info
-            let inStock = true;
-            if (existingStock) {
-                const existing = existingStock.find(c => c.hex === color.hex);
-                if (existing) inStock = existing.inStock !== false;
-            }
-            
-            return `
-                <div class="stock-item ${!inStock ? 'out-of-stock' : ''}">
-                    <div class="stock-item-info">
-                        <span class="stock-item-color" style="background: ${color.hex}; ${color.hex.toUpperCase() === '#FFFFFF' ? 'border: 1px solid #ccc;' : ''}"></span>
-                        <span class="stock-item-name">${color.name}</span>
-                    </div>
-                    <div class="stock-toggle">
-                        <label>En stock</label>
-                        <input type="checkbox" name="color-stock" data-hex="${color.hex}" ${inStock ? 'checked' : ''}>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-    
-    // Update sizes stock list
-    function updateSizesStockList(existingStock = null) {
-        const stockList = document.getElementById('sizes-stock-list');
-        if (!stockList) return;
-        
+        // Get selected sizes
         const selectedSizes = [];
         document.querySelectorAll('input[name="sizes"]:checked').forEach(input => {
             selectedSizes.push(input.value);
         });
         
-        if (selectedSizes.length === 0) {
-            stockList.innerHTML = '<p style="font-size: 0.8rem; color: #999; padding: 0.5rem;">Sélectionnez des tailles ci-dessus</p>';
-            return;
+        const hasColors = document.getElementById('product-has-colors')?.checked && selectedColors.length > 0;
+        const hasSizes = document.getElementById('product-has-sizes')?.checked && selectedSizes.length > 0;
+        
+        // Show matrix only if both colors AND sizes are selected
+        if (hasColors && hasSizes) {
+            matrixContainer.style.display = 'block';
+            
+            // Build header row
+            tableHeader.innerHTML = `
+                <tr>
+                    <th class="matrix-corner"></th>
+                    ${selectedSizes.map(size => `<th class="matrix-size-header">${size}</th>`).join('')}
+                    <th class="matrix-action-header">
+                        <span title="Cocher/décocher toute la ligne">Ligne</span>
+                    </th>
+                </tr>
+            `;
+            
+            // Build body rows
+            tableBody.innerHTML = selectedColors.map(color => {
+                const colorKey = color.hex;
+                
+                return `
+                    <tr data-color="${colorKey}">
+                        <td class="matrix-color-cell">
+                            <span class="matrix-color-swatch" style="background: ${color.hex}; ${color.hex.toUpperCase() === '#FFFFFF' ? 'border: 1px solid #ccc;' : ''}"></span>
+                            <span class="matrix-color-name">${color.name}</span>
+                        </td>
+                        ${selectedSizes.map(size => {
+                            // Check if we have existing data
+                            let inStock = true;
+                            if (existingMatrix && existingMatrix[colorKey]) {
+                                inStock = existingMatrix[colorKey][size] !== false;
+                            } else if (stockMatrixData[colorKey]) {
+                                inStock = stockMatrixData[colorKey][size] !== false;
+                            }
+                            
+                            return `
+                                <td class="matrix-stock-cell">
+                                    <input type="checkbox" 
+                                           class="matrix-checkbox" 
+                                           data-color="${colorKey}" 
+                                           data-size="${size}" 
+                                           ${inStock ? 'checked' : ''}
+                                           title="${color.name} - ${size}">
+                                </td>
+                            `;
+                        }).join('')}
+                        <td class="matrix-row-action">
+                            <button type="button" class="btn-matrix-row" data-color="${colorKey}" title="Basculer toute la ligne">
+                                <i class="fas fa-toggle-on"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Add column action row
+            tableBody.innerHTML += `
+                <tr class="matrix-column-actions">
+                    <td class="matrix-action-label">Colonne</td>
+                    ${selectedSizes.map(size => `
+                        <td class="matrix-col-action">
+                            <button type="button" class="btn-matrix-col" data-size="${size}" title="Basculer toute la colonne">
+                                <i class="fas fa-toggle-on"></i>
+                            </button>
+                        </td>
+                    `).join('')}
+                    <td></td>
+                </tr>
+            `;
+            
+            // Add event listeners for row toggle buttons
+            tableBody.querySelectorAll('.btn-matrix-row').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const colorKey = this.dataset.color;
+                    const checkboxes = tableBody.querySelectorAll(`input[data-color="${colorKey}"]`);
+                    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                    checkboxes.forEach(cb => cb.checked = !allChecked);
+                });
+            });
+            
+            // Add event listeners for column toggle buttons
+            tableBody.querySelectorAll('.btn-matrix-col').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const size = this.dataset.size;
+                    const checkboxes = tableBody.querySelectorAll(`input[data-size="${size}"]`);
+                    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                    checkboxes.forEach(cb => cb.checked = !allChecked);
+                });
+            });
+            
+        } else {
+            matrixContainer.style.display = 'none';
         }
         
-        stockList.innerHTML = selectedSizes.map(size => {
-            // Check if we have existing stock info
-            let inStock = true;
-            if (existingStock) {
-                const existing = existingStock.find(s => (typeof s === 'object' ? s.value : s) === size);
-                if (existing && typeof existing === 'object') inStock = existing.inStock !== false;
-            }
-            
-            return `
-                <div class="stock-item ${!inStock ? 'out-of-stock' : ''}">
-                    <div class="stock-item-info">
-                        <span class="stock-item-name">${size}</span>
-                    </div>
-                    <div class="stock-toggle">
-                        <label>En stock</label>
-                        <input type="checkbox" name="size-stock" data-value="${size}" ${inStock ? 'checked' : ''}>
-                    </div>
-                </div>
-            `;
-        }).join('');
+        // Setup matrix action buttons
+        setupStockMatrixActions();
+    }
+    
+    // Setup stock matrix actions (all/none buttons)
+    function setupStockMatrixActions() {
+        const allBtn = document.getElementById('stock-matrix-all');
+        const noneBtn = document.getElementById('stock-matrix-none');
+        
+        if (allBtn) {
+            allBtn.onclick = function() {
+                document.querySelectorAll('.matrix-checkbox').forEach(cb => cb.checked = true);
+            };
+        }
+        
+        if (noneBtn) {
+            noneBtn.onclick = function() {
+                document.querySelectorAll('.matrix-checkbox').forEach(cb => cb.checked = false);
+            };
+        }
+    }
+    
+    // Get stock matrix data for saving
+    function getStockMatrix() {
+        const matrix = {};
+        document.querySelectorAll('.matrix-checkbox').forEach(cb => {
+            const color = cb.dataset.color;
+            const size = cb.dataset.size;
+            if (!matrix[color]) matrix[color] = {};
+            matrix[color][size] = cb.checked;
+        });
+        return Object.keys(matrix).length > 0 ? matrix : null;
     }
     
     function addMaterialToGrid(materialValue) {
@@ -3662,14 +3749,19 @@
         const hasColors = document.getElementById('product-has-colors').checked;
         if (!hasColors) return null;
         
+        const stockMatrix = getStockMatrix();
         const selected = [];
         document.querySelectorAll('input[name="colors"]:checked').forEach(input => {
-            // Check if there's a stock toggle for this color
-            const stockToggle = document.querySelector(`input[name="color-stock"][data-hex="${input.value}"]`);
-            const inStock = stockToggle ? stockToggle.checked : true;
+            const colorHex = input.value;
+            // Determine if color has any size in stock (if matrix exists)
+            let inStock = true;
+            if (stockMatrix && stockMatrix[colorHex]) {
+                // Color is out of stock only if ALL sizes are out of stock
+                inStock = Object.values(stockMatrix[colorHex]).some(val => val === true);
+            }
             
             selected.push({
-                hex: input.value,
+                hex: colorHex,
                 name: input.dataset.name || input.value,
                 inStock: inStock
             });
@@ -3695,14 +3787,21 @@
         const hasSizes = document.getElementById('product-has-sizes').checked;
         if (!hasSizes) return null;
         
+        const stockMatrix = getStockMatrix();
         const selected = [];
         document.querySelectorAll('input[name="sizes"]:checked').forEach(input => {
-            // Check if there's a stock toggle for this size
-            const stockToggle = document.querySelector(`input[name="size-stock"][data-value="${input.value}"]`);
-            const inStock = stockToggle ? stockToggle.checked : true;
+            const sizeValue = input.value;
+            // Determine if size has any color in stock (if matrix exists)
+            let inStock = true;
+            if (stockMatrix) {
+                // Size is out of stock only if ALL colors have this size out of stock
+                inStock = Object.keys(stockMatrix).some(colorKey => 
+                    stockMatrix[colorKey][sizeValue] === true
+                );
+            }
             
             selected.push({
-                value: input.value,
+                value: sizeValue,
                 inStock: inStock
             });
         });
@@ -3747,11 +3846,10 @@
             input.checked = false;
         });
         
-        // Clear stock lists
-        const colorsStockList = document.getElementById('colors-stock-list');
-        const sizesStockList = document.getElementById('sizes-stock-list');
-        if (colorsStockList) colorsStockList.innerHTML = '';
-        if (sizesStockList) sizesStockList.innerHTML = '';
+        // Clear stock matrix
+        const matrixContainer = document.getElementById('stock-matrix-management');
+        if (matrixContainer) matrixContainer.style.display = 'none';
+        stockMatrixData = {};
         
         // Reset custom options
         customProductOptions = [];
@@ -3763,6 +3861,11 @@
     }
     
     function loadVariantsForEdit(product) {
+        // Store stock matrix for loading
+        if (product.stockMatrix) {
+            stockMatrixData = product.stockMatrix;
+        }
+        
         // Load colors
         if (product.colors && product.colors.length > 0) {
             document.getElementById('product-has-colors').checked = true;
@@ -3775,8 +3878,6 @@
                     addColorToGrid(color.hex, color.name);
                 }
             });
-            // Update stock list with existing stock info
-            setTimeout(() => updateColorsStockList(product.colors), 100);
         }
         
         // Load text colors
@@ -3808,9 +3909,10 @@
                     addSizeToGrid(sizeValue);
                 }
             });
-            // Update stock list with existing stock info
-            setTimeout(() => updateSizesStockList(product.sizes), 100);
         }
+        
+        // Update stock matrix after colors and sizes are loaded
+        setTimeout(() => updateStockMatrix(product.stockMatrix), 150);
         
         // Load materials
         if (product.materials && product.materials.length > 0) {
@@ -4047,8 +4149,8 @@
             }
         });
         
-        // Event listeners pour les templates de catégorie
-        initCategoryTemplates();
+        // Event listeners pour les color pickers de catégorie
+        initCategoryColorPickers();
         
         // Event listeners pour les templates de produit
         initProductTemplates();

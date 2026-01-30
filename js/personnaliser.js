@@ -299,12 +299,22 @@
             
             colorContainer.style.display = 'block';
             
+            // Determine color availability based on stock matrix or simple inStock flag
+            const getColorAvailability = (color) => {
+                // If we have a stock matrix, check if any size is available for this color
+                if (product.stockMatrix && product.stockMatrix[color.hex]) {
+                    return Object.values(product.stockMatrix[color.hex]).some(val => val === true);
+                }
+                // Fallback to simple inStock flag
+                return color.inStock !== false;
+            };
+            
             // Find first available color
-            const firstAvailableColor = product.colors.find(c => c.inStock !== false) || product.colors[0];
+            const firstAvailableColor = product.colors.find(c => getColorAvailability(c)) || product.colors[0];
             const firstAvailableIndex = product.colors.indexOf(firstAvailableColor);
             
             colorOptions.innerHTML = product.colors.map((color, i) => {
-                const isOutOfStock = color.inStock === false;
+                const isOutOfStock = !getColorAvailability(color);
                 const isSelected = i === firstAvailableIndex;
                 return `
                     <button type="button" 
@@ -324,6 +334,46 @@
             // Select first available color by default
             selectedColor = firstAvailableColor;
             
+            // Function to update size availability based on selected color
+            const updateSizeAvailability = (colorHex) => {
+                if (!product.stockMatrix || !product.sizes) return;
+                
+                const sizeOptions = document.getElementById('size-options');
+                if (!sizeOptions) return;
+                
+                const colorStock = product.stockMatrix[colorHex] || {};
+                
+                sizeOptions.querySelectorAll('.variant-btn').forEach(btn => {
+                    const sizeValue = btn.dataset.size;
+                    const isAvailable = colorStock[sizeValue] === true;
+                    
+                    btn.classList.toggle('out-of-stock', !isAvailable);
+                    btn.disabled = !isAvailable;
+                    
+                    // Update the out of stock text
+                    let outOfStockText = btn.querySelector('.out-of-stock-text');
+                    if (!isAvailable && !outOfStockText) {
+                        const span = document.createElement('span');
+                        span.className = 'out-of-stock-text';
+                        span.textContent = 'Indisponible';
+                        btn.appendChild(span);
+                    } else if (isAvailable && outOfStockText) {
+                        outOfStockText.remove();
+                    }
+                });
+                
+                // If currently selected size is now unavailable, select first available
+                const currentSizeBtn = sizeOptions.querySelector('.variant-btn.selected');
+                if (currentSizeBtn && currentSizeBtn.disabled) {
+                    const firstAvailableBtn = sizeOptions.querySelector('.variant-btn:not(.out-of-stock)');
+                    if (firstAvailableBtn) {
+                        currentSizeBtn.classList.remove('selected');
+                        firstAvailableBtn.classList.add('selected');
+                        selectedSize = firstAvailableBtn.dataset.size;
+                    }
+                }
+            };
+            
             // Add click handlers
             colorOptions.querySelectorAll('.variant-btn:not(.out-of-stock)').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -333,8 +383,15 @@
                         hex: this.dataset.color,
                         name: this.dataset.name
                     };
+                    // Update size availability when color changes
+                    updateSizeAvailability(this.dataset.color);
                 });
             });
+            
+            // Initial size availability update
+            if (selectedColor) {
+                setTimeout(() => updateSizeAvailability(selectedColor.hex), 50);
+            }
         }
         
         // Check and render sizes
@@ -350,12 +407,25 @@
                 return { value: size, inStock: true };
             });
             
+            // Determine size availability based on stock matrix or simple inStock flag
+            const getSizeInitialAvailability = (size, sizeValue) => {
+                // If we have a stock matrix and a selected color, check specific combination
+                if (product.stockMatrix && selectedColor) {
+                    const colorStock = product.stockMatrix[selectedColor.hex];
+                    if (colorStock) {
+                        return colorStock[sizeValue] === true;
+                    }
+                }
+                // Fallback to simple inStock flag
+                return size.inStock !== false;
+            };
+            
             // Find first available size
-            const firstAvailableSize = sizesNormalized.find(s => s.inStock !== false) || sizesNormalized[0];
+            const firstAvailableSize = sizesNormalized.find(s => getSizeInitialAvailability(s, s.value)) || sizesNormalized[0];
             const firstAvailableIndex = sizesNormalized.indexOf(firstAvailableSize);
             
             sizeOptions.innerHTML = sizesNormalized.map((size, i) => {
-                const isOutOfStock = size.inStock === false;
+                const isOutOfStock = !getSizeInitialAvailability(size, size.value);
                 const isSelected = i === firstAvailableIndex;
                 return `
                     <button type="button" 

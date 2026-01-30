@@ -71,7 +71,49 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         renderCategories();
-        initCarousel();
+        // Attendre que le DOM soit mis à jour avant d'initialiser le carrousel
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                initCarousel();
+                
+                // Si le contenu est caché (compte à rebours), réinitialiser le carrousel quand il sera visible
+                if (categoriesGrid && categoriesGrid.offsetWidth === 0) {
+                    console.log('Carousel hidden, waiting for reveal...');
+                    
+                    // Observer les changements de style pour réinitialiser quand visible
+                    const observer = new MutationObserver(() => {
+                        if (categoriesGrid.offsetWidth > 0) {
+                            console.log('Carousel now visible, reinitializing...');
+                            setTimeout(() => {
+                                initCarousel();
+                                updateCarouselState();
+                            }, 100);
+                            observer.disconnect();
+                        }
+                    });
+                    
+                    observer.observe(document.body, { 
+                        childList: true, 
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ['style', 'class']
+                    });
+                    
+                    // Aussi écouter l'événement resize déclenché par le coming-soon
+                    const resizeHandler = () => {
+                        if (categoriesGrid.offsetWidth > 0) {
+                            console.log('Resize detected, reinitializing carousel...');
+                            setTimeout(() => {
+                                initCarousel();
+                                updateCarouselState();
+                            }, 100);
+                            window.removeEventListener('resize', resizeHandler);
+                        }
+                    };
+                    window.addEventListener('resize', resizeHandler);
+                }
+            });
+        });
     }
     
     // Render category tiles
@@ -160,10 +202,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ===== CARROUSEL =====
     function initCarousel() {
-        if (!categoriesGrid || !carouselPrev || !carouselNext) return;
+        if (!categoriesGrid || !carouselPrev || !carouselNext) {
+            console.warn('Carousel elements not found:', { grid: !!categoriesGrid, prev: !!carouselPrev, next: !!carouselNext });
+            return;
+        }
         
         const tiles = categoriesGrid.querySelectorAll('.category-tile');
-        if (tiles.length === 0) return;
+        console.log('Carousel init:', tiles.length, 'tiles');
+        
+        if (tiles.length === 0) {
+            console.warn('No tiles found in carousel');
+            return;
+        }
+        
+        // Debug: afficher les dimensions
+        console.log('Carousel dimensions:', {
+            scrollWidth: categoriesGrid.scrollWidth,
+            clientWidth: categoriesGrid.clientWidth,
+            overflow: categoriesGrid.scrollWidth - categoriesGrid.clientWidth
+        });
         
         // Créer les dots
         if (carouselDots) {
@@ -251,13 +308,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateCarouselState() {
         if (!categoriesGrid || !carouselPrev || !carouselNext) return;
         
-        const scrollLeft = categoriesGrid.scrollLeft;
+        const scrollLeft = Math.round(categoriesGrid.scrollLeft);
         const scrollWidth = categoriesGrid.scrollWidth;
         const clientWidth = categoriesGrid.clientWidth;
         
+        // Debug log (peut être retiré en production)
+        console.log('updateCarouselState:', { scrollLeft, scrollWidth, clientWidth, overflow: scrollWidth - clientWidth });
+        
+        // Calcul de s'il y a du contenu à scroller
+        const hasOverflow = scrollWidth > clientWidth + 5; // 5px de tolérance
+        
         // Désactiver/activer les flèches
-        carouselPrev.disabled = scrollLeft <= 10;
-        carouselNext.disabled = scrollLeft >= scrollWidth - clientWidth - 10;
+        // Précédent : désactivé si on est au début
+        carouselPrev.disabled = scrollLeft <= 5;
+        
+        // Suivant : désactivé si on est à la fin OU s'il n'y a pas de débordement
+        carouselNext.disabled = !hasOverflow || scrollLeft >= scrollWidth - clientWidth - 5;
+        
+        console.log('Arrow states:', { prevDisabled: carouselPrev.disabled, nextDisabled: carouselNext.disabled, hasOverflow });
         
         // Mettre à jour les dots
         if (carouselDots) {
@@ -274,6 +342,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+    
+    // Recalculer l'état du carrousel au redimensionnement
+    window.addEventListener('resize', function() {
+        clearTimeout(window.carouselResizeTimeout);
+        window.carouselResizeTimeout = setTimeout(function() {
+            if (carouselDots && categoriesGrid) {
+                // Recréer les dots
+                const tiles = categoriesGrid.querySelectorAll('.category-tile');
+                if (tiles.length > 0) {
+                    const visibleTiles = getVisibleTiles();
+                    const totalDots = Math.ceil(tiles.length / visibleTiles);
+                    
+                    let dotsHtml = '';
+                    for (let i = 0; i < totalDots; i++) {
+                        dotsHtml += '<button class="carousel-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '"></button>';
+                    }
+                    carouselDots.innerHTML = dotsHtml;
+                    
+                    // Réattacher les événements des dots
+                    carouselDots.querySelectorAll('.carousel-dot').forEach(function(dot) {
+                        dot.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            scrollToIndex(index);
+                        });
+                    });
+                }
+            }
+            updateCarouselState();
+        }, 150);
+    });
     
     // Get category info
     function getCategoryInfo(categoryId) {

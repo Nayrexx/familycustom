@@ -587,7 +587,16 @@ function setupAdminAccess() {
             if (overlay) {
                 overlay.style.opacity = '0';
                 overlay.style.transition = 'opacity 0.3s ease';
-                setTimeout(() => overlay.remove(), 300);
+                setTimeout(() => {
+                    overlay.remove();
+                    // Réinitialiser le carrousel après avoir révélé le site
+                    // Cela force le recalcul des dimensions
+                    window.dispatchEvent(new Event('resize'));
+                    // Recharger les données Firebase si nécessaire
+                    if (window.FirebaseDB) {
+                        console.log('Site revealed, reinitializing components...');
+                    }
+                }, 300);
             }
         } else {
             errorMsg.style.display = 'block';

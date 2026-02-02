@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte Cadeau - Family Custom</title>
+    <meta name="description" content="Offrez une carte cadeau Family Custom pour des créations personnalisées uniques : néons, bois gravé, cadeaux sur mesure.">
+    <link rel="canonical" href="https://www.family-custom.com/carte-cadeau.html">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Family Custom">
+    <meta name="keywords" content="carte cadeau, bon cadeau, offrir, family custom, néon, bois, création personnalisée, artisanat">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Family Custom",
+      "url": "https://www.family-custom.com/carte-cadeau.html",
+      "description": "Offrez une carte cadeau Family Custom pour des créations personnalisées uniques.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "FR"
+      },
+      "image": "https://www.family-custom.com/images/logo.png"
+    }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/gift-card.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <!-- Coming Soon Overlay -->
+    <script src="js/coming-soon.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header scrolled">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="gift-card-page">
+        <div class="gift-card-container">
+            
+            <!-- Hero Section -->
+            <div class="gift-card-hero">
+                <h1><i class="fas fa-gift"></i> Carte Cadeau</h1>
+                <p>Offrez une expérience unique à vos proches. Laissez-les choisir leur création personnalisée !</p>
+            </div>
+
+            <div class="gift-card-content">
+                <!-- Preview Card -->
+                <div class="gift-card-preview">
+                    <div class="preview-card" id="preview-card">
+                        <div class="card-decoration">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="card-header">
+                            <div class="card-logo">
+                                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="card-logo-img">
+                                <span>Family Custom</span>
+                            </div>
+                            <div class="card-badge">CARTE CADEAU</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-amount" id="preview-amount">50 €</div>
+                            <div class="card-message" id="preview-message">Pour toi avec amour ❤️</div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="card-validity"><i class="fas fa-clock"></i> Valable 1 an</span>
+                            <span class="card-code" id="preview-code">XXXX-XXXX-XXXX</span>
+                        </div>
+                        <div class="card-pattern"></div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <div class="gift-card-form">
+                    <h2>Personnalisez votre carte</h2>
+                    
+                    <!-- Amount Selection -->
+                    <div class="form-group">
+                        <label>Montant de la carte</label>
+                        <div class="amount-options">
+                            <button class="amount-btn" data-amount="25">25 €</button>
+                            <button class="amount-btn active" data-amount="50">50 €</button>
+                            <button class="amount-btn" data-amount="75">75 €</button>
+                            <button class="amount-btn" data-amount="100">100 €</button>
+                            <button class="amount-btn" data-amount="150">150 €</button>
+                            <button class="amount-btn custom" data-amount="custom">
+                                <i class="fas fa-pen"></i> Autre
+                            </button>
+                        </div>
+                        <div class="custom-amount" id="custom-amount" style="display: none;">
+                            <input type="number" id="custom-amount-input" placeholder="Montant personnalisé" min="10" max="500" step="1">
+                            <span>€</span>
+                        </div>
+                    </div>
+
+                    <!-- Recipient Info -->
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Pour qui ?</label>
+                        <input type="text" id="recipient-name" placeholder="Nom du destinataire">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email du destinataire</label>
+                        <input type="email" id="recipient-email" placeholder="email@exemple.com">
+                        <span class="form-hint">La carte sera envoyée à cette adresse</span>
+                    </div>
+
+                    <!-- Message -->
+                    <div class="form-group">
+                        <label><i class="fas fa-comment-dots"></i> Message personnel</label>
+                        <textarea id="gift-message" placeholder="Pour toi avec amour ❤️" maxlength="100"></textarea>
+                        <span class="char-count"><span id="char-count">0</span>/100</span>
+                    </div>
+
+                    <!-- Sender Info -->
+                    <div class="form-group">
+                        <label><i class="fas fa-signature"></i> De la part de</label>
+                        <input type="text" id="sender-name" placeholder="Votre nom">
+                    </div>
+
+                    <!-- Delivery Date -->
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar"></i> Date d'envoi</label>
+                        <div class="delivery-options">
+                            <label class="radio-option">
+                                <input type="radio" name="delivery" value="now" checked>
+                                <span class="radio-label">Maintenant</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="delivery" value="scheduled">
+                                <span class="radio-label">Programmer</span>
+                            </label>
+                        </div>
+                        <input type="date" id="scheduled-date" style="display: none;" min="">
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="gift-summary">
+                        <div class="summary-row">
+                            <span>Carte cadeau</span>
+                            <span id="summary-amount">50,00 €</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span id="summary-total">50,00 €</span>
+                        </div>
+                    </div>
+
+                    <!-- Add to Cart -->
+                    <button class="btn-add-gift" id="add-gift-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        Ajouter au panier
+                    </button>
+
+                    <p class="gift-info">
+                        <i class="fas fa-info-circle"></i>
+                        La carte cadeau sera envoyée par email et est valable 1 an.
+                    </p>
+                </div>
+            </div>
+
+            <!-- How it works -->
+            <div class="gift-how-it-works">
+                <h3>Comment ça marche ?</h3>
+                <div class="steps-grid">
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h4>1. Choisissez le montant</h4>
+                        <p>Sélectionnez un montant entre 25€ et 500€</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h4>2. Personnalisez</h4>
+                        <p>Ajoutez un message personnel pour le destinataire</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <h4>3. Envoi automatique</h4>
+                        <p>La carte est envoyée par email instantanément ou à la date choisie</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h4>4. Utilisation</h4>
+                        <p>Le code est utilisable sur tout le site pendant 1 an</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Family Custom - Tous droits réservés</p>
+            </div>
+        </div>
+    </footer>
+
+    
+    <script src="js/script.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/gift-card.js"></script>
+    <script src="js/cart-badge.js"></script>
+</body>
+</html>

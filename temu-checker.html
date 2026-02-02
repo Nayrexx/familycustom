@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temu Stock Checker - FamilyCustom</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        
+        .search-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .search-box label {
+            display: block;
+            margin-bottom: 10px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+        
+        .input-group input::placeholder {
+            color: #666;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        /* Manual fallback */
+        .manual-fallback {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .manual-fallback summary {
+            padding: 15px 20px;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        
+        .manual-fallback summary:hover {
+            color: #ff8c42;
+        }
+        
+        .manual-entry-content {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        /* Entry styles */
+        .entry-section {
+            margin-bottom: 15px;
+        }
+        
+        .entry-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .entry-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .sub-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .sub-label.in-stock-label {
+            color: #4CAF50;
+        }
+        
+        .sub-label.out-stock-label {
+            color: #f44336;
+        }
+        
+        .entry-group input {
+            padding: 12px 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+        
+        .entry-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+        
+        .entry-group input::placeholder {
+            color: #555;
+        }
+        
+        @media (max-width: 600px) {
+            .entry-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Old styles kept for compatibility */
+        .methods-box {
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .methods-box h3 {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 15px;
+        }
+        
+        .method-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .method-tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #888;
+        }
+        
+        .method-tab:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .method-tab.active {
+            background: rgba(255, 107, 53, 0.2);
+            border-color: #ff6b35;
+            color: #ff6b35;
+        }
+        
+        .method-content {
+            display: none;
+        }
+        
+        .method-content.active {
+            display: block;
+        }
+        
+        .paste-area {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 12px;
+            background: rgba(0,0,0,0.2);
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        
+        .paste-area:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+        
+        .instructions {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions h4 {
+            color: #ff8c42;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            color: #aaa;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+        
+        .result-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: none;
+        }
+        
+        .result-box.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .product-header {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .product-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .product-info h2 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .product-info .price {
+            font-size: 1.2rem;
+            color: #ff6b35;
+            font-weight: 600;
+        }
+        
+        .stock-section {
+            margin-bottom: 25px;
+        }
+        
+        .stock-section h3 {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stock-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .stock-item {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 80px;
+            justify-content: center;
+        }
+        
+        .stock-item.in-stock {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #4CAF50;
+        }
+        
+        .stock-item.out-of-stock {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #f44336;
+        }
+        
+        .stock-item.unknown {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            color: #FFC107;
+        }
+        
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+        
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+            display: block;
+            color: #ff6b35;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            color: #f44336;
+        }
+        
+        .error-message i {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .warning-message {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            color: #FFC107;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+        
+        .back-link:hover {
+            color: #ff6b35;
+        }
+        
+        .log-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .log-entry.success { color: #4CAF50; }
+        .log-entry.error { color: #f44336; }
+        .log-entry.info { color: #2196F3; }
+        .log-entry.warning { color: #FFC107; }
+        
+        .raw-data {
+            margin-top: 20px;
+        }
+        
+        .raw-data summary {
+            cursor: pointer;
+            color: #888;
+            font-size: 0.85rem;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        
+        .raw-data pre {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.75rem;
+            color: #aaa;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .product-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .method-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="admin.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        
+        <h1><i class="fas fa-shopping-bag"></i> Temu Stock Checker</h1>
+        <p class="subtitle">Vérifier les stocks d'un produit Temu</p>
+        
+        <div class="search-box">
+            <label>Lien du produit Temu</label>
+            <div class="input-group">
+                <input type="text" id="temu-url" placeholder="https://www.temu.com/...">
+                <button class="btn btn-primary" onclick="checkTemuStock()">
+                    <i class="fas fa-search"></i> Vérifier
+                </button>
+            </div>
+        </div>
+        
+        <div class="result-box" id="result-box">
+            <!-- Résultats -->
+        </div>
+        
+        <details class="manual-fallback">
+            <summary><i class="fas fa-keyboard"></i> Saisie manuelle (si automatique ne fonctionne pas)</summary>
+            <div class="manual-entry-content">
+                <div class="entry-section">
+                    <div class="entry-row">
+                        <div class="entry-group">
+                            <label class="sub-label in-stock-label"><i class="fas fa-check"></i> Tailles disponibles</label>
+                            <input type="text" id="manual-sizes" placeholder="S, M, L, XL">
+                        </div>
+                        <div class="entry-group">
+                            <label class="sub-label out-stock-label"><i class="fas fa-times"></i> Tailles rupture</label>
+                            <input type="text" id="manual-sizes-oos" placeholder="XS, 3XL">
+                        </div>
+                    </div>
+                </div>
+                <div class="entry-section">
+                    <div class="entry-row">
+                        <div class="entry-group">
+                            <label class="sub-label in-stock-label"><i class="fas fa-check"></i> Couleurs disponibles</label>
+                            <input type="text" id="manual-colors" placeholder="Noir, Blanc">
+                        </div>
+                        <div class="entry-group">
+                            <label class="sub-label out-stock-label"><i class="fas fa-times"></i> Couleurs rupture</label>
+                            <input type="text" id="manual-colors-oos" placeholder="Bleu">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="displayManualData()">
+                    <i class="fas fa-chart-bar"></i> Générer le rapport
+                </button>
+            </div>
+        </details>
+        
+        <div class="result-box" id="result-box">
+            <!-- Résultats -->
+        </div>
+        
+        <div class="log-box" id="log-box" style="display: none;">
+            <!-- Logs -->
+        </div>
+    </div>
+    
+    <script>
+        const resultBox = document.getElementById('result-box');
+        const logBox = document.getElementById('log-box');
+        const input = document.getElementById('temu-url');
+        
+        // Tabs
+        document.querySelectorAll('.method-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.method-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById('method-' + this.dataset.method).classList.add('active');
+            });
+        });
+        
+        // Enter key
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkTemuStock();
+        });
+        
+        function log(message, type = 'info') {
+            logBox.style.display = 'block';
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+        
+        function clearLogs() {
+            logBox.innerHTML = '';
+        }
+        
+        // API URL - Vercel deployment
+        const API_URL = 'https://api-two-pi-35.vercel.app/api/fetch-temu';
+        
+        async function checkTemuStock() {
+            const url = input.value.trim();
+            
+            if (!url) {
+                showError('Veuillez entrer un lien Temu');
+                return;
+            }
+            
+            if (!url.includes('temu.com')) {
+                showError('Ce lien ne semble pas être un produit Temu');
+                return;
+            }
+            
+            resultBox.classList.add('active');
+            resultBox.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Récupération des données Temu...</p>
+                    <p style="font-size: 0.8rem; color: #666;">Cela peut prendre quelques secondes</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`${API_URL}?url=${encodeURIComponent(url)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    displayResults(result.data);
+                } else {
+                    throw new Error(result.error || 'Erreur inconnue');
+                }
+            } catch (error) {
+                console.error('Erreur API:', error);
+                resultBox.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Impossible de récupérer les données automatiquement.</strong><br>
+                        <span style="font-size: 0.85rem; opacity: 0.8;">${error.message}</span>
+                    </div>
+                    <div class="instructions" style="margin-top: 15px;">
+                        <h4><i class="fas fa-lightbulb"></i> Utilisez la saisie manuelle ci-dessous</h4>
+                        <p style="color: #aaa; font-size: 0.85rem; margin-top: 8px;">
+                            Ouvrez le produit sur Temu et notez les tailles/couleurs disponibles.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayManualData() {
+            const sizesIn = document.getElementById('manual-sizes').value.split(',').map(s => s.trim()).filter(s => s);
+            const sizesOut = document.getElementById('manual-sizes-oos').value.split(',').map(s => s.trim()).filter(s => s);
+            const colorsIn = document.getElementById('manual-colors').value.split(',').map(s => s.trim()).filter(s => s);
+            const colorsOut = document.getElementById('manual-colors-oos').value.split(',').map(s => s.trim()).filter(s => s);
+            const url = document.getElementById('temu-url')?.value || '';
+            
+            if (sizesIn.length === 0 && sizesOut.length === 0 && colorsIn.length === 0 && colorsOut.length === 0) {
+                showError('Veuillez entrer au moins une taille ou une couleur');
+                return;
+            }
+            
+            displayResults({
+                title: 'Produit Temu (saisie manuelle)',
+                price: '',
+                image: '',
+                url: url,
+                sizes: sizesIn,
+                colors: colorsIn,
+                outOfStockSizes: sizesOut,
+                outOfStockColors: colorsOut
+            });
+        }
+        
+        function displayResults(data) {
+            let html = '';
+            
+            // Image ou placeholder
+            const hasImage = data.image && data.image.startsWith('http');
+            html += `
+                <div class="product-header">
+                    ${hasImage 
+                        ? `<img src="${data.image}" alt="" class="product-image" onerror="this.outerHTML='<div class=product-image style=display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ff6b35,#ff8c42)><i class=fas\\ fa-box-open style=font-size:2.5rem;color:#fff></i></div>'">`
+                        : `<div class="product-image" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #ff6b35, #ff8c42);"><i class="fas fa-box-open" style="font-size:2.5rem;color:#fff;"></i></div>`
+                    }
+                    <div class="product-info">
+                        <h2>${data.title || 'Produit Temu'}</h2>
+                        ${data.price ? `<div class="price">${data.price} €</div>` : ''}
+                        ${data.url ? `<a href="${data.url}" target="_blank" style="color:#ff8c42;font-size:0.85rem;"><i class="fas fa-external-link-alt"></i> Voir sur Temu</a>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            // Tailles
+            const allSizes = [...new Set([...(data.sizes || []), ...(data.outOfStockSizes || [])])];
+            if (allSizes.length > 0) {
+                html += `
+                    <div class="stock-section">
+                        <h3><i class="fas fa-ruler"></i> Tailles</h3>
+                        <div class="stock-grid">
+                            ${allSizes.map(size => {
+                                const isOOS = (data.outOfStockSizes || []).includes(size);
+                                return `
+                                    <div class="stock-item ${isOOS ? 'out-of-stock' : 'in-stock'}">
+                                        <span>${size}</span>
+                                        <i class="fas ${isOOS ? 'fa-times' : 'fa-check'}"></i>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Couleurs
+            const allColors = [...new Set([...(data.colors || []), ...(data.outOfStockColors || [])])];
+            if (allColors.length > 0) {
+                html += `
+                    <div class="stock-section">
+                        <h3><i class="fas fa-palette"></i> Couleurs</h3>
+                        <div class="stock-grid">
+                            ${allColors.map(color => {
+                                const isOOS = (data.outOfStockColors || []).includes(color);
+                                return `
+                                    <div class="stock-item ${isOOS ? 'out-of-stock' : 'in-stock'}">
+                                        <span>${color}</span>
+                                        <i class="fas ${isOOS ? 'fa-times' : 'fa-check'}"></i>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (allSizes.length === 0 && allColors.length === 0) {
+                html += `
+                    <div class="warning-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Aucune information de taille/couleur n'a pu être extraite automatiquement.<br>
+                        Utilisez la <strong>saisie manuelle</strong> pour entrer les données vous-même.
+                    </div>
+                `;
+            }
+            
+            // Résumé
+            const inStockSizes = data.sizes.filter(s => !data.outOfStockSizes.includes(s)).length;
+            const inStockColors = data.colors.filter(c => !data.outOfStockColors.includes(c)).length;
+            
+            html += `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #4CAF50;">${inStockSizes}</div>
+                        <div style="font-size: 0.8rem; color: #888;">Tailles OK</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #f44336;">${data.outOfStockSizes.length}</div>
+                        <div style="font-size: 0.8rem; color: #888;">Tailles HS</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #4CAF50;">${inStockColors}</div>
+                        <div style="font-size: 0.8rem; color: #888;">Couleurs OK</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #f44336;">${data.outOfStockColors.length}</div>
+                        <div style="font-size: 0.8rem; color: #888;">Couleurs HS</div>
+                    </div>
+                </div>
+            `;
+            
+            // Données brutes
+            if (data.rawHtml) {
+                html += `
+                    <details class="raw-data">
+                        <summary><i class="fas fa-code"></i> Voir les données brutes</summary>
+                        <pre>${escapeHtml(data.rawHtml.substring(0, 5000))}${data.rawHtml.length > 5000 ? '\n\n... (tronqué)' : ''}</pre>
+                    </details>
+                `;
+            }
+            
+            resultBox.classList.add('active');
+            resultBox.innerHTML = html;
+        }
+        
+        function showError(message) {
+            resultBox.classList.add('active');
+            resultBox.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    ${message}
+                </div>
+            `;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

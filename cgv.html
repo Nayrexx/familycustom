@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conditions Générales de Vente - Family Custom</title>
+    <meta name="description" content="Conditions Générales de Vente de Family Custom - Créations personnalisées">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏠%3C/text%3E%3C/svg%3E">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    
+    <style>
+        .legal-page {
+            padding: 120px 20px 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .legal-page h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .legal-page .last-update {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 40px;
+        }
+        
+        .legal-page h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #e07a5f;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .legal-page h3 {
+            font-size: 1.1rem;
+            color: #ffffff;
+            margin: 25px 0 15px;
+        }
+        
+        .legal-page p {
+            color: #cccccc;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .legal-page ul {
+            color: #cccccc;
+            line-height: 1.8;
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        
+        .legal-page ul li {
+            margin-bottom: 8px;
+        }
+        
+        .legal-page strong {
+            color: #ffffff;
+        }
+        
+        .legal-page a {
+            color: #e07a5f;
+        }
+        
+        .legal-page .company-info {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+        
+        .legal-page .company-info p {
+            margin-bottom: 8px;
+            color: #dddddd;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #e07a5f;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <!-- Coming Soon Overlay -->
+    <script src="js/coming-soon.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Content -->
+    <main class="legal-page">
+        <a href="index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour à l'accueil
+        </a>
+        
+        <h1>Conditions Générales de Vente</h1>
+        <p class="last-update">Dernière mise à jour : 23 janvier 2026</p>
+        
+        <div class="company-info">
+            <p><strong>Family Custom</strong></p>
+            <p>42330 Saint-Galmier, France</p>
+            <p>Email : <a href="mailto:support@family-custom.com">support@family-custom.com</a></p>
+            <p>SIRET : [Numéro SIRET]</p>
+        </div>
+        
+        <h2>Article 1 - Objet</h2>
+        <p>Les présentes Conditions Générales de Vente (CGV) régissent les relations contractuelles entre Family Custom et tout client (ci-après "le Client") effectuant un achat sur le site www.family-custom.com.</p>
+        <p>Toute commande implique l'acceptation sans réserve des présentes CGV.</p>
+        
+        <h2>Article 2 - Produits</h2>
+        <p>Family Custom propose des créations personnalisées, notamment :</p>
+        <ul>
+            <li>Néons LED personnalisés</li>
+            <li>Créations en bois gravées ou découpées</li>
+            <li>Cartes cadeaux</li>
+        </ul>
+        <p>Chaque produit est fabriqué sur mesure selon les spécifications du Client. Les photos présentées sur le site sont non contractuelles et peuvent légèrement différer du produit final.</p>
+        
+        <h2>Article 3 - Prix</h2>
+        <p>Les prix sont indiqués en euros (€) toutes taxes comprises (TTC). Family Custom se réserve le droit de modifier ses prix à tout moment, étant entendu que le prix applicable est celui en vigueur au moment de la validation de la commande.</p>
+        <p>Le prix final est calculé en fonction des options de personnalisation choisies (texte, dimensions, couleurs, etc.) et affiché avant validation de la commande.</p>
+        
+        <h2>Article 4 - Commande</h2>
+        <h3>4.1 Processus de commande</h3>
+        <p>Le Client sélectionne les produits, les personnalise selon ses souhaits, puis procède au paiement. Un email de confirmation est envoyé à l'adresse fournie.</p>
+        
+        <h3>4.2 Validation de la commande</h3>
+        <p>La commande est considérée comme validée après :</p>
+        <ul>
+            <li>Acceptation des présentes CGV</li>
+            <li>Validation du paiement intégral</li>
+            <li>Envoi de l'email de confirmation</li>
+        </ul>
+        
+        <h3>4.3 Modification ou annulation</h3>
+        <p>En raison du caractère personnalisé des produits, <strong>aucune modification ou annulation n'est possible</strong> une fois la commande validée, sauf accord exceptionnel de Family Custom.</p>
+        
+        <h2>Article 5 - Paiement</h2>
+        <p>Le paiement s'effectue en ligne par carte bancaire (Visa, Mastercard, CB) via la plateforme sécurisée Stripe. Les données bancaires sont cryptées et ne transitent pas par nos serveurs.</p>
+        <p>Le paiement est débité immédiatement lors de la validation de la commande.</p>
+        
+        <h2>Article 6 - Livraison</h2>
+        <h3>6.1 Délais</h3>
+        <p>Les délais de livraison sont indicatifs et généralement compris entre <strong>5 et 10 jours ouvrés</strong> après validation de la commande. Ce délai inclut la fabrication personnalisée et l'expédition.</p>
+        
+        <h3>6.2 Zones de livraison</h3>
+        <p>Family Custom livre en France métropolitaine, dans les DOM-TOM et en Europe. Les frais de livraison sont calculés selon la destination.</p>
+        
+        <h3>6.3 Livraison gratuite</h3>
+        <p>La livraison est offerte en France métropolitaine à partir de <strong>69€</strong> d'achat.</p>
+        
+        <h3>6.4 Réception</h3>
+        <p>Le Client s'engage à vérifier l'état du colis à la réception. En cas de dommage visible, le Client doit émettre des réserves auprès du transporteur et contacter Family Custom sous 48h.</p>
+        
+        <h2>Article 7 - Droit de rétractation</h2>
+        <p>Conformément à l'article L221-28 du Code de la consommation, <strong>le droit de rétractation ne s'applique pas</strong> aux produits personnalisés, confectionnés selon les spécifications du Client.</p>
+        <p>Les créations personnalisées ne peuvent donc être ni reprises ni échangées, sauf en cas de défaut de fabrication.</p>
+        
+        <h2>Article 8 - Garantie et réclamations</h2>
+        <h3>8.1 Garantie légale</h3>
+        <p>Tous nos produits bénéficient de la garantie légale de conformité (articles L217-4 et suivants du Code de la consommation) et de la garantie contre les vices cachés (articles 1641 et suivants du Code civil).</p>
+        
+        <h3>8.2 Garantie commerciale</h3>
+        <ul>
+            <li><strong>Néons LED</strong> : garantie 2 ans contre les défauts de fabrication</li>
+            <li><strong>Créations en bois</strong> : garantie 1 an contre les défauts de fabrication</li>
+        </ul>
+        
+        <h3>8.3 Procédure de réclamation</h3>
+        <p>En cas de défaut constaté, le Client doit contacter Family Custom par email à <a href="mailto:support@family-custom.com">support@family-custom.com</a> dans un délai de <strong>48 heures</strong> suivant la réception, en joignant des photos du produit et du défaut.</p>
+        <p>Après examen, Family Custom proposera un remplacement ou un remboursement.</p>
+        
+        <h2>Article 9 - Responsabilité</h2>
+        <p>Family Custom ne saurait être tenue responsable des dommages résultant d'une mauvaise utilisation du produit, d'une modification effectuée par le Client, ou de l'usure normale.</p>
+        <p>La responsabilité de Family Custom est limitée au montant de la commande.</p>
+        
+        <h2>Article 10 - Propriété intellectuelle</h2>
+        <p>Le Client garantit qu'il dispose des droits nécessaires sur les textes, images ou logos qu'il souhaite faire personnaliser. Family Custom décline toute responsabilité en cas de violation de droits de propriété intellectuelle par le Client.</p>
+        <p>Family Custom se réserve le droit de refuser toute commande comportant des contenus illicites, injurieux ou portant atteinte aux droits de tiers.</p>
+        
+        <h2>Article 11 - Données personnelles</h2>
+        <p>Les données personnelles collectées sont nécessaires au traitement des commandes et sont traitées conformément au RGPD. Pour plus d'informations, consultez notre Politique de Confidentialité.</p>
+        <p>Le Client dispose d'un droit d'accès, de rectification et de suppression de ses données en contactant <a href="mailto:support@family-custom.com">support@family-custom.com</a>.</p>
+        
+        <h2>Article 12 - Force majeure</h2>
+        <p>Family Custom ne pourra être tenue responsable de tout retard ou inexécution résultant d'un cas de force majeure tel que défini par la jurisprudence française.</p>
+        
+        <h2>Article 13 - Litiges</h2>
+        <p>Les présentes CGV sont soumises au droit français. En cas de litige, une solution amiable sera recherchée. À défaut, les tribunaux français seront seuls compétents.</p>
+        <p>Conformément à l'article L612-1 du Code de la consommation, le Client peut recourir gratuitement à un médiateur de la consommation.</p>
+        
+        <h2>Article 14 - Contact</h2>
+        <p>Pour toute question relative aux présentes CGV ou à une commande :</p>
+        <ul>
+            <li><strong>Email</strong> : <a href="mailto:support@family-custom.com">support@family-custom.com</a></li>
+            <li><strong>Adresse</strong> : Family Custom - 42330 Saint-Galmier, France</li>
+        </ul>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="logo-text">Family Custom</div>
+                    <p>Créations personnalisées haut de gamme. Néons et bois, faits avec passion.</p>
+                    <div class="footer-social">
+                        <a href="https://www.instagram.com/familycustom/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h5>Navigation</h5>
+                    <ul>
+                        <li><a href="index.html">Accueil</a></li>
+                        <li><a href="index.html#categories">Nos Créations</a></li>
+                        <li><a href="panier.html">Mon Panier</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h5>Informations</h5>
+                    <ul>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Livraison</a></li>
+                        <li><a href="#">Retours</a></li>
+                        <li><a href="cgv.html">CGV</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h5>Contact</h5>
+                    <ul>
+                        <li><a href="mailto:support@family-custom.com">support@family-custom.com</a></li>
+                        <li>42330 Saint-Galmier</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2026 Family Custom. Tous droits réservés.</p>
+                <p>🇫🇷 Entreprise Française</p>
+            </div>
+        </div>
+    </footer>
+    
+    
+    <script src="js/script.js"></script>
+    <script src="js/cart.js"></script>
+</body>
+</html>

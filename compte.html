@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Compte - Family Custom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/account.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/features-extra.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <!-- Coming Soon Overlay -->
+    <script src="js/coming-soon.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header scrolled">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Auth Section (Login/Register) - Shown when not logged in -->
+    <section id="auth-section" class="auth-section">
+        <div class="auth-container">
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <div class="auth-header">
+                    <i class="fas fa-user-circle"></i>
+                    <h1>Connexion</h1>
+                    <p>Accédez à votre espace personnel</p>
+                </div>
+                
+                <form id="login-form-element">
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="login-email" required placeholder="votre@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Mot de passe</label>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-auth">
+                        <span>Se connecter</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <p class="auth-error" id="login-error"></p>
+                </form>
+                
+                <div class="auth-links">
+                    <a href="#" id="forgot-password-link">Mot de passe oublié ?</a>
+                    <p>Pas encore de compte ? <a href="#" id="show-register">Créer un compte</a></p>
+                </div>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form">
+                <div class="auth-header">
+                    <i class="fas fa-user-plus"></i>
+                    <h1>Créer un compte</h1>
+                    <p>Rejoignez la famille Family Custom</p>
+                </div>
+                
+                <form id="register-form-element">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prénom</label>
+                            <input type="text" id="register-firstname" required placeholder="Jean">
+                        </div>
+                        <div class="form-group">
+                            <label>Nom</label>
+                            <input type="text" id="register-lastname" required placeholder="Dupont">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="register-email" required placeholder="votre@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Téléphone (optionnel)</label>
+                        <input type="tel" id="register-phone" placeholder="06 12 34 56 78">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Mot de passe</label>
+                        <input type="password" id="register-password" required placeholder="Min. 6 caractères">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Confirmer le mot de passe</label>
+                        <input type="password" id="register-password-confirm" required placeholder="••••••••">
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="register-terms" required>
+                        <label for="register-terms">J'accepte les <a href="cgv.html" target="_blank">CGV</a> et la politique de confidentialité</label>
+                    </div>
+                    <button type="submit" class="btn-auth">
+                        <span>Créer mon compte</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <p class="auth-error" id="register-error"></p>
+                </form>
+                
+                <div class="auth-links">
+                    <p>Déjà un compte ? <a href="#" id="show-login">Se connecter</a></p>
+                </div>
+            </div>
+            
+            <!-- Forgot Password Form -->
+            <div id="forgot-form" class="auth-form">
+                <div class="auth-header">
+                    <i class="fas fa-key"></i>
+                    <h1>Mot de passe oublié</h1>
+                    <p>Recevez un lien de réinitialisation</p>
+                </div>
+                
+                <form id="forgot-form-element">
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="forgot-email" required placeholder="votre@email.com">
+                    </div>
+                    <button type="submit" class="btn-auth">
+                        <span>Envoyer le lien</span>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <p class="auth-error" id="forgot-error"></p>
+                    <p class="auth-success" id="forgot-success"></p>
+                </form>
+                
+                <div class="auth-links">
+                    <a href="#" id="back-to-login"><i class="fas fa-arrow-left"></i> Retour à la connexion</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Account Dashboard - Shown when logged in -->
+    <section id="account-section" class="account-section" style="display: none;">
+        <div class="account-container">
+            
+            <!-- Sidebar -->
+            <aside class="account-sidebar">
+                <div class="account-user">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <h3 id="user-name">Jean Dupont</h3>
+                        <p id="user-email">jean@email.com</p>
+                    </div>
+                </div>
+                
+                <nav class="account-nav">
+                    <a href="#" class="nav-item active" data-tab="dashboard">
+                        <i class="fas fa-home"></i> Tableau de bord
+                    </a>
+                    <a href="#" class="nav-item" data-tab="orders">
+                        <i class="fas fa-shopping-bag"></i> Mes commandes
+                    </a>
+                    <a href="#" class="nav-item" data-tab="addresses">
+                        <i class="fas fa-map-marker-alt"></i> Mes adresses
+                    </a>
+                    <a href="#" class="nav-item" data-tab="wishlist">
+                        <i class="fas fa-heart"></i> Liste de souhaits
+                    </a>
+                    <a href="#" class="nav-item" data-tab="profile">
+                        <i class="fas fa-user-edit"></i> Mon profil
+                    </a>
+                    <a href="#" class="nav-item logout" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                </nav>
+            </aside>
+            
+            <!-- Main Content -->
+            <main class="account-main">
+                
+                <!-- Dashboard Tab -->
+                <div id="tab-dashboard" class="account-tab active">
+                    <h2><i class="fas fa-home"></i> Bienvenue, <span id="welcome-name">Jean</span> !</h2>
+                    
+                    <div class="dashboard-cards">
+                        <div class="dash-card">
+                            <div class="dash-card-icon orders">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="dash-card-content">
+                                <span class="dash-card-value" id="dash-orders-count">0</span>
+                                <span class="dash-card-label">Commandes</span>
+                            </div>
+                        </div>
+                        <div class="dash-card">
+                            <div class="dash-card-icon wishlist">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="dash-card-content">
+                                <span class="dash-card-value" id="dash-wishlist-count">0</span>
+                                <span class="dash-card-label">Favoris</span>
+                            </div>
+                        </div>
+                        <div class="dash-card">
+                            <div class="dash-card-icon points">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="dash-card-content">
+                                <span class="dash-card-value" id="dash-points">0</span>
+                                <span class="dash-card-label">Points fidélité</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Orders -->
+                    <div class="section-box">
+                        <div class="section-header">
+                            <h3><i class="fas fa-clock"></i> Commandes récentes</h3>
+                            <a href="#" class="view-all" data-goto="orders">Voir tout</a>
+                        </div>
+                        <div id="recent-orders" class="recent-orders">
+                            <p class="empty-state">Aucune commande pour le moment</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Points de Fidélité Section -->
+                    <div class="section-box">
+                        <div class="section-header">
+                            <h3><i class="fas fa-coins"></i> Programme de Fidélité</h3>
+                        </div>
+                        <div id="loyalty-container" class="loyalty-section">
+                            <div class="loyalty-loading">
+                                <i class="fas fa-spinner fa-spin"></i> Chargement...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Tab -->
+                <div id="tab-orders" class="account-tab">
+                    <h2><i class="fas fa-shopping-bag"></i> Mes commandes</h2>
+                    
+                    <div id="orders-list" class="orders-list">
+                        <p class="empty-state"><i class="fas fa-box-open"></i> Aucune commande</p>
+                    </div>
+                </div>
+                
+                <!-- Addresses Tab -->
+                <div id="tab-addresses" class="account-tab">
+                    <h2><i class="fas fa-map-marker-alt"></i> Mes adresses</h2>
+                    
+                    <button class="btn-add-address" id="btn-add-address">
+                        <i class="fas fa-plus"></i> Ajouter une adresse
+                    </button>
+                    
+                    <div id="addresses-list" class="addresses-list">
+                        <p class="empty-state"><i class="fas fa-map"></i> Aucune adresse enregistrée</p>
+                    </div>
+                    
+                    <!-- Add Address Modal -->
+                    <div id="address-modal" class="modal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3><i class="fas fa-map-marker-alt"></i> Nouvelle adresse</h3>
+                                <button class="modal-close">&times;</button>
+                            </div>
+                            <form id="address-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Prénom</label>
+                                        <input type="text" id="addr-firstname" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nom</label>
+                                        <input type="text" id="addr-lastname" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Adresse</label>
+                                    <input type="text" id="addr-street" required placeholder="123 rue de la Paix">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Code postal</label>
+                                        <input type="text" id="addr-postal" required placeholder="75000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ville</label>
+                                        <input type="text" id="addr-city" required placeholder="Paris">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Téléphone</label>
+                                    <input type="tel" id="addr-phone" placeholder="06 12 34 56 78">
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" id="addr-default">
+                                    <label for="addr-default">Définir comme adresse par défaut</label>
+                                </div>
+                                <button type="submit" class="btn-save">
+                                    <i class="fas fa-save"></i> Enregistrer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Wishlist Tab -->
+                <div id="tab-wishlist" class="account-tab">
+                    <h2><i class="fas fa-heart"></i> Liste de souhaits</h2>
+                    
+                    <div id="wishlist-container" class="wishlist-grid">
+                        <!-- Loaded by JS -->
+                    </div>
+                </div>
+                
+                <!-- Profile Tab -->
+                <div id="tab-profile" class="account-tab">
+                    <h2><i class="fas fa-user-edit"></i> Mon profil</h2>
+                    
+                    <form id="profile-form" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Prénom</label>
+                                <input type="text" id="profile-firstname">
+                            </div>
+                            <div class="form-group">
+                                <label>Nom</label>
+                                <input type="text" id="profile-lastname">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profile-email" disabled>
+                            <small>L'email ne peut pas être modifié</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Téléphone</label>
+                            <input type="tel" id="profile-phone">
+                        </div>
+                        
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i> Enregistrer les modifications
+                        </button>
+                        <p class="form-success" id="profile-success"></p>
+                    </form>
+                    
+                    <div class="section-box danger-zone">
+                        <h3><i class="fas fa-key"></i> Changer le mot de passe</h3>
+                        <p>Un email de réinitialisation sera envoyé à votre adresse</p>
+                        <button class="btn-outline" id="btn-change-password">
+                            <i class="fas fa-envelope"></i> Envoyer le lien
+                        </button>
+                    </div>
+                </div>
+                
+            </main>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Family Custom</h4>
+                <p>Créations personnalisées uniques pour votre intérieur</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p><i class="fas fa-envelope"></i> support@family-custom.com</p>
+                <p><i class="fas fa-map-marker-alt"></i> 42330 Saint-Galmier, France</p>
+            </div>
+            <div class="footer-section">
+                <h4>Liens utiles</h4>
+                <a href="suivi-commande.html">Suivi de commande</a>
+                <a href="cgv.html">CGV</a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Family Custom - Tous droits réservés</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <script src="js/script.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/customer-auth.js"></script>
+    <script src="js/account.js"></script>
+</body>
+</html>

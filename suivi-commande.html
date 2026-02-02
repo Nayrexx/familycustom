@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi de Commande - Family Custom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/order-tracking.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <!-- Coming Soon Overlay -->
+    <script src="js/coming-soon.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header scrolled">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="tracking-page">
+        <div class="tracking-container">
+            <h1><i class="fas fa-truck"></i> Suivi de Commande</h1>
+            
+            <!-- Search Form -->
+            <div class="tracking-search">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="order-number" placeholder="Entrez votre numéro de commande (ex: FC-2026-XXXX)">
+                    <button id="track-btn" class="btn-track">Suivre</button>
+                </div>
+                <p class="search-hint">Vous trouverez votre numéro de commande dans l'email de confirmation</p>
+            </div>
+
+            <!-- Order Result (hidden by default) -->
+            <div id="tracking-result" class="tracking-result" style="display: none;">
+                
+                <!-- Order Header -->
+                <div class="order-header">
+                    <div class="order-info">
+                        <h2>Commande <span id="result-order-number">#FC-2026-1234</span></h2>
+                        <p class="order-date">Passée le <span id="result-order-date">20 janvier 2026</span></p>
+                    </div>
+                    <div class="order-status" id="result-status">
+                        <span class="status-badge fabrication">En fabrication</span>
+                    </div>
+                </div>
+                
+                <!-- Info délais -->
+                <div class="delivery-info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Délais de fabrication artisanale</strong>
+                        <p>Chaque création est fabriquée à la main avec soin. Comptez 3-5 jours ouvrés de fabrication + 2-4 jours de livraison.</p>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="tracking-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>Commandé</span>
+                        <span>Préparation</span>
+                        <span>Fabrication</span>
+                        <span>Expédié</span>
+                        <span>Livré</span>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="tracking-timeline">
+                    <div class="timeline-step completed" data-step="confirmed">
+                        <div class="step-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Commande confirmée</h4>
+                            <p class="step-date"></p>
+                            <p class="step-desc">Paiement validé - Merci pour votre confiance !</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-step" data-step="preparation">
+                        <div class="step-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>En préparation</h4>
+                            <p class="step-date"></p>
+                            <p class="step-desc">Vérification de votre personnalisation et préparation des matériaux</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-step" data-step="fabrication">
+                        <div class="step-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>En fabrication</h4>
+                            <p class="step-date"></p>
+                            <p class="step-desc">Création artisanale de votre produit personnalisé avec soin</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-step" data-step="shipped">
+                        <div class="step-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Expédié</h4>
+                            <p class="step-date"></p>
+                            <p class="step-desc">Votre colis est en route vers vous</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-step" data-step="delivered">
+                        <div class="step-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Livré</h4>
+                            <p class="step-date"></p>
+                            <p class="step-desc">Profitez de votre création unique !</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Details -->
+                <div class="order-details">
+                    <h3><i class="fas fa-box"></i> Détails de la commande</h3>
+                    <div class="order-items" id="order-items">
+                        <!-- Items will be inserted here -->
+                    </div>
+                    
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>Sous-total</span>
+                            <span id="summary-subtotal">89,00 €</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Livraison</span>
+                            <span id="summary-shipping">Gratuite</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span id="summary-total">89,00 €</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Info -->
+                <div class="shipping-info">
+                    <h3><i class="fas fa-map-marker-alt"></i> Adresse de livraison</h3>
+                    <div class="address-card">
+                        <p id="shipping-name">Jean Dupont</p>
+                        <p id="shipping-address">123 Rue de la Paix</p>
+                        <p id="shipping-city">75001 Paris, France</p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="tracking-actions">
+                    <a href="index.html#contact" class="btn-secondary">
+                        <i class="fas fa-envelope"></i> Contacter le support
+                    </a>
+                    <button class="btn-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Not Found (hidden by default) -->
+            <div id="tracking-not-found" class="tracking-not-found" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h3>Commande introuvable</h3>
+                <p>Aucune commande ne correspond à ce numéro. Vérifiez votre saisie ou contactez-nous.</p>
+                <a href="index.html#contact" class="btn-primary">Contacter le support</a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Family Custom - Tous droits réservés</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <script src="js/script.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/customer-auth.js"></script>
+    <script src="js/order-tracking.js"></script>
+    <script src="js/cart-badge.js"></script>
+</body>
+</html>

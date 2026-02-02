@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politique de Retours - Family Custom</title>
+    <meta name="description" content="Politique de retours Family Custom - Informations sur les retours de produits personnalisés.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏠%3C/text%3E%3C/svg%3E">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    
+    <link rel="canonical" href="https://www.family-custom.com/retours.html">
+    <meta name="robots" content="index, follow">
+    
+    <style>
+        .returns-page {
+            min-height: 100vh;
+            padding-top: 120px;
+            padding-bottom: 80px;
+            background: #2d2d2d;
+        }
+        
+        .returns-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .returns-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .returns-header .icon-wrapper {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #e07a5f, #c9a87c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .returns-header .icon-wrapper i {
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        .returns-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #f5f5f5;
+            margin-bottom: 0.5rem;
+        }
+        
+        .returns-header p {
+            color: #aaaaaa;
+            font-size: 1.1rem;
+        }
+        
+        .returns-content {
+            background: #3a3a3a;
+            border-radius: 20px;
+            padding: 3rem;
+        }
+        
+        .returns-section {
+            margin-bottom: 2.5rem;
+        }
+        
+        .returns-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .returns-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #f5f5f5;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .returns-section h2 i {
+            color: #e07a5f;
+            font-size: 1.2rem;
+        }
+        
+        .returns-section p, 
+        .returns-section li {
+            color: #cccccc;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+        
+        .returns-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        
+        .returns-section ul li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.8rem;
+        }
+        
+        .returns-section ul li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #e07a5f;
+            font-weight: bold;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(224, 122, 95, 0.15), rgba(201, 168, 124, 0.15));
+            border: 1px solid rgba(224, 122, 95, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .highlight-box p {
+            margin: 0;
+            color: #f5f5f5;
+        }
+        
+        .highlight-box i {
+            color: #e07a5f;
+            margin-right: 8px;
+        }
+        
+        .contact-box {
+            background: #2d2d2d;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .contact-box h3 {
+            font-family: 'Playfair Display', serif;
+            color: #f5f5f5;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-box p {
+            color: #aaaaaa;
+            margin-bottom: 1.5rem;
+        }
+        
+        .contact-box a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #e07a5f, #c9a87c);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-box a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(224, 122, 95, 0.3);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            color: #aaaaaa;
+        }
+        
+        .breadcrumb a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb a:hover {
+            color: #e07a5f;
+        }
+        
+        .breadcrumb i {
+            font-size: 0.7rem;
+            color: #888;
+        }
+        
+        .breadcrumb span {
+            color: #f5f5f5;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .returns-header h1 {
+                font-size: 2rem;
+            }
+            
+            .returns-content {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+    <!-- Coming Soon Overlay -->
+    <script src="js/coming-soon.js"></script>
+</head>
+<body>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Returns Page Content -->
+    <main class="returns-page">
+        <div class="returns-container">
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb">
+                <a href="index.html">Accueil</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Politique de retours</span>
+            </nav>
+            
+            <div class="returns-header">
+                <div class="icon-wrapper">
+                    <i class="fas fa-undo-alt"></i>
+                </div>
+                <h1>Politique de Retours</h1>
+                <p>Informations sur les retours et échanges</p>
+            </div>
+            
+            <div class="returns-content">
+                <section class="returns-section">
+                    <h2><i class="fas fa-info-circle"></i> Produits Personnalisés</h2>
+                    <p>Chez Family Custom, tous nos produits sont <strong>fabriqués sur-mesure</strong> et <strong>personnalisés selon vos souhaits</strong>. Chaque création est unique et réalisée spécialement pour vous.</p>
+                    
+                    <div class="highlight-box">
+                        <p><i class="fas fa-exclamation-triangle"></i> <strong>En raison de la nature personnalisée de nos produits, nous ne pouvons malheureusement pas accepter les retours ou échanges.</strong></p>
+                    </div>
+                    
+                    <p>Cette politique est conforme à l'article L221-28 du Code de la consommation qui exclut du droit de rétractation les biens confectionnés selon les spécifications du consommateur ou nettement personnalisés.</p>
+                </section>
+                
+                <section class="returns-section">
+                    <h2><i class="fas fa-shield-alt"></i> Notre Engagement Qualité</h2>
+                    <p>Nous nous engageons à vous livrer des produits de qualité irréprochable :</p>
+                    <ul>
+                        <li>Vérification minutieuse avant chaque expédition</li>
+                        <li>Emballage soigné pour protéger votre création</li>
+                        <li>Photos de validation envoyées avant expédition (sur demande)</li>
+                        <li>Matériaux de haute qualité garantis</li>
+                    </ul>
+                </section>
+                
+                <section class="returns-section">
+                    <h2><i class="fas fa-tools"></i> En Cas de Problème</h2>
+                    <p>Si votre produit arrive endommagé ou présente un défaut de fabrication, nous nous engageons à trouver une solution :</p>
+                    <ul>
+                        <li>Contactez-nous dans les 48h suivant la réception</li>
+                        <li>Envoyez-nous des photos du produit et de l'emballage</li>
+                        <li>Nous analyserons votre demande sous 24h ouvrées</li>
+                        <li>En cas de défaut avéré, nous procéderons à un remplacement ou un remboursement</li>
+                    </ul>
+                </section>
+                
+                <section class="returns-section">
+                    <h2><i class="fas fa-check-circle"></i> Ce Qui Est Couvert</h2>
+                    <ul>
+                        <li>Produit endommagé pendant le transport</li>
+                        <li>Défaut de fabrication (LED défectueuse, gravure incorrecte...)</li>
+                        <li>Erreur de notre part sur la personnalisation</li>
+                        <li>Produit non conforme à la commande</li>
+                    </ul>
+                </section>
+                
+                <section class="returns-section">
+                    <h2><i class="fas fa-times-circle"></i> Ce Qui N'Est Pas Couvert</h2>
+                    <ul>
+                        <li>Changement d'avis après validation de la commande</li>
+                        <li>Erreur dans le texte personnalisé fourni par le client</li>
+                        <li>Dommages causés par une mauvaise utilisation</li>
+                        <li>Usure normale du produit</li>
+                    </ul>
+                </section>
+                
+                <div class="contact-box">
+                    <h3>Une Question ?</h3>
+                    <p>Notre équipe est là pour vous aider. N'hésitez pas à nous contacter.</p>
+                    <a href="mailto:support@family-custom.com">
+                        <i class="fas fa-envelope"></i> Nous Contacter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <span class="logo-text">Family Custom</span>
+                    <p>Créations personnalisées uniques, fabriquées avec passion.</p>
+                    <div class="footer-social">
+                        <a href="https://www.instagram.com/familycustom/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h5>Navigation</h5>
+                    <ul>
+                        <li><a href="index.html">Accueil</a></li>
+                        <li><a href="index.html#categories">Nos Créations</a></li>
+                        <li><a href="panier.html">Mon Panier</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h5>Informations</h5>
+                    <ul>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="suivi-commande.html">Livraison</a></li>
+                        <li><a href="retours.html">Retours</a></li>
+                        <li><a href="cgv.html">CGV</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h5>Contact</h5>
+                    <ul>
+                        <li><a href="mailto:support@family-custom.com">support@family-custom.com</a></li>
+                        <li>42330 Saint-Galmier</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2026 Family Custom. Tous droits réservés.</p>
+                <p>🇫🇷 Entreprise Française</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Scripts -->
+    
+    <script src="js/script.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/search.js"></script>
+</body>
+</html>

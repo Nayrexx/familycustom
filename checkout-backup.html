@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement - Family Custom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <!-- jQuery (required for MR Widget) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <!-- jsPDF for invoice generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Leaflet pour la carte -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        /* Mondial Relay Custom Picker Styles */
+        .mr-picker-container {
+            margin-top: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+        }
+        .mr-search-box {
+            padding: 15px;
+            background: linear-gradient(135deg, #00b8e6 0%, #0099cc 100%);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .mr-search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+        .mr-search-box button {
+            padding: 12px 20px;
+            background: #fff;
+            color: #00b8e6;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mr-search-box button:hover {
+            background: #f0f0f0;
+            transform: scale(1.02);
+        }
+        #mr-map {
+            height: 250px;
+            width: 100%;
+        }
+        .mr-results-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid #e0e0e0;
+        }
+        .mr-point-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .mr-point-item:hover {
+            background: #f8f9fa;
+        }
+        .mr-point-item.selected {
+            background: linear-gradient(135deg, #e3f7fc 0%, #d4f1f9 100%);
+            border-left: 4px solid #00b8e6;
+        }
+        .mr-point-icon {
+            width: 40px;
+            height: 40px;
+            background: #00b8e6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        .mr-point-info {
+            flex: 1;
+        }
+        .mr-point-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .mr-point-address {
+            font-size: 0.9em;
+            color: #666;
+            margin: 0;
+        }
+        .mr-point-city {
+            font-size: 0.85em;
+            color: #888;
+            margin: 2px 0 0 0;
+        }
+        .mr-point-select-btn {
+            padding: 8px 16px;
+            background: #00b8e6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85em;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+        .mr-point-item:hover .mr-point-select-btn {
+            opacity: 1;
+        }
+        .mr-point-item.selected .mr-point-select-btn {
+            background: #28a745;
+            opacity: 1;
+        }
+        .mr-loading {
+            padding: 40px;
+            text-align: center;
+            color: #666;
+        }
+        .mr-loading i {
+            font-size: 2em;
+            color: #00b8e6;
+            margin-bottom: 10px;
+        }
+        .mr-no-results {
+            padding: 40px;
+            text-align: center;
+            color: #888;
+        }
+        .mr-no-results i {
+            font-size: 3em;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        #mr-selected-info {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px;
+            display: none;
+        }
+        #mr-selected-info.visible {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #mr-selected-info h4 {
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #mr-selected-info p {
+            margin: 4px 0;
+            opacity: 0.95;
+            font-size: 0.9em;
+        }
+        .mr-change-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .mr-change-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        /* Leaflet marker styles */
+        .mr-marker-icon {
+            background: #00b8e6;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header scrolled">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Checkout Page -->
+    <main class="checkout-page">
+        <div class="checkout-container">
+            <div class="checkout-title">
+                <h1><i class="fas fa-credit-card"></i> Paiement Sécurisé</h1>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="order-summary" id="order-summary">
+                <!-- Loaded by JS -->
+            </div>
+
+            <form id="checkout-form" class="checkout-form">
+                <!-- Left Column -->
+                <div class="checkout-left-column">
+                    <!-- Customer Type Selection -->
+                    <div class="form-section">
+                        <h2><i class="fas fa-user-tag"></i> Type de client</h2>
+                        
+                        <div class="customer-type-selector">
+                            <label class="type-option selected" data-type="particulier">
+                                <input type="radio" name="customerType" value="particulier" checked>
+                                <div class="type-card">
+                                    <i class="fas fa-user"></i>
+                                    <span class="type-label">Particulier</span>
+                                    <span class="type-desc">Achat personnel</span>
+                                </div>
+                            </label>
+                            <label class="type-option" data-type="professionnel">
+                                <input type="radio" name="customerType" value="professionnel">
+                                <div class="type-card">
+                                    <i class="fas fa-building"></i>
+                                    <span class="type-label">Professionnel</span>
+                                    <span class="type-desc">Entreprise / Auto-entrepreneur</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Pro Fields (hidden by default) -->
+                    <div class="form-section pro-fields" id="pro-fields" style="display: none;">
+                        <h2><i class="fas fa-building"></i> Informations entreprise</h2>
+                        
+                        <div class="form-group">
+                            <label for="companyName">Nom de l'entreprise *</label>
+                            <input type="text" id="companyName" name="companyName">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="siret">N° SIRET *</label>
+                                <input type="text" id="siret" name="siret" placeholder="XXX XXX XXX XXXXX" maxlength="17">
+                            </div>
+                            <div class="form-group">
+                                <label for="vatNumber">N° TVA (optionnel)</label>
+                                <input type="text" id="vatNumber" name="vatNumber" placeholder="FR XX XXXXXXXXX">
+                            </div>
+                        </div>
+                        
+                        <div class="pro-info-notice">
+                            <i class="fas fa-file-invoice"></i>
+                            <span>Une facture professionnelle sera automatiquement générée et envoyée par email</span>
+                        </div>
+                    </div>
+
+                    <!-- Gift Card / Promo Code -->
+                    <div class="form-section" style="margin-top: 20px;">
+                        <h2><i class="fas fa-gift"></i> Code promo / Carte cadeau</h2>
+                        
+                        <div class="promo-code-wrapper">
+                            <div class="promo-input-group">
+                                <input type="text" id="promo-code" placeholder="Entrez votre code" maxlength="20">
+                                <button type="button" id="apply-promo-btn" class="btn-apply-promo">
+                                    Appliquer
+                                </button>
+                            </div>
+                            <div id="promo-message" class="promo-message"></div>
+                            <div id="promo-applied" class="promo-applied" style="display: none;">
+                                <span class="promo-badge">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span id="applied-code"></span>
+                                    <span id="applied-amount"></span>
+                                </span>
+                                <button type="button" id="remove-promo-btn" class="btn-remove-promo">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment -->
+                    <div class="form-section" id="payment-section">
+                        <h2><i class="fas fa-credit-card"></i> Paiement sécurisé</h2>
+                        
+                        <div class="form-group">
+                            <label>Méthode de paiement</label>
+                            <div id="card-element">
+                                <!-- Stripe Payment Element -->
+                            </div>
+                            <div id="card-errors" class="payment-error"></div>
+                        </div>
+                        
+                        <button type="submit" class="pay-btn" id="pay-btn">
+                            <i class="fas fa-lock"></i>
+                            <span id="btn-text">Payer <span id="total-amount">0.00</span>€</span>
+                            <div class="spinner" style="display: none;" id="spinner"></div>
+                        </button>
+                        
+                        <div class="secure-badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Paiement 100% sécurisé par Stripe</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Customer Info -->
+                <div class="form-section">
+                    <h2><i class="fas fa-user"></i> <span id="contact-title">Vos informations</span></h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">Prénom *</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Nom *</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Téléphone *</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    
+                    <h2 style="margin-top: 30px;"><i class="fas fa-truck"></i> Mode de livraison</h2>
+                    
+                    <!-- Delivery Method Selection -->
+                    <div class="delivery-method-selector">
+                        <label class="delivery-option selected" data-method="home">
+                            <input type="radio" name="deliveryMethod" value="home" checked>
+                            <div class="delivery-card">
+                                <div class="delivery-icon"><i class="fas fa-home"></i></div>
+                                <div class="delivery-info">
+                                    <span class="delivery-label">Livraison à domicile</span>
+                                    <span class="delivery-price" id="home-delivery-price">6,90€</span>
+                                    <span class="delivery-desc">Livré chez vous sous 8-14 jours</span>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="delivery-option" data-method="relay">
+                            <input type="radio" name="deliveryMethod" value="relay">
+                            <div class="delivery-card">
+                                <div class="delivery-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div class="delivery-info">
+                                    <span class="delivery-label">Point Relais Mondial Relay</span>
+                                    <span class="delivery-price">4,50€</span>
+                                    <span class="delivery-desc">Retrait en point relais</span>
+                                </div>
+                                <img src="https://www.mondialrelay.fr/media/24430/mr-bleu.png" alt="Mondial Relay" class="mr-logo">
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <!-- Home Delivery Address -->
+                    <div id="home-delivery-section">
+                        <h3 class="delivery-section-title"><i class="fas fa-map-marker-alt"></i> Adresse de livraison</h3>
+                        
+                        <div class="form-group">
+                            <label for="address">Adresse *</label>
+                            <input type="text" id="address" name="address" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="postalCode">Code postal *</label>
+                                <input type="text" id="postalCode" name="postalCode" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="city">Ville *</label>
+                                <input type="text" id="city" name="city" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notes">Notes (optionnel)</label>
+                            <textarea id="notes" name="notes" placeholder="Instructions de livraison..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Relay Point Selection -->
+                    <div id="relay-delivery-section" style="display: none;">
+                        <h3 class="delivery-section-title"><i class="fas fa-search-location"></i> Choisir un point relais</h3>
+                        
+                        <!-- Custom Mondial Relay Picker -->
+                        <div class="mr-picker-container">
+                            <!-- Search Box -->
+                            <div class="mr-search-box">
+                                <input type="text" id="mr-postal-input" placeholder="Entrez votre code postal (ex: 75001)" maxlength="5">
+                                <button type="button" id="mr-search-btn">
+                                    <i class="fas fa-search"></i> Rechercher
+                                </button>
+                            </div>
+                            
+                            <!-- Map -->
+                            <div id="mr-map"></div>
+                            
+                            <!-- Loading -->
+                            <div id="mr-loading" class="mr-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Recherche des points relais...</p>
+                            </div>
+                            
+                            <!-- Results List -->
+                            <div id="mr-results" class="mr-results-list"></div>
+                            
+                            <!-- No Results -->
+                            <div id="mr-no-results" class="mr-no-results" style="display: none;">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <p>Aucun point relais trouvé.<br>Essayez un autre code postal.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Selected Relay Info -->
+                        <div id="mr-selected-info">
+                            <h4><i class="fas fa-check-circle"></i> Point relais sélectionné</h4>
+                            <p><strong id="mr-selected-name"></strong></p>
+                            <p id="mr-selected-address"></p>
+                            <p id="mr-selected-city"></p>
+                            <button type="button" class="mr-change-btn" id="mr-change-btn">
+                                <i class="fas fa-edit"></i> Modifier
+                            </button>
+                        </div>
+                        
+                        <input type="hidden" id="selected-relay-id" name="relayPointId">
+                        <input type="hidden" id="selected-relay-data" name="relayPointData">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-bottom">
+                <p>© 2026 Family Custom. Paiement 100% sécurisé. 🇫🇷</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- EmailJS pour l'envoi d'emails -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <script src="js/script.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/email-service.js"></script>
+    <script src="js/invoice-generator.js"></script>
+    <script src="js/gift-card-system.js"></script>
+    <script src="js/promo-code-system.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/conversion.js"></script>
+    <script src="js/checkout.js"></script>
+    <script>
+        // Custom Mondial Relay Picker with Leaflet Map
+        (function() {
+            const MR_API_URL = 'https://api-two-pi-35.vercel.app/api/search-relay-points';
+            let map = null;
+            let markers = [];
+            let relayPoints = [];
+            let selectedPoint = null;
+            let mapInitialized = false;
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchBtn = document.getElementById('mr-search-btn');
+                const postalInput = document.getElementById('mr-postal-input');
+                const changeBtn = document.getElementById('mr-change-btn');
+                
+                if (searchBtn) {
+                    searchBtn.addEventListener('click', searchRelayPoints);
+                }
+                
+                if (postalInput) {
+                    postalInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            searchRelayPoints();
+                        }
+                    });
+                }
+                
+                if (changeBtn) {
+                    changeBtn.addEventListener('click', function() {
+                        document.getElementById('mr-selected-info').classList.remove('visible');
+                        document.getElementById('mr-results').style.display = 'block';
+                        if (map) {
+                            document.getElementById('mr-map').style.display = 'block';
+                            map.invalidateSize();
+                        }
+                    });
+                }
+                
+                // Watch for relay section becoming visible
+                const relaySection = document.getElementById('relay-delivery-section');
+                if (relaySection) {
+                    const observer = new MutationObserver(function() {
+                        if (relaySection.style.display !== 'none' && !mapInitialized) {
+                            initMap();
+                        }
+                    });
+                    observer.observe(relaySection, { attributes: true, attributeFilter: ['style'] });
+                }
+            });
+            
+            function initMap() {
+                if (mapInitialized || !document.getElementById('mr-map')) return;
+                
+                // Initialize Leaflet map centered on France
+                map = L.map('mr-map').setView([46.603354, 1.888334], 6);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+                
+                mapInitialized = true;
+                console.log('Map initialized');
+            }
+            
+            async function searchRelayPoints() {
+                const postalCode = document.getElementById('mr-postal-input').value.trim();
+                
+                if (!postalCode || postalCode.length !== 5 || !/^\d{5}$/.test(postalCode)) {
+                    alert('Veuillez entrer un code postal valide (5 chiffres)');
+                    return;
+                }
+                
+                const loadingEl = document.getElementById('mr-loading');
+                const resultsEl = document.getElementById('mr-results');
+                const noResultsEl = document.getElementById('mr-no-results');
+                const selectedInfoEl = document.getElementById('mr-selected-info');
+                
+                loadingEl.style.display = 'block';
+                resultsEl.style.display = 'none';
+                resultsEl.innerHTML = '';
+                noResultsEl.style.display = 'none';
+                selectedInfoEl.classList.remove('visible');
+                
+                // Clear existing markers
+                markers.forEach(m => map.removeLayer(m));
+                markers = [];
+                
+                try {
+                    const response = await fetch(MR_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ postalCode: postalCode, country: 'FR', nbResults: 10 })
+                    });
+                    
+                    const data = await response.json();
+                    loadingEl.style.display = 'none';
+                    
+                    if (data.success && data.shops && data.shops.length > 0) {
+                        relayPoints = data.shops;
+                        resultsEl.style.display = 'block';
+                        
+                        // Render results
+                        resultsEl.innerHTML = relayPoints.map((point, index) => `
+                            <div class="mr-point-item" data-index="${index}">
+                                <div class="mr-point-icon">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                                <div class="mr-point-info">
+                                    <div class="mr-point-name">${point.name}</div>
+                                    <p class="mr-point-address">${point.address}</p>
+                                    <p class="mr-point-city">${point.postalCode} ${point.city}</p>
+                                </div>
+                                <button type="button" class="mr-point-select-btn">
+                                    <i class="fas fa-check"></i> Choisir
+                                </button>
+                            </div>
+                        `).join('');
+                        
+                        // Add click handlers
+                        resultsEl.querySelectorAll('.mr-point-item').forEach(item => {
+                            item.addEventListener('click', function() {
+                                const index = parseInt(this.dataset.index);
+                                selectRelayPoint(relayPoints[index], index);
+                            });
+                        });
+                        
+                        // Add markers to map
+                        const bounds = [];
+                        relayPoints.forEach((point, index) => {
+                            if (point.latitude && point.longitude) {
+                                const marker = L.marker([point.latitude, point.longitude])
+                                    .addTo(map)
+                                    .bindTooltip(point.name, { 
+                                        permanent: false, 
+                                        direction: 'top',
+                                        offset: [0, -10]
+                                    })
+                                    .bindPopup(`<strong>${point.name}</strong><br>${point.address}<br>${point.postalCode} ${point.city}<br><button onclick="document.querySelector('.mr-point-item[data-index=\\'${index}\\']').click()" style="margin-top:8px;padding:6px 12px;background:#00b8e6;color:white;border:none;border-radius:4px;cursor:pointer;">Choisir ce point</button>`)
+                                    .on('click', () => selectRelayPoint(point, index));
+                                markers.push(marker);
+                                bounds.push([point.latitude, point.longitude]);
+                            }
+                        });
+                        
+                        // Fit map to markers
+                        if (bounds.length > 0) {
+                            map.fitBounds(bounds, { padding: [20, 20] });
+                        }
+                        
+                    } else {
+                        noResultsEl.style.display = 'block';
+                    }
+                    
+                } catch (error) {
+                    console.error('Erreur recherche points relais:', error);
+                    loadingEl.style.display = 'none';
+                    noResultsEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Erreur lors de la recherche.<br>Veuillez réessayer.</p>';
+                    noResultsEl.style.display = 'block';
+                }
+            }
+            
+            function selectRelayPoint(point, index) {
+                selectedPoint = point;
+                
+                // Update UI - highlight selected item
+                document.querySelectorAll('.mr-point-item').forEach((item, i) => {
+                    item.classList.toggle('selected', i === index);
+                });
+                
+                // Store data in hidden fields
+                document.getElementById('selected-relay-id').value = point.id;
+                document.getElementById('selected-relay-data').value = JSON.stringify(point);
+                
+                // Show selected info
+                document.getElementById('mr-selected-name').textContent = point.name;
+                document.getElementById('mr-selected-address').textContent = point.address;
+                document.getElementById('mr-selected-city').textContent = `${point.postalCode} ${point.city}`;
+                document.getElementById('mr-selected-info').classList.add('visible');
+                
+                // Hide results and map
+                document.getElementById('mr-results').style.display = 'none';
+                document.getElementById('mr-map').style.display = 'none';
+                
+                // Notify checkout.js
+                window.dispatchEvent(new CustomEvent('relayPointSelected', { 
+                    detail: {
+                        ID: point.id,
+                        Nom: point.name,
+                        Adresse1: point.address,
+                        CP: point.postalCode,
+                        Ville: point.city,
+                        Pays: point.country
+                    }
+                }));
+                
+                // Scroll to payment
+                setTimeout(() => {
+                    document.getElementById('payment-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        })();
+    </script>
+</body>
+</html>

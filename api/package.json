@@ -1,0 +1,15 @@
+{
+  "name": "familycustom-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^143.0.4",
+    "puppeteer-core": "^24.36.1",
+    "soap": "^1.0.0",
+    "stripe": "^14.0.0"
+  }
+}

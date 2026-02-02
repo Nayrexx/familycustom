@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Admin - Family Custom</title>
+    
+    <!-- PWA Admin -->
+    <link rel="manifest" href="manifest-admin.json">
+    <meta name="theme-color" content="#D4AF37">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FC Admin">
+    <link rel="apple-touch-icon" href="images/icon-admin-192.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/IMG_3402.jpeg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Admin Styles -->
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/templates-promo.css">
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+    
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-box">
+            <div class="login-logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="login-logo-img">
+            </div>
+            <h2>Administration</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="login-email" placeholder="admin@familycustom.fr" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Connexion
+                </button>
+                <p id="login-error" class="login-error"></p>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="admin-dashboard hidden">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-home"></i>
+                <span>Family Custom</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="#" class="nav-item" data-section="orders">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Commandes</span>
+                </a>
+                <a href="#" class="nav-item" data-section="categories">
+                    <i class="fas fa-th-large"></i>
+                    <span>Catégories</span>
+                </a>
+                <a href="#" class="nav-item" data-section="products">
+                    <i class="fas fa-box"></i>
+                    <span>Produits</span>
+                </a>
+                <a href="#" class="nav-item" data-section="support">
+                    <i class="fas fa-headset"></i>
+                    <span>Support</span>
+                    <span class="nav-badge" id="support-badge" style="display:none;">0</span>
+                </a>
+                <a href="#" class="nav-item" data-section="newsletter">
+                    <i class="fas fa-envelope"></i>
+                    <span>Newsletter</span>
+                </a>
+                <a href="#" class="nav-item" data-section="discounts">
+                    <i class="fas fa-tags"></i>
+                    <span>Réductions</span>
+                </a>
+                <a href="#" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="index.html" target="_blank" class="btn btn-outline">
+                    <i class="fas fa-external-link-alt"></i> Voir le site
+                </a>
+                <button id="logout-btn" class="btn btn-ghost">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Header -->
+            <header class="content-header">
+                <h1 id="page-title">Tableau de bord</h1>
+                <div class="header-actions">
+                    <button id="notif-toggle-btn" class="btn btn-outline" style="margin-right: 10px;">
+                        <i class="fas fa-bell"></i> <span>Activer les alertes</span>
+                    </button>
+                    <span class="date-display"></span>
+                </div>
+            </header>
+            
+            <!-- Dashboard Section -->
+            <section id="section-dashboard" class="section active">
+                <!-- Stats principales -->
+                <div class="stats-grid stats-primary">
+                    <div class="stat-card stat-live">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-visitors">0</span>
+                            <span class="stat-label">Visiteurs en direct <span class="live-dot"></span></span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-orders-today">
+                        <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-orders-today">0</span>
+                            <span class="stat-label">Commandes du jour</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-revenue">
+                        <div class="stat-icon"><i class="fas fa-euro-sign"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-revenue-today">0€</span>
+                            <span class="stat-label">CA du jour</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-average">
+                        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-average-cart">0€</span>
+                            <span class="stat-label">Panier moyen</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats secondaires -->
+                <div class="stats-grid stats-secondary">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-th-large"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-categories">0</span>
+                            <span class="stat-label">Catégories</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-box"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-products">0</span>
+                            <span class="stat-label">Produits</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-todo">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-orders-todo">0</span>
+                            <span class="stat-label">À préparer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Objectif mensuel -->
+                <div class="monthly-goal-section">
+                    <div class="goal-header">
+                        <h3><i class="fas fa-bullseye"></i> Objectif du mois</h3>
+                        <button class="btn-edit-goal" onclick="editMonthlyGoal()" title="Modifier l'objectif">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                    <div class="goal-content">
+                        <div class="goal-progress-container">
+                            <div class="goal-progress-bar">
+                                <div class="goal-progress-fill" id="goal-progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="goal-progress-text">
+                                <span class="goal-current" id="goal-current">0€</span>
+                                <span class="goal-separator">/</span>
+                                <span class="goal-target" id="goal-target">500€</span>
+                            </div>
+                        </div>
+                        <div class="goal-stats">
+                            <div class="goal-stat">
+                                <span class="goal-stat-value" id="goal-percentage">0%</span>
+                                <span class="goal-stat-label">Atteint</span>
+                            </div>
+                            <div class="goal-stat">
+                                <span class="goal-stat-value" id="goal-remaining">500€</span>
+                                <span class="goal-stat-label">Restant</span>
+                            </div>
+                            <div class="goal-stat">
+                                <span class="goal-stat-value" id="goal-days-left">30j</span>
+                                <span class="goal-stat-label">Restants</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertes & Notifications -->
+                <div class="dashboard-alerts" id="dashboard-alerts">
+                    <h3><i class="fas fa-bell"></i> Alertes</h3>
+                    <div class="alerts-list" id="alerts-list">
+                        <div class="alert-item alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Chargement des alertes...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Commandes récentes -->
+                <div class="dashboard-recent-orders">
+                    <div class="section-header">
+                        <h3><i class="fas fa-clock"></i> Commandes récentes</h3>
+                        <a href="#" class="view-all-link" onclick="showSection('orders'); return false;">Voir toutes <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="recent-orders-table">
+                        <table class="data-table compact">
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Client</th>
+                                    <th>Produits</th>
+                                    <th>Total</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders-body">
+                                <tr>
+                                    <td colspan="5" class="loading-text">Chargement...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Historique CA mensuel -->
+                <div class="revenue-history-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-chart-bar"></i> Historique CA mensuel</h3>
+                    </div>
+                    <div class="revenue-chart-container">
+                        <div class="revenue-bars" id="revenue-bars">
+                            <!-- Generated by JS -->
+                        </div>
+                        <div class="revenue-months" id="revenue-months">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+                    <div class="revenue-table-container">
+                        <table class="data-table compact">
+                            <thead>
+                                <tr>
+                                    <th>Mois</th>
+                                    <th>Commandes</th>
+                                    <th>CA</th>
+                                    <th>Évolution</th>
+                                </tr>
+                            </thead>
+                            <tbody id="revenue-history-body">
+                                <tr>
+                                    <td colspan="4" class="loading-text">Chargement...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Galerie Photos Clients -->
+                <div class="customer-photos-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-images"></i> Photos clients récentes</h3>
+                        <a href="#" class="view-all-link" onclick="showAllCustomerPhotos(); return false;">Voir toutes <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="customer-photos-grid" id="customer-photos-grid">
+                        <div class="loading-text">Chargement des photos...</div>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Actions rapides</h3>
+                    <div class="actions-grid">
+                        <button class="action-card" data-action="add-category">
+                            <i class="fas fa-folder-plus"></i>
+                            <span>Nouvelle catégorie</span>
+                        </button>
+                        <button class="action-card" data-action="add-product">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Nouveau produit</span>
+                        </button>
+                        <button class="action-card" onclick="showSection('orders')">
+                            <i class="fas fa-file-export"></i>
+                            <span>Voir commandes</span>
+                        </button>
+                        <button class="action-card" onclick="window.open('index.html', '_blank')">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>Voir le site</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Orders Section -->
+            <section id="section-orders" class="section">
+                <div class="section-toolbar">
+                    <div class="filter-group">
+                        <label>Statut :</label>
+                        <select id="filter-order-status">
+                            <option value="">Toutes</option>
+                            <option value="pending">En attente</option>
+                            <option value="paid">Payée</option>
+                            <option value="shipped">Expédiée</option>
+                            <option value="completed">Terminée</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-actions">
+                        <button class="btn btn-outline" id="btn-export-orders" title="Exporter en Excel">
+                            <i class="fas fa-file-excel"></i> Exporter
+                        </button>
+                        <button class="btn btn-outline" id="btn-refresh-orders">
+                            <i class="fas fa-sync-alt"></i> Actualiser
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>N° Commande</th>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Total</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body">
+                            <!-- Filled by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Categories Section -->
+            <section id="section-categories" class="section">
+                <div class="section-toolbar">
+                    <button class="btn btn-primary" id="btn-add-category">
+                        <i class="fas fa-plus"></i> Nouvelle catégorie
+                    </button>
+                </div>
+                
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Icône</th>
+                                <th>Nom</th>
+                                <th>Slug</th>
+                                <th>Produits</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-table-body">
+                            <!-- Filled by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Products Section -->
+            <section id="section-products" class="section">
+                <div class="section-toolbar">
+                    <div class="filter-group">
+                        <label>Catégorie :</label>
+                        <select id="filter-category">
+                            <option value="">Toutes</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline" id="btn-import-products">
+                        <i class="fas fa-file-import"></i> Importer CSV
+                    </button>
+                    <button class="btn btn-primary" id="btn-add-product">
+                        <i class="fas fa-plus"></i> Nouveau produit
+                    </button>
+                </div>
+                
+                <div class="products-grid" id="products-grid">
+                    <!-- Filled by JS -->
+                </div>
+            </section>
+            
+            <!-- Support Section -->
+            <section id="section-support" class="section">
+                <div class="section-toolbar">
+                    <div class="support-tabs">
+                        <button class="tab-btn active" data-status="waiting">
+                            <i class="fas fa-clock"></i> En attente
+                            <span class="tab-count" id="waiting-count">0</span>
+                        </button>
+                        <button class="tab-btn" data-status="active">
+                            <i class="fas fa-comments"></i> En cours
+                            <span class="tab-count" id="active-count">0</span>
+                        </button>
+                        <button class="tab-btn" data-status="closed">
+                            <i class="fas fa-check-circle"></i> Fermées
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="conversations-list" id="conversations-list">
+                    <div class="empty-state">
+                        <i class="fas fa-headset"></i>
+                        <h3>Aucune conversation</h3>
+                        <p>Les demandes de support apparaîtront ici</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Newsletter Section -->
+            <section id="section-newsletter" class="section">
+                <div class="section-toolbar">
+                    <div class="newsletter-stats">
+                        <span class="stat-inline">
+                            <i class="fas fa-users"></i>
+                            <strong id="newsletter-count">0</strong> inscrits
+                        </span>
+                    </div>
+                    <button class="btn btn-primary" id="btn-export-newsletter">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                </div>
+                
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Date d'inscription</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="newsletter-table-body">
+                            <!-- Filled by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Gift Cards Section -->
+            <!-- Discounts Section (Gift Cards + Promo Codes) -->
+            <section id="section-discounts" class="section">
+                <div class="section-header">
+                    <h1>Réductions</h1>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="discount-tabs">
+                    <button class="discount-tab active" data-tab="giftcards">
+                        <i class="fas fa-gift"></i>
+                        <span>Cartes Cadeaux</span>
+                        <span class="tab-count" id="gc-count">0</span>
+                    </button>
+                    <button class="discount-tab" data-tab="promocodes">
+                        <i class="fas fa-percent"></i>
+                        <span>Codes Promo</span>
+                        <span class="tab-count" id="pc-count">0</span>
+                    </button>
+                </div>
+                
+                <!-- Gift Cards Tab Content -->
+                <div class="discount-content active" id="tab-giftcards">
+                    <!-- Mini Stats -->
+                    <div class="mini-stats">
+                        <div class="mini-stat">
+                            <span class="mini-stat-value" id="gc-total">0</span>
+                            <span class="mini-stat-label">Total</span>
+                        </div>
+                        <div class="mini-stat success">
+                            <span class="mini-stat-value" id="gc-active">0</span>
+                            <span class="mini-stat-label">Actives</span>
+                        </div>
+                        <div class="mini-stat danger">
+                            <span class="mini-stat-value" id="gc-used">0</span>
+                            <span class="mini-stat-label">Utilisées</span>
+                        </div>
+                        <div class="mini-stat warning">
+                            <span class="mini-stat-value" id="gc-balance">0€</span>
+                            <span class="mini-stat-label">Solde</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Create Form -->
+                    <div class="discount-form-card">
+                        <div class="discount-form-header">
+                            <i class="fas fa-plus"></i>
+                            <span>Nouvelle carte cadeau</span>
+                        </div>
+                        <form id="create-giftcard-form" class="discount-form">
+                            <div class="form-group">
+                                <label>Montant (€)</label>
+                                <input type="number" id="gc-amount" min="5" max="500" value="50" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="gc-email" placeholder="client@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Destinataire</label>
+                                <input type="text" id="gc-recipient" placeholder="Jean Dupont">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Créer
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Table -->
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Initial</th>
+                                    <th>Restant</th>
+                                    <th>Destinataire</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="giftcards-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Promo Codes Tab Content -->
+                <div class="discount-content" id="tab-promocodes">
+                    <!-- Mini Stats -->
+                    <div class="mini-stats">
+                        <div class="mini-stat">
+                            <span class="mini-stat-value" id="pc-total">0</span>
+                            <span class="mini-stat-label">Total</span>
+                        </div>
+                        <div class="mini-stat success">
+                            <span class="mini-stat-value" id="pc-active">0</span>
+                            <span class="mini-stat-label">Actifs</span>
+                        </div>
+                        <div class="mini-stat danger">
+                            <span class="mini-stat-value" id="pc-expired">0</span>
+                            <span class="mini-stat-label">Expirés</span>
+                        </div>
+                        <div class="mini-stat warning">
+                            <span class="mini-stat-value" id="pc-uses">0</span>
+                            <span class="mini-stat-label">Utilisations</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Create Form -->
+                    <div class="discount-form-card">
+                        <div class="discount-form-header">
+                            <i class="fas fa-plus"></i>
+                            <span>Nouveau code promo</span>
+                        </div>
+                        <form id="create-promocode-form" class="discount-form promo-form">
+                            <div class="form-group">
+                                <label>Code *</label>
+                                <input type="text" id="pc-code" placeholder="BIENVENUE10" required style="text-transform: uppercase;">
+                            </div>
+                            <div class="form-group">
+                                <label>Type</label>
+                                <select id="pc-type" required>
+                                    <option value="percentage">Pourcentage</option>
+                                    <option value="fixed">Montant fixe</option>
+                                    <option value="free_shipping">Livraison gratuite</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Valeur</label>
+                                <input type="number" id="pc-value" min="0" step="0.01" placeholder="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Min. commande</label>
+                                <input type="number" id="pc-min-order" min="0" step="0.01" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Max utilisations</label>
+                                <input type="number" id="pc-max-uses" min="0" value="0" placeholder="0 = illimité">
+                            </div>
+                            <div class="form-group">
+                                <label>Expiration</label>
+                                <input type="date" id="pc-end-date">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" id="pc-description" placeholder="Code de bienvenue">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Créer
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Table -->
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Réduction</th>
+                                    <th>Min.</th>
+                                    <th>Utilisations</th>
+                                    <th>Expiration</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="promocodes-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Settings Section -->
+            <section id="section-settings" class="section">
+                <div class="settings-card">
+                    <h3><i class="fas fa-key"></i> Changer le mot de passe</h3>
+                    <form id="password-form">
+                        <div class="form-group">
+                            <label>Nouveau mot de passe</label>
+                            <input type="password" id="new-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmer</label>
+                            <input type="password" id="confirm-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </form>
+                </div>
+                
+                <div class="settings-card">
+                    <h3><i class="fas fa-download"></i> Exporter les données</h3>
+                    <p>Téléchargez toutes vos catégories et produits en JSON.</p>
+                    <button class="btn btn-outline" id="btn-export">
+                        <i class="fas fa-download"></i> Exporter
+                    </button>
+                </div>
+                
+                <div class="settings-card">
+                    <h3><i class="fas fa-percent"></i> Promotions de masse</h3>
+                    <p>Appliquez des promotions à plusieurs produits en une seule fois.</p>
+                    <button class="btn btn-primary" id="btn-mass-promo">
+                        <i class="fas fa-tags"></i> Gérer les promos
+                    </button>
+                </div>
+            </section>
+            
+        </main>
+    </div>
+    
+    <!-- Modal: Category -->
+    <div id="modal-category" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-th-large"></i> <span id="modal-category-title">Nouvelle catégorie</span></h2>
+                <button class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="category-form">
+                <div class="modal-body">
+                    <!-- Nom et description -->
+                    <div class="form-group">
+                        <label>Nom *</label>
+                        <input type="text" id="category-name" placeholder="Ex: Néons LED" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" id="category-description" placeholder="Ex: Illuminez votre intérieur">
+                    </div>
+                    
+                    <!-- Icône -->
+                    <div class="form-group">
+                        <label>Icône</label>
+                        <select id="category-icon" class="icon-select">
+                            <option value="fa-bolt">⚡ Néon</option>
+                            <option value="fa-tree">🌲 Bois</option>
+                            <option value="fa-heart">❤️ Cœur</option>
+                            <option value="fa-gift">🎁 Cadeau</option>
+                            <option value="fa-star">⭐ Étoile</option>
+                            <option value="fa-crown">👑 Premium</option>
+                            <option value="fa-gamepad">🎮 Gaming</option>
+                            <option value="fa-leaf">🍃 Nature</option>
+                            <option value="fa-glass-cheers">🥂 Fête</option>
+                            <option value="fa-cube">📦 Autre</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Couleurs du dégradé -->
+                    <div class="form-group">
+                        <label>Couleurs du dégradé</label>
+                        <div class="gradient-colors-row">
+                            <div class="color-picker-group">
+                                <input type="color" id="category-gradient1" value="#1a0a1a">
+                                <span>Couleur 1</span>
+                            </div>
+                            <div class="gradient-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="color-picker-group">
+                                <input type="color" id="category-gradient2" value="#2d0a2d">
+                                <span>Couleur 2</span>
+                            </div>
+                            <div class="gradient-arrow">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            <div class="color-picker-group">
+                                <input type="color" id="category-icon-color" value="#ff2d75">
+                                <span>Icône</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prévisualisation -->
+                    <div class="form-group">
+                        <label>Aperçu</label>
+                        <div id="category-preview" class="category-preview-box">
+                            <div class="preview-icon"><i class="fas fa-bolt"></i></div>
+                            <h3>Nom de la catégorie</h3>
+                            <p>Description</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Options avancées (cachées par défaut) -->
+                    <details class="advanced-options">
+                        <summary><i class="fas fa-cog"></i> Options avancées</summary>
+                        <div class="advanced-content">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Slug (URL)</label>
+                                    <input type="text" id="category-slug" placeholder="Auto">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ordre</label>
+                                    <input type="number" id="category-order" value="0" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Image de fond</label>
+                                <div class="image-upload-zone" id="category-image-zone">
+                                    <input type="file" id="category-image-input" accept="image/*" style="display:none;">
+                                    <div class="upload-placeholder" id="category-upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Ajouter une image</span>
+                                    </div>
+                                    <img id="category-image-preview" src="" alt="" style="display:none; max-width:100%; max-height:100px; border-radius:8px;">
+                                    <button type="button" id="category-image-remove" class="btn btn-sm btn-danger" style="display:none; margin-top:10px;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <input type="hidden" id="category-image-url">
+                            </div>
+                            <input type="hidden" id="category-text-style" value="light">
+                        </div>
+                    </details>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost modal-cancel">Annuler</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Créer</button>
+                </div>
+                <input type="hidden" id="category-id">
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal: Product (Simplifié) -->
+    <div id="modal-product" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-medium">
+            <div class="modal-header">
+                <h2><i class="fas fa-box"></i> <span id="modal-product-title">Nouveau produit</span></h2>
+                <button class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="product-form">
+                <div class="modal-body">
+                    <!-- CHAMPS ESSENTIELS -->
+                    <div class="form-group">
+                        <label>Nom du produit *</label>
+                        <input type="text" id="product-name" placeholder="Ex: Néon Prénom Personnalisé" required autofocus>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label>Catégories *</label>
+                            <div class="category-checkboxes" id="product-categories-container">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Prix de vente</label>
+                            <input type="text" id="product-price" placeholder="59€">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Image principale <span class="label-hint">(<a href="https://postimages.org/" target="_blank">postimages.org</a>)</span></label>
+                        <div class="product-images-container" id="product-images-container"></div>
+                        <div class="add-image-row">
+                            <input type="url" id="product-image-url" placeholder="Coller le lien direct de l'image...">
+                            <button type="button" id="btn-add-image" class="btn-add-image" title="Ajouter"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- TEMPLATES RAPIDES -->
+                    <div class="form-group">
+                        <label>Type de produit <span class="label-hint">(pré-configure les options)</span></label>
+                        <div class="product-templates-grid">
+                            <div class="product-template" data-template="neon">
+                                <i class="fas fa-bolt"></i>
+                                <span>Néon LED</span>
+                            </div>
+                            <div class="product-template" data-template="wood">
+                                <i class="fas fa-tree"></i>
+                                <span>Bois</span>
+                            </div>
+                            <div class="product-template" data-template="textile">
+                                <i class="fas fa-tshirt"></i>
+                                <span>Textile</span>
+                            </div>
+                            <div class="product-template" data-template="poster">
+                                <i class="fas fa-image"></i>
+                                <span>Poster</span>
+                            </div>
+                            <div class="product-template" data-template="custom">
+                                <i class="fas fa-cog"></i>
+                                <span>Autre</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- OPTIONS AVANCÉES (masquées par défaut) -->
+                    <details class="advanced-options">
+                        <summary><i class="fas fa-sliders-h"></i> Options avancées</summary>
+                        <div class="advanced-options-content">
+                            <!-- Description -->
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="product-description" rows="2" placeholder="Description du produit..."></textarea>
+                            </div>
+                            
+                            <!-- Prix & Badge -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Prix d'achat (€)</label>
+                                    <input type="number" id="product-cost" placeholder="15" min="0" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label>Délai de livraison</label>
+                                    <select id="product-delivery-days">
+                                        <option value="3-5">3 à 5 jours</option>
+                                        <option value="5-7">5 à 7 jours</option>
+                                        <option value="7-10">7 à 10 jours</option>
+                                        <option value="8-14" selected>8 à 14 jours</option>
+                                        <option value="10-15">10 à 15 jours</option>
+                                        <option value="14-21">14 à 21 jours</option>
+                                        <option value="21-30">21 à 30 jours</option>
+                                        <option value="30-45">30 à 45 jours</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Badge</label>
+                                    <input type="text" id="product-badge" placeholder="Nouveau...">
+                                </div>
+                            </div>
+                            
+                            <!-- Personnalisation client -->
+                            <div class="form-group">
+                                <label>Personnalisation client</label>
+                                <div class="checkbox-group-inline">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="product-has-text" checked>
+                                        <span>Texte personnalisable</span>
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="product-requires-image">
+                                        <span>Photo requise</span>
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="product-allow-text-color">
+                                        <span>Couleur texte</span>
+                                    </label>
+                                </div>
+                                
+                                <!-- Nombre de photos requises (visible seulement si "Photo requise" est coché) -->
+                                <div class="required-images-config hidden" id="required-images-config" style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 8px;">
+                                    <label style="font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 10px;">
+                                        <span>Nombre de photos à uploader :</span>
+                                        <input type="number" id="product-required-images" min="1" max="20" value="1" style="width: 60px; padding: 5px 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    </label>
+                                    <small style="color: #999; font-size: 0.75rem;">Ex: 9 pour un calendrier avec 9 photos</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Couleurs de texte disponibles -->
+                            <div class="variant-options text-colors-options hidden" id="text-colors-options">
+                                <label style="font-size: 0.85rem; color: #666; margin-bottom: 8px; display: block;">Couleurs de texte proposées au client :</label>
+                                <div class="color-picker-grid" id="text-color-picker-grid">
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FFFFFF" data-name="Blanc"><span class="color-swatch" style="background:#FFFFFF; border:1px solid #ccc"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#000000" data-name="Noir"><span class="color-swatch" style="background:#000000"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FF0000" data-name="Rouge"><span class="color-swatch" style="background:#FF0000"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FF69B4" data-name="Rose"><span class="color-swatch" style="background:#FF69B4"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FFA500" data-name="Orange"><span class="color-swatch" style="background:#FFA500"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#FFD700" data-name="Or"><span class="color-swatch" style="background:#FFD700"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#00FF00" data-name="Vert vif"><span class="color-swatch" style="background:#00FF00"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#228B22" data-name="Vert forêt"><span class="color-swatch" style="background:#228B22"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#00FFFF" data-name="Cyan"><span class="color-swatch" style="background:#00FFFF"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#0000FF" data-name="Bleu"><span class="color-swatch" style="background:#0000FF"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#800080" data-name="Violet"><span class="color-swatch" style="background:#800080"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#C0C0C0" data-name="Argent"><span class="color-swatch" style="background:#C0C0C0"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#A52A2A" data-name="Marron"><span class="color-swatch" style="background:#A52A2A"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="textColors" value="#F5DEB3" data-name="Beige"><span class="color-swatch" style="background:#F5DEB3"></span></label>
+                                </div>
+                                <div class="custom-color-add">
+                                    <input type="color" id="custom-text-color-picker" value="#FF5733">
+                                    <input type="text" id="custom-text-color-name" placeholder="Nom de la couleur">
+                                    <button type="button" class="btn btn-sm" id="add-custom-text-color"><i class="fas fa-plus"></i></button>
+                                </div>
+                            </div>
+                            
+                            <!-- Couleurs -->
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="product-has-colors">
+                                    <span>Proposer des couleurs</span>
+                                </label>
+                            </div>
+                            <div class="variant-options colors-options hidden" id="colors-options">
+                                <div class="color-picker-grid" id="color-picker-grid">
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#FF0000" data-name="Rouge"><span class="color-swatch" style="background:#FF0000"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#8B0000" data-name="Rouge foncé"><span class="color-swatch" style="background:#8B0000"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#FF69B4" data-name="Rose"><span class="color-swatch" style="background:#FF69B4"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#FFB6C1" data-name="Rose clair"><span class="color-swatch" style="background:#FFB6C1"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#FFA500" data-name="Orange"><span class="color-swatch" style="background:#FFA500"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#FF8C00" data-name="Orange foncé"><span class="color-swatch" style="background:#FF8C00"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#FFFF00" data-name="Jaune"><span class="color-swatch" style="background:#FFFF00"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#FFD700" data-name="Or"><span class="color-swatch" style="background:#FFD700"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#00FF00" data-name="Vert vif"><span class="color-swatch" style="background:#00FF00"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#228B22" data-name="Vert forêt"><span class="color-swatch" style="background:#228B22"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#90EE90" data-name="Vert clair"><span class="color-swatch" style="background:#90EE90"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#008080" data-name="Sarcelle"><span class="color-swatch" style="background:#008080"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#00FFFF" data-name="Cyan"><span class="color-swatch" style="background:#00FFFF"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#87CEEB" data-name="Bleu ciel"><span class="color-swatch" style="background:#87CEEB"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#0000FF" data-name="Bleu"><span class="color-swatch" style="background:#0000FF"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#000080" data-name="Bleu marine"><span class="color-swatch" style="background:#000080"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#800080" data-name="Violet"><span class="color-swatch" style="background:#800080"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#9932CC" data-name="Orchidée"><span class="color-swatch" style="background:#9932CC"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#E6E6FA" data-name="Lavande"><span class="color-swatch" style="background:#E6E6FA"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#A52A2A" data-name="Marron"><span class="color-swatch" style="background:#A52A2A"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#D2691E" data-name="Chocolat"><span class="color-swatch" style="background:#D2691E"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#F5DEB3" data-name="Beige"><span class="color-swatch" style="background:#F5DEB3"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#FFFFFF" data-name="Blanc"><span class="color-swatch" style="background:#FFFFFF; border:1px solid #ccc"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#C0C0C0" data-name="Argent"><span class="color-swatch" style="background:#C0C0C0"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#808080" data-name="Gris"><span class="color-swatch" style="background:#808080"></span></label>
+                                    <label class="color-option"><input type="checkbox" name="colors" value="#000000" data-name="Noir"><span class="color-swatch" style="background:#000000"></span></label>
+                                </div>
+                                <div class="custom-color-add">
+                                    <input type="color" id="custom-color-picker" value="#FF5733">
+                                    <input type="text" id="custom-color-name" placeholder="Nom de la couleur">
+                                    <button type="button" class="btn btn-sm" id="add-custom-color"><i class="fas fa-plus"></i></button>
+                                </div>
+                            </div>
+                            
+                            <!-- Tailles -->
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="product-has-sizes">
+                                    <span>Proposer des tailles</span>
+                                </label>
+                            </div>
+                            <div class="variant-options sizes-options hidden" id="sizes-options">
+                                <div class="size-picker-grid" id="size-picker-grid">
+                                    <label class="size-option"><input type="checkbox" name="sizes" value="XS"><span class="size-tag">XS</span></label>
+                                    <label class="size-option"><input type="checkbox" name="sizes" value="S"><span class="size-tag">S</span></label>
+                                    <label class="size-option"><input type="checkbox" name="sizes" value="M"><span class="size-tag">M</span></label>
+                                    <label class="size-option"><input type="checkbox" name="sizes" value="L"><span class="size-tag">L</span></label>
+                                    <label class="size-option"><input type="checkbox" name="sizes" value="XL"><span class="size-tag">XL</span></label>
+                                    <label class="size-option"><input type="checkbox" name="sizes" value="XXL"><span class="size-tag">XXL</span></label>
+                                </div>
+                                <div class="custom-size-add">
+                                    <input type="text" id="custom-size-value" placeholder="Taille perso (30cm, 50x70...)">
+                                    <button type="button" class="btn btn-sm" id="add-custom-size"><i class="fas fa-plus"></i></button>
+                                </div>
+                                
+                                <!-- Prix par taille -->
+                                <div class="form-group" style="margin-top: 15px;">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="product-has-size-prices">
+                                        <span>Prix différent par taille</span>
+                                    </label>
+                                </div>
+                                <div class="size-prices-container hidden" id="size-prices-container">
+                                    <p class="variant-help"><i class="fas fa-info-circle"></i> Définissez un prix spécifique pour chaque taille. Laissez vide pour utiliser le prix de base.</p>
+                                    <div class="size-prices-grid" id="size-prices-grid">
+                                        <!-- Generated dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Matrice de stock couleur/taille -->
+                            <div class="stock-matrix-management" id="stock-matrix-management" style="display: none;">
+                                <label style="font-size: 0.85rem; color: #666; margin: 10px 0 5px; display: block;">
+                                    <i class="fas fa-th"></i> Matrice de stock (cochez les combinaisons en stock) :
+                                </label>
+                                <div class="stock-matrix-actions">
+                                    <button type="button" class="btn btn-sm btn-ghost" id="stock-matrix-all"><i class="fas fa-check-double"></i> Tout cocher</button>
+                                    <button type="button" class="btn btn-sm btn-ghost" id="stock-matrix-none"><i class="fas fa-times"></i> Tout décocher</button>
+                                </div>
+                                <div class="stock-matrix-container">
+                                    <table class="stock-matrix-table" id="stock-matrix-table">
+                                        <thead id="stock-matrix-header"></thead>
+                                        <tbody id="stock-matrix-body"></tbody>
+                                    </table>
+                                </div>
+                                <p class="stock-matrix-hint"><i class="fas fa-info-circle"></i> Case cochée = en stock. Si une couleur n'a aucune taille en stock, elle sera affichée comme indisponible.</p>
+                            </div>
+                            
+                            <!-- Matériaux -->
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="product-has-materials">
+                                    <span>Proposer des matériaux</span>
+                                </label>
+                            </div>
+                            <div class="variant-options materials-options hidden" id="materials-options">
+                                <div class="material-picker-grid" id="material-picker-grid">
+                                    <label class="material-option"><input type="checkbox" name="materials" value="Bois naturel"><span class="material-tag">Bois naturel</span></label>
+                                    <label class="material-option"><input type="checkbox" name="materials" value="Bois peint"><span class="material-tag">Bois peint</span></label>
+                                    <label class="material-option"><input type="checkbox" name="materials" value="Acrylique"><span class="material-tag">Acrylique</span></label>
+                                    <label class="material-option"><input type="checkbox" name="materials" value="PVC"><span class="material-tag">PVC</span></label>
+                                    <label class="material-option"><input type="checkbox" name="materials" value="Métal"><span class="material-tag">Métal</span></label>
+                                </div>
+                            </div>
+                            
+                            <!-- Options de vente (lots, packs) -->
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="product-has-sale-options">
+                                    <span>Proposer des options de vente (lots, packs)</span>
+                                </label>
+                            </div>
+                            <div class="variant-options sale-options hidden" id="sale-options">
+                                <p class="variant-help"><i class="fas fa-info-circle"></i> Ajoutez des options comme "À l'unité", "Lot de 10", etc. avec leur prix respectif.</p>
+                                <div id="sale-options-list" class="sale-options-list"></div>
+                                <div class="sale-option-add">
+                                    <input type="text" id="sale-option-name" placeholder="Nom (ex: Lot de 10)">
+                                    <input type="number" id="sale-option-price" placeholder="Prix €" step="0.01" min="0">
+                                    <input type="number" id="sale-option-quantity" placeholder="Qté" min="1" value="1">
+                                    <button type="button" class="btn btn-sm" id="add-sale-option"><i class="fas fa-plus"></i></button>
+                                </div>
+                            </div>
+                            
+                            <!-- Création en série -->
+                            <div class="form-group" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="keep-open-after-save">
+                                    <span>Création en série (garder ouvert)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost modal-cancel">Annuler</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Créer</button>
+                </div>
+                <input type="hidden" id="product-id">
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal: Order Details -->
+    <div id="modal-order" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-shopping-bag"></i> <span id="modal-order-title">Détails de la commande</span></h2>
+                <button class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Tags de la commande -->
+                <div class="order-tags-section">
+                    <label>Tags :</label>
+                    <div class="order-tags" id="order-tags">
+                        <button type="button" class="order-tag tag-urgent" data-tag="urgent"><i class="fas fa-exclamation"></i> Urgent</button>
+                        <button type="button" class="order-tag tag-waiting" data-tag="waiting"><i class="fas fa-clock"></i> En attente photo</button>
+                        <button type="button" class="order-tag tag-vip" data-tag="vip"><i class="fas fa-star"></i> VIP</button>
+                        <button type="button" class="order-tag tag-problem" data-tag="problem"><i class="fas fa-exclamation-triangle"></i> Problème</button>
+                        <button type="button" class="order-tag tag-gift" data-tag="gift"><i class="fas fa-gift"></i> Cadeau</button>
+                    </div>
+                </div>
+                
+                <div id="order-details-content">
+                    <!-- Filled by JS -->
+                </div>
+                
+                <!-- Checklist de préparation -->
+                <div class="order-checklist-section">
+                    <h4><i class="fas fa-tasks"></i> Checklist de préparation</h4>
+                    <div class="checklist" id="order-checklist">
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="photo-verified">
+                            <span><i class="fas fa-image"></i> Photo client vérifiée</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="customization-ok">
+                            <span><i class="fas fa-pen"></i> Personnalisation correcte</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="product-ready">
+                            <span><i class="fas fa-box"></i> Produit préparé</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="quality-check">
+                            <span><i class="fas fa-check-double"></i> Contrôle qualité</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="packed">
+                            <span><i class="fas fa-box-open"></i> Emballé</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" data-check="label-printed">
+                            <span><i class="fas fa-print"></i> Étiquette imprimée</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Notes internes -->
+                <div class="order-notes-section">
+                    <h4><i class="fas fa-sticky-note"></i> Notes internes</h4>
+                    <textarea id="order-internal-notes" placeholder="Ajouter une note interne (visible uniquement par l'équipe)..." rows="2"></textarea>
+                    <button type="button" class="btn btn-sm" id="btn-save-notes"><i class="fas fa-save"></i> Enregistrer note</button>
+                </div>
+                
+                <!-- Infos expédition Mondial Relay -->
+                <div class="shipping-info-section" id="shipping-info-section" style="display: none;">
+                    <h4><i class="fas fa-shipping-fast"></i> Expédition</h4>
+                    <div class="shipping-details">
+                        <span class="shipping-carrier"><i class="fas fa-truck"></i> <span id="shipping-carrier">-</span></span>
+                        <span class="shipping-tracking">N° <span id="shipping-tracking">-</span></span>
+                        <a href="#" id="shipping-label-link" target="_blank" class="btn btn-sm btn-outline">
+                            <i class="fas fa-file-pdf"></i> Étiquette
+                        </a>
+                        <a href="#" id="shipping-tracking-link" target="_blank" class="btn btn-sm btn-outline">
+                            <i class="fas fa-map-marker-alt"></i> Suivi
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="footer-left">
+                    <button type="button" class="btn btn-outline" id="btn-print-order">
+                        <i class="fas fa-print"></i> Imprimer bon
+                    </button>
+                    <button type="button" class="btn btn-outline" id="btn-print-label">
+                        <i class="fas fa-tag"></i> Étiquette adresse
+                    </button>
+                    <!-- Bouton Mondial Relay masqué pour l'instant
+                    <button type="button" class="btn btn-mondial-relay" id="btn-mondial-relay">
+                        <i class="fas fa-shipping-fast"></i> Mondial Relay
+                    </button>
+                    -->
+                </div>
+                <div class="footer-right">
+                    <button type="button" class="btn btn-ghost modal-cancel">Fermer</button>
+                    <select id="order-status-select" class="order-status-select">
+                        <option value="pending">En attente</option>
+                        <option value="paid">Payée</option>
+                        <option value="shipped">Expédiée</option>
+                        <option value="completed">Terminée</option>
+                    </select>
+                    <button type="button" class="btn btn-primary" id="btn-update-order-status">
+                        <i class="fas fa-save"></i> Mettre à jour
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal: Import Products -->
+    <div id="modal-import" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-import"></i> Importer des produits</h2>
+                <button class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="import-info">
+                    <h4>Format CSV attendu :</h4>
+                    <code>nom;prix;categorie;description;image_url</code>
+                    <p style="margin-top: 10px; color: #666; font-size: 0.85rem;">
+                        <i class="fas fa-info-circle"></i> Séparateur : point-virgule (;)<br>
+                        <i class="fas fa-info-circle"></i> La catégorie doit correspondre au slug existant<br>
+                        <i class="fas fa-info-circle"></i> L'image peut être une URL ou laissée vide
+                    </p>
+                    <div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 8px;">
+                        <strong>Exemple :</strong><br>
+                        <code style="font-size: 0.8rem;">Porte-clé Prénom;12.90;porte-cles;Porte-clé personnalisé;https://exemple.com/img.jpg</code>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Fichier CSV</label>
+                    <input type="file" id="import-file" accept=".csv,.txt" class="form-control">
+                </div>
+                
+                <div id="import-preview" style="display: none; margin-top: 20px;">
+                    <h4>Aperçu (<span id="import-count">0</span> produits)</h4>
+                    <div id="import-preview-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 10px;"></div>
+                </div>
+                
+                <div id="import-progress" style="display: none; margin-top: 20px;">
+                    <div class="progress-bar" style="height: 20px; background: #eee; border-radius: 10px; overflow: hidden;">
+                        <div id="import-progress-bar" style="height: 100%; background: linear-gradient(90deg, #D4AF37, #f4d03f); width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                    <p id="import-status" style="text-align: center; margin-top: 10px; color: #666;"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost modal-cancel">Annuler</button>
+                <button type="button" class="btn btn-primary" id="btn-start-import" disabled>
+                    <i class="fas fa-upload"></i> Importer
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+    
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="modal">
+        <div class="modal-content chat-modal-content">
+            <div class="modal-header chat-modal-header">
+                <h3>
+                    <i class="fas fa-user"></i>
+                    <span id="chat-modal-user">Client</span>
+                </h3>
+                <div class="chat-modal-actions">
+                    <button class="btn btn-sm btn-outline" id="close-conversation-btn">
+                        <i class="fas fa-check"></i> Fermer
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="delete-conversation-btn">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                    <button class="modal-close" id="chat-modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body chat-modal-messages" id="chat-modal-messages">
+                <!-- Messages appear here -->
+            </div>
+            <div class="chat-modal-canned">
+                <div class="canned-header">
+                    <span><i class="fas fa-bolt"></i> Réponses rapides</span>
+                    <div class="agent-name-wrapper">
+                        <label for="agent-name-input">Nom :</label>
+                        <input type="text" id="agent-name-input" placeholder="Votre prénom" value="Support">
+                    </div>
+                </div>
+                <div class="canned-responses" id="canned-responses">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+            <div class="chat-modal-input">
+                <input type="text" id="admin-chat-input" placeholder="Votre réponse...">
+                <button id="admin-chat-send" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Admin JS -->
+    <script src="js/email-notifications.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/admin-support.js"></script>
+    <script src="js/admin-notifications.js"></script>
+    <script src="js/gift-card-system.js"></script>
+    <script src="js/promo-code-system.js"></script>
+    <script src="js/mass-promo.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Enregistrer le Service Worker pour la PWA Admin
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw-admin.js')
+                    .then((registration) => {
+                        console.log('✅ PWA Admin: Service Worker enregistré', registration.scope);
+                        
+                        // Vérifier les mises à jour
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Nouvelle version disponible
+                                    if (confirm('Nouvelle version disponible ! Recharger ?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('❌ PWA Admin: Erreur Service Worker', error);
+                    });
+            });
+        }
+        
+        // Prompt d'installation PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Afficher un bouton d'installation personnalisé
+            showInstallButton();
+        });
+        
+        function showInstallButton() {
+            // Créer le bouton d'installation si pas déjà installé
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                return; // Déjà installé
+            }
+            
+            const installBtn = document.createElement('button');
+            installBtn.id = 'pwa-install-btn';
+            installBtn.innerHTML = '<i class="fas fa-download"></i> Installer l\'app';
+            installBtn.className = 'btn btn-gold';
+            installBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 15px rgba(212,175,55,0.4);';
+            
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('Installation:', outcome);
+                    deferredPrompt = null;
+                    installBtn.remove();
+                }
+            });
+            
+            document.body.appendChild(installBtn);
+        }
+        
+        // Détecter si app installée
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA Admin installée !');
+            deferredPrompt = null;
+            const btn = document.getElementById('pwa-install-btn');
+            if (btn) btn.remove();
+        });
+    </script>
+</body>
+</html>

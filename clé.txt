@@ -1,0 +1,2 @@
+671c0492-2a9e-4847-9d52-145b5d862042   - clé publique
+6765b34444e34271bb910bc0ea31d6bb  - clé sécrète

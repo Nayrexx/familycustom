@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catégorie - Family Custom</title>
+    <meta name="description" content="Découvrez nos créations personnalisées">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏠%3C/text%3E%3C/svg%3E">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/categories.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    
+    <link rel="canonical" href="https://www.family-custom.com/categorie.html">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Family Custom">
+    <meta name="keywords" content="catégorie, créations personnalisées, néon, bois, déco, family custom, artisanat, cadeau, sur mesure">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Family Custom",
+      "url": "https://www.family-custom.com/categorie.html",
+      "description": "Découvrez nos créations personnalisées.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "FR"
+      },
+      "image": "https://www.family-custom.com/images/logo.png"
+    }
+    </script>
+    
+    <style>
+        .category-page {
+            min-height: 100vh;
+            padding-top: 100px;
+            background: #2d2d2d;
+        }
+        
+        .category-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            color: #aaaaaa;
+        }
+        
+        .breadcrumb a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb a:hover {
+            color: var(--color-accent, #e07a5f);
+        }
+        
+        .breadcrumb i {
+            font-size: 0.7rem;
+            color: #888;
+        }
+        
+        .breadcrumb span {
+            color: #f5f5f5;
+            font-weight: 500;
+        }
+        
+        /* Category Header */
+        .category-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .category-header .category-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #e07a5f, #c9a87c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .category-header .category-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .category-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #f5f5f5;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-header p {
+            color: #aaaaaa;
+            font-size: 1.1rem;
+        }
+
+        /* Filters Bar */
+        .filters-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #3a3a3a;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .filters-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .results-count {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .filters-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .sort-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-dropdown label {
+            color: #aaa;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sort-dropdown select {
+            background: #2d2d2d;
+            border: 1px solid #4a4a4a;
+            color: #f5f5f5;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sort-dropdown select:hover {
+            border-color: #e07a5f;
+        }
+
+        .sort-dropdown select:focus {
+            outline: none;
+            border-color: #e07a5f;
+            box-shadow: 0 0 0 3px rgba(224, 122, 95, 0.2);
+        }
+        
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .product-card {
+            background: #3a3a3a;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .product-image {
+            position: relative;
+            height: 280px;
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 15px;
+            transition: transform 0.3s;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            -ms-interpolation-mode: nearest-neighbor;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+        
+        .product-image .placeholder-icon {
+            font-size: 4rem;
+            color: #555;
+        }
+        
+        .product-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #e07a5f, #c9a87c);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .product-info {
+            padding: 1.5rem;
+        }
+        
+        .product-info h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            color: #f5f5f5;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-info p {
+            color: #aaaaaa;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .product-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .product-price {
+            color: #c9a87c;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .btn-customize {
+            background: linear-gradient(135deg, #e07a5f, #c9a87c);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-customize:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(224, 122, 95, 0.4);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #aaaaaa;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #e07a5f, #c9a87c);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(224, 122, 95, 0.4);
+        }
+        
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #aaaaaa;
+        }
+        
+        .loading-state i {
+            font-size: 3rem;
+            color: #e07a5f;
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .category-header h1 {
+                font-size: 2rem;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+    </style>
+    <!-- Coming Soon Overlay -->
+    <script src="js/coming-soon.js"></script>
+</head>
+<body>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Category Page Content -->
+    <main class="category-page">
+        <div class="category-container">
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb">
+                <a href="index.html">Accueil</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="index.html#categories">Nos Créations</a>
+                <i class="fas fa-chevron-right"></i>
+                <span id="breadcrumb-name">Catégorie</span>
+            </nav>
+            
+            <!-- Category Header -->
+            <div class="category-header">
+                <div class="category-icon">
+                    <i class="fas fa-cube" id="category-icon"></i>
+                </div>
+                <h1 id="category-title">Chargement...</h1>
+                <p id="category-description"></p>
+            </div>
+
+            <!-- Filters & Sort Bar -->
+            <div class="filters-bar">
+                <div class="filters-left">
+                    <span class="results-count" id="results-count">0 produits</span>
+                </div>
+                <div class="filters-right">
+                    <div class="sort-dropdown">
+                        <label for="sort-select"><i class="fas fa-sort"></i> Trier par :</label>
+                        <select id="sort-select">
+                            <option value="default">Par défaut</option>
+                            <option value="price-asc">Prix croissant</option>
+                            <option value="price-desc">Prix décroissant</option>
+                            <option value="name-asc">Nom A-Z</option>
+                            <option value="name-desc">Nom Z-A</option>
+                            <option value="newest">Plus récents</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Grid -->
+            <div id="products-container">
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Chargement des produits...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="footer-inner">
+            <div class="footer-bottom">
+                <p>© 2026 Family Custom. Tous droits réservés.</p>
+                <p>🇫🇷 Entreprise Française</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="js/cart.js"></script>
+    <script>
+        // Get category ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryId = urlParams.get('id');
+        
+        if (!categoryId) {
+            window.location.href = 'index.html#categories';
+        }
+        
+        // Load category and products
+        document.addEventListener('DOMContentLoaded', async function() {
+            const db = window.FirebaseDB;
+            
+            if (!db) {
+                showError('Base de données non disponible');
+                return;
+            }
+            
+            try {
+                // Load category info
+                const catDoc = await db.collection('categories').doc(categoryId).get();
+                
+                if (!catDoc.exists) {
+                    showError('Catégorie non trouvée');
+                    return;
+                }
+                
+                const category = { id: catDoc.id, ...catDoc.data() };
+                
+                // Update header
+                document.getElementById('category-title').textContent = category.name;
+                document.getElementById('category-description').textContent = category.description || '';
+                document.getElementById('breadcrumb-name').textContent = category.name;
+                document.getElementById('category-icon').className = 'fas ' + (category.icon || 'fa-cube');
+                document.title = category.name + ' - Family Custom';
+                
+                // Load products - using array-contains for categoryIds
+                // We need to load products that have this category in their categoryIds array
+                // OR for backward compatibility, have this categoryId as their categoryId
+                let products = [];
+                
+                // Try to get products with categoryIds array first
+                const productsWithArraySnapshot = await db.collection('products')
+                    .where('categoryIds', 'array-contains', categoryId)
+                    .get();
+                
+                const productsWithArray = productsWithArraySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Also get products with old format (single categoryId)
+                const productsWithSingleSnapshot = await db.collection('products')
+                    .where('categoryId', '==', categoryId)
+                    .get();
+                
+                const productsWithSingle = productsWithSingleSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Merge and deduplicate
+                const productMap = new Map();
+                [...productsWithArray, ...productsWithSingle].forEach(p => {
+                    productMap.set(p.id, p);
+                });
+                products = Array.from(productMap.values());
+                
+                // Stocker les produits pour le tri
+                window.allProducts = products;
+                
+                // Mettre à jour le compteur
+                updateResultsCount(products.length);
+                
+                renderProducts(products);
+                
+                // Setup sort listener
+                setupSortListener();
+                
+            } catch (error) {
+                console.error('Error loading category:', error);
+                showError('Erreur de chargement');
+            }
+        });
+
+        // Mettre à jour le compteur de résultats
+        function updateResultsCount(count) {
+            const countEl = document.getElementById('results-count');
+            if (countEl) {
+                countEl.textContent = count + ' produit' + (count > 1 ? 's' : '');
+            }
+        }
+
+        // Setup du tri
+        function setupSortListener() {
+            const sortSelect = document.getElementById('sort-select');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function() {
+                    const sortedProducts = sortProducts(window.allProducts, this.value);
+                    renderProducts(sortedProducts);
+                });
+            }
+        }
+
+        // Fonction de tri
+        function sortProducts(products, sortBy) {
+            const sorted = [...products];
+            
+            switch (sortBy) {
+                case 'price-asc':
+                    sorted.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+                    break;
+                case 'price-desc':
+                    sorted.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+                    break;
+                case 'name-asc':
+                    sorted.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'fr'));
+                    break;
+                case 'name-desc':
+                    sorted.sort((a, b) => (b.name || '').localeCompare(a.name || '', 'fr'));
+                    break;
+                case 'newest':
+                    sorted.sort((a, b) => {
+                        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                        return dateB - dateA;
+                    });
+                    break;
+                default:
+                    // Ordre par défaut (ordre Firebase)
+                    break;
+            }
+            
+            return sorted;
+        }
+
+        // Parser le prix (ex: "49,90 €" -> 49.90)
+        function parsePrice(priceStr) {
+            if (!priceStr) return 0;
+            // Enlever le symbole € et espaces, remplacer virgule par point
+            const cleaned = priceStr.toString()
+                .replace(/[€\s]/g, '')
+                .replace(',', '.')
+                .replace(/[^\d.]/g, '');
+            return parseFloat(cleaned) || 0;
+        }
+        
+        function renderProducts(products) {
+            const container = document.getElementById('products-container');
+            
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <p>Aucun produit dans cette catégorie pour le moment</p>
+                        <a href="index.html#categories" class="btn-back">
+                            <i class="fas fa-arrow-left"></i> Voir toutes les catégories
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            const html = `
+                <div class="products-grid">
+                    ${products.map(product => `
+                        <div class="product-card" onclick="window.location.href='personnaliser.html?id=${product.id}'">
+                            <div class="product-image">
+                                ${product.image 
+                                    ? `<img src="${product.image}" alt="${product.name}">` 
+                                    : `<i class="fas fa-cube placeholder-icon"></i>`
+                                }
+                                ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
+                            </div>
+                            <div class="product-info">
+                                <h3>${product.name}</h3>
+                                <p>${(product.description || '').replace(/\n/g, ' ')}</p>
+                                <div class="product-footer">
+                                    <span class="product-price">${product.price || ''}</span>
+                                    <button class="btn-customize">
+                                        <i class="fas fa-magic"></i> Personnaliser
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function showError(message) {
+            document.getElementById('products-container').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>${message}</p>
+                    <a href="index.html#categories" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Retour aux catégories
+                    </a>
+                </div>
+            `;
+        }
+    </script>
+    
+    <script src="js/script.js"></script>
+    <script src="js/search.js"></script>
+</body>
+</html>

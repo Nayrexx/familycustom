@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commande Confirmée - Family Custom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <!-- jsPDF for invoice -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Animations -->
+    <script src="js/animations.js"></script>
+    <!-- Coming Soon Overlay -->
+    <script src="js/coming-soon.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header scrolled">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Success Page -->
+    <main class="success-page">
+        <div class="success-container">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h1>Merci pour votre commande !</h1>
+            <p>Votre commande a bien été enregistrée. Vous recevrez bientôt un email de confirmation avec tous les détails.</p>
+            
+            <div class="order-number">
+                <span>Numéro de commande</span>
+                <strong id="order-number">-</strong>
+            </div>
+            
+            <!-- Invoice download button (for pro customers) -->
+            <div id="invoice-section" style="display: none; margin-bottom: 20px;">
+                <button id="download-invoice" class="btn-invoice" style="
+                    background: linear-gradient(135deg, #4CAF50, #45a049);
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 10px;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    transition: transform 0.2s, box-shadow 0.2s;
+                ">
+                    <i class="fas fa-file-invoice"></i>
+                    Télécharger ma facture
+                </button>
+                <p style="color: #666; font-size: 0.85rem; margin-top: 10px;">
+                    <i class="fas fa-info-circle"></i> 
+                    Facture N° <strong id="invoice-number"></strong>
+                </p>
+            </div>
+            
+            <div id="order-details" style="text-align: left; margin-bottom: 30px;">
+                <!-- Loaded by JS -->
+            </div>
+            
+            <a href="index.html" class="btn-primary">
+                <i class="fas fa-home"></i> Retour à l'accueil
+            </a>
+        </div>
+    </main>
+
+    
+    <script src="js/script.js"></script>
+    <script src="js/invoice-generator.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lancer les confettis de succès !
+            if (window.FCAnimations) {
+                FCAnimations.successAnimation();
+            }
+            
+            // Get order from localStorage
+            const lastOrder = localStorage.getItem('lastOrder');
+            
+            if (lastOrder) {
+                const order = JSON.parse(lastOrder);
+                
+                document.getElementById('order-number').textContent = order.orderNumber;
+                
+                // Show invoice section for professional customers
+                if (order.customer && order.customer.customerType === 'professionnel') {
+                    const invoiceSection = document.getElementById('invoice-section');
+                    invoiceSection.style.display = 'block';
+                    
+                    if (order.invoice && order.invoice.number) {
+                        document.getElementById('invoice-number').textContent = order.invoice.number;
+                    }
+                    
+                    // Download invoice button
+                    document.getElementById('download-invoice').addEventListener('click', async function() {
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+                        try {
+                            await FCInvoice.downloadInvoice(order);
+                        } catch (error) {
+                            console.error('Erreur téléchargement facture:', error);
+                            alert('Erreur lors de la génération de la facture');
+                        }
+                        this.innerHTML = '<i class="fas fa-file-invoice"></i> Télécharger ma facture';
+                    });
+                }
+                
+                // Show order details
+                const detailsContainer = document.getElementById('order-details');
+                
+                // Pro customer info
+                let proInfo = '';
+                if (order.customer.customerType === 'professionnel') {
+                    proInfo = `
+                        <div style="margin-bottom: 15px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px;">
+                            <p style="color: #4CAF50; font-size: 0.9rem; margin: 0;">
+                                <i class="fas fa-building"></i> <strong>Client Professionnel</strong><br>
+                                <span style="color: #666;">${order.customer.companyName || ''}</span><br>
+                                <span style="color: #888; font-size: 0.8rem;">SIRET: ${order.customer.siret || '-'}</span>
+                            </p>
+                        </div>
+                    `;
+                }
+                
+                detailsContainer.innerHTML = `
+                    <div style="background: var(--color-bg-warm, #faf7f2); border: 1px solid rgba(0,0,0,0.05); border-radius: 15px; padding: 20px;">
+                        ${proInfo}
+                        <h3 style="color: var(--color-accent, #e07a5f); margin-bottom: 15px; font-size: 1rem;">
+                            <i class="fas fa-box"></i> Récapitulatif
+                        </h3>
+                        <div style="color: var(--color-text-light, #6b6560); font-size: 0.9rem; line-height: 1.8;">
+                            ${order.items.map(item => `
+                                <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                    <span>${item.name} x${item.quantity}</span>
+                                    <span style="color: var(--color-accent, #e07a5f);">${(item.priceValue * item.quantity).toFixed(2)}€</span>
+                                </div>
+                            `).join('')}
+                            <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                                <span>Livraison</span>
+                                <span>${order.shipping === 0 ? 'Gratuite' : order.shipping.toFixed(2) + '€'}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 10px 0; margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.1); font-weight: 600; color: var(--color-text, #2d2a26);">
+                                <span>Total</span>
+                                <span style="color: var(--color-accent, #e07a5f); font-size: 1.1rem;">${order.total.toFixed(2)}€</span>
+                            </div>
+                        </div>
+                        
+                        <h3 style="color: var(--color-accent, #e07a5f); margin: 20px 0 15px; font-size: 1rem;">
+                            <i class="fas fa-truck"></i> Livraison
+                        </h3>
+                        <p style="color: var(--color-text-light, #6b6560); font-size: 0.9rem; line-height: 1.6;">
+                            ${order.customer.firstName} ${order.customer.lastName}<br>
+                            ${order.customer.address}<br>
+                            ${order.customer.postalCode} ${order.customer.city}<br>
+                            ${order.customer.email}
+                        </p>
+                        
+                        ${order.status === 'pending' ? `
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(224, 122, 95, 0.1); border-radius: 10px;">
+                            <p style="color: var(--color-accent, #e07a5f); font-size: 0.9rem;">
+                                <i class="fas fa-info-circle"></i> 
+                                <strong>Paiement en attente</strong><br>
+                                <span style="color: var(--color-text-light, #6b6560);">
+                                    Nous vous contacterons par email avec les instructions de paiement.
+                                </span>
+                            </p>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

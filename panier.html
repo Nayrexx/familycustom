@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panier - Family Custom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/features.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <!-- Coming Soon Overlay -->
+    <script src="js/coming-soon.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header scrolled">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Cart Page -->
+    <main class="cart-page">
+        <div class="cart-container">
+            <div class="cart-title">
+                <h1><i class="fas fa-shopping-cart"></i> Mon Panier</h1>
+            </div>
+
+            <div id="cart-content">
+                <!-- Loaded by JS -->
+            </div>
+            
+            <!-- Recommandations basées sur les commandes précédentes -->
+            <div id="cart-recommendations"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="logo-text">Family Custom</div>
+                    <p>Créations personnalisées par une entreprise française.</p>
+                    <div class="footer-social">
+                        <a href="https://www.instagram.com/familycustom/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h5>Navigation</h5>
+                    <ul>
+                        <li><a href="index.html">Accueil</a></li>
+                        <li><a href="index.html#categories">Nos Créations</a></li>
+                        <li><a href="panier.html">Mon Panier</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h5>Contact</h5>
+                    <ul>
+                        <li><a href="mailto:support@family-custom.com">support@family-custom.com</a></li>
+                        <li>42330 Saint-Galmier 🇫🇷</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2026 Family Custom. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    
+    <script src="js/script.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/cart-recommendations.js"></script>
+    <script src="js/conversion.js"></script>
+    <script src="js/features.js"></script>
+    <script>
+        // Delivery estimate function - uses max delivery days from products in cart
+        function getDeliveryEstimate() {
+            const today = new Date();
+            const cart = FCCart.getCart();
+            
+            // Parse delivery days - support both old format (number) and new format (range like "8-14")
+            function parseDeliveryDays(value) {
+                if (!value) return { min: 10, max: 10 };
+                if (typeof value === 'number') return { min: value, max: value };
+                if (typeof value === 'string' && value.includes('-')) {
+                    const parts = value.split('-').map(Number);
+                    return { min: parts[0], max: parts[1] };
+                }
+                const num = parseInt(value);
+                return { min: num || 10, max: num || 10 };
+            }
+            
+            // Find the maximum delivery days among products in cart
+            let maxMinDays = 10;
+            let maxMaxDays = 10;
+            
+            cart.forEach(item => {
+                const parsed = parseDeliveryDays(item.deliveryDays);
+                if (parsed.min > maxMinDays) maxMinDays = parsed.min;
+                if (parsed.max > maxMaxDays) maxMaxDays = parsed.max;
+            });
+            
+            // Calculate delivery date range
+            const minDeliveryDate = new Date(today);
+            minDeliveryDate.setDate(today.getDate() + maxMinDays + 2);
+            
+            const maxDeliveryDate = new Date(today);
+            maxDeliveryDate.setDate(today.getDate() + maxMaxDays + 2);
+            
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            const formattedMinDate = minDeliveryDate.toLocaleDateString('fr-FR', options);
+            const formattedMaxDate = maxDeliveryDate.toLocaleDateString('fr-FR', options);
+            
+            return {
+                date: maxMinDays === maxMaxDays ? formattedMinDate : `${formattedMinDate} - ${formattedMaxDate}`,
+                minDate: formattedMinDate,
+                maxDate: formattedMaxDate,
+                minDays: maxMinDays,
+                maxDays: maxMaxDays
+            };
+        }
+        
+        // Render variants HTML for cart item
+        function renderVariantsHtml(variants) {
+            let html = '<div class="cart-item-variants">';
+            
+            if (variants.color) {
+                html += `<span class="variant-tag">
+                    <span class="color-dot" style="background:${variants.color.hex}"></span>
+                    ${variants.color.name}
+                </span>`;
+            }
+            
+            if (variants.size) {
+                html += `<span class="variant-tag"><i class="fas fa-ruler"></i> ${variants.size}</span>`;
+            }
+            
+            if (variants.material) {
+                html += `<span class="variant-tag"><i class="fas fa-cube"></i> ${variants.material}</span>`;
+            }
+            
+            if (variants.customOptions) {
+                for (const [key, value] of Object.entries(variants.customOptions)) {
+                    html += `<span class="variant-tag">${key}: ${value}</span>`;
+                }
+            }
+            
+            html += '</div>';
+            return html;
+        }
+        
+        function renderCart() {
+            const container = document.getElementById('cart-content');
+            const cart = FCCart.getCart();
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="cart-empty">
+                        <i class="fas fa-shopping-bag"></i>
+                        <p>Votre panier est vide</p>
+                        <a href="index.html#categories" class="btn-primary">Découvrir nos créations</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Helper to render customer images (single or multiple)
+            function renderCustomerImages(customerImage) {
+                if (!customerImage) return '';
+                
+                // If it's an array of images
+                if (Array.isArray(customerImage)) {
+                    const validImages = customerImage.filter(img => img);
+                    if (validImages.length === 0) return '';
+                    
+                    if (validImages.length === 1) {
+                        return `
+                        <div class="customer-photo">
+                            <span><i class="fas fa-image"></i> Photo jointe :</span>
+                            <img src="${validImages[0]}" alt="Photo client" class="customer-photo-preview">
+                        </div>`;
+                    }
+                    
+                    // Multiple images
+                    return `
+                    <div class="customer-photos-multi">
+                        <span><i class="fas fa-images"></i> ${validImages.length} photos jointes :</span>
+                        <div class="customer-photos-grid">
+                            ${validImages.map((img, i) => `<img src="${img}" alt="Photo ${i + 1}" class="customer-photo-mini">`).join('')}
+                        </div>
+                    </div>`;
+                }
+                
+                // Single image (string)
+                return `
+                <div class="customer-photo">
+                    <span><i class="fas fa-image"></i> Photo jointe :</span>
+                    <img src="${customerImage}" alt="Photo client" class="customer-photo-preview">
+                </div>`;
+            }
+            
+            const itemsHTML = cart.map((item, index) => `
+                <div class="cart-item">
+                    <img src="${item.image || 'https://via.placeholder.com/100x100/1a1a2e/d4af37?text=FC'}" 
+                         alt="${item.name}" class="cart-item-image">
+                    <div class="cart-item-info">
+                        <h3>${item.name}</h3>
+                        ${item.variants ? renderVariantsHtml(item.variants) : ''}
+                        ${item.customization ? `<p class="customization">"${item.customization}"</p>` : ''}
+                        ${renderCustomerImages(item.customerImage)}
+                        <p class="price">${item.priceValue}€</p>
+                    </div>
+                    <div class="cart-item-actions">
+                        <div class="quantity-control">
+                            <button onclick="updateQty(${index}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQty(${index}, 1)">+</button>
+                        </div>
+                        <button class="remove-item" onclick="removeItem(${index})">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            const subtotal = FCCart.getCartTotal();
+            let shipping = subtotal >= 100 ? 0 : 6.90; // Prix domicile par défaut
+            const shippingRelay = subtotal >= 100 ? 0 : 4.50; // Prix point relais
+            
+            // Calculate promo discount
+            let discount = { subtotal: 0, shipping: 0 };
+            if (window.FCPromo && window.FCPromo.currentPromo) {
+                discount = window.FCPromo.calculateDiscount(subtotal, shipping);
+            }
+            
+            const finalSubtotal = subtotal - discount.subtotal;
+            const finalShipping = shipping - discount.shipping;
+            const total = finalSubtotal + finalShipping;
+            
+            // Delivery estimate - always get it
+            const deliveryEstimate = getDeliveryEstimate();
+            
+            container.innerHTML = `
+                <div class="cart-content">
+                    <div class="cart-items">
+                        ${itemsHTML}
+                    </div>
+                    <div class="cart-summary">
+                        <h2>Récapitulatif</h2>
+                        
+                        <div class="summary-row">
+                            <span>Sous-total</span>
+                            <span>${subtotal.toFixed(2)}€</span>
+                        </div>
+                        ${discount.subtotal > 0 ? `
+                        <div class="summary-row discount">
+                            <span>Réduction (${window.FCPromo.currentPromo.code})</span>
+                            <span>-${discount.subtotal.toFixed(2)}€</span>
+                        </div>
+                        ` : ''}
+                        <div class="summary-row shipping-info">
+                            <span>Livraison</span>
+                            <span>${subtotal >= 69 ? 'Gratuite' : 'dès 4,50€'}</span>
+                        </div>
+                        ${subtotal < 69 ? `
+                        <div class="shipping-options">
+                            <small><i class="fas fa-store"></i> Point relais : 4,50€</small>
+                            <small><i class="fas fa-home"></i> Domicile : 6,90€</small>
+                        </div>
+                        ` : ''}
+                        ${discount.shipping > 0 ? `
+                        <div class="summary-row discount">
+                            <span>Livraison offerte (${window.FCPromo.currentPromo.code})</span>
+                            <span>-${discount.shipping.toFixed(2)}€</span>
+                        </div>
+                        </div>
+                        ` : ''}
+                        ${finalShipping > 0 && subtotal < 69 ? `
+                        <div class="summary-row" style="font-size: 0.85rem; color: var(--color-accent);">
+                            <span>Livraison gratuite dès 69€</span>
+                        </div>
+                        ` : ''}
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span>${total.toFixed(2)}€</span>
+                        </div>
+                        
+                        <!-- Delivery Estimate -->
+                        <div class="delivery-estimate">
+                            <i class="fas fa-truck"></i>
+                            <div class="delivery-estimate-content">
+                                <div class="delivery-estimate-label">Livraison estimée</div>
+                                <div class="delivery-estimate-date">${deliveryEstimate.date}</div>
+                            </div>
+                        </div>
+                        
+                        <a href="checkout.html" class="checkout-btn">
+                            <i class="fas fa-lock"></i> Passer commande
+                        </a>
+                        <a href="index.html#categories" class="continue-shopping">
+                            <i class="fas fa-arrow-left"></i> Continuer mes achats
+                        </a>
+                    </div>
+                </div>
+            `;
+            
+            // Re-init promo after render
+            if (window.FCPromo) {
+                window.FCPromo.setupUI();
+                if (window.FCPromo.currentPromo) {
+                    window.FCPromo.renderAppliedPromo();
+                }
+            }
+        }
+        
+        function updateQty(index, delta) {
+            const cart = FCCart.getCart();
+            const newQty = cart[index].quantity + delta;
+            FCCart.updateQuantity(index, newQty);
+            renderCart();
+        }
+        
+        function removeItem(index) {
+            FCCart.removeFromCart(index);
+            renderCart();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCart();
+            window.addEventListener('cartUpdated', renderCart);
+        });
+    </script>
+    <script src="js/search.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>

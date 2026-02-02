@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="syHzPIM7xGnRkxmSCusoOxQlV2I-4JbznKWs-v6FCUc" />
+    <title>Family Custom - Créations Personnalisées | Néons & Bois</title>
+    <meta name="description" content="Créez des objets personnalisés uniques : néons lumineux et créations en bois design. Artisanat haut de gamme, fait avec amour.">
+    <link rel="canonical" href="https://www.family-custom.com/">
+    <!-- Balises SEO supplémentaires -->
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Family Custom">
+    <meta name="keywords" content="néon personnalisé, bois personnalisé, cadeau personnalisé, déco, artisanat, family custom, enseigne lumineuse, création sur mesure, made in France">
+    
+    <!-- Données structurées Organization avec Logo -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Family Custom",
+      "url": "https://www.family-custom.com/",
+      "logo": "https://www.family-custom.com/images/IMG_3402.jpeg",
+      "image": "https://www.family-custom.com/images/IMG_3402.jpeg",
+      "description": "Créez des objets personnalisés uniques : néons lumineux et créations en bois design. Artisanat haut de gamme, fait avec amour.",
+      "sameAs": [
+        "https://www.instagram.com/familycustom",
+        "https://www.facebook.com/familycustom"
+      ]
+    }
+    </script>
+    
+    <!-- Données structurées WebSite pour SearchBox -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Family Custom",
+      "url": "https://www.family-custom.com/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.family-custom.com/?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <!-- Données structurées Store -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Family Custom",
+      "url": "https://www.family-custom.com/",
+      "logo": "https://www.family-custom.com/images/IMG_3402.jpeg",
+      "image": "https://www.family-custom.com/images/IMG_3402.jpeg",
+      "description": "Créez des objets personnalisés uniques : néons lumineux et créations en bois design.",
+      "priceRange": "€€",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "FR"
+      }
+    }
+    </script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏠%3C/text%3E%3C/svg%3E">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Pacifico&family=Audiowide&family=Bungee+Shade&family=Boogaloo&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/categories.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="css/features.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/features-extra.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/promo-banner.css">
+    
+    <style>
+        /* Custom Font - Respondent Black */
+        @font-face {
+            font-family: 'Respondent Black';
+            src: url('fonts/RespondentBlack_PERSONAL_USE_ONLY.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        
+        .section-title.ducks-font {
+            font-family: 'Respondent Black', cursive;
+            font-size: 3.5rem;
+        }
+    </style>
+    
+    <!-- Firebase SDK (dans head pour être prêt avant les autres scripts) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <!-- Coming Soon Overlay -->
+    <script src="js/coming-soon.js"></script>
+</head>
+
+<body>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." data-i18n-placeholder="search.placeholder" autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <!-- Recherche mobile (visible uniquement dans le menu) -->
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." data-i18n-placeholder="search.placeholder.mobile" autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="#categories" class="nav-link" data-i18n="nav.creations">Nos Créations</a></li>
+                    <li><a href="#contact" class="nav-link" data-i18n="nav.contact">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link" data-i18n="nav.account">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link"><span data-i18n="nav.cart">Panier</span> <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="#categories" class="nav-cta" data-i18n="nav.cta">Créer mon objet</a>
+                <!-- Icônes header desktop -->
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- ========== HERO SECTION ========== -->
+    <section class="hero">
+        <div class="hero-background">
+            <div class="hero-overlay">
+                <!-- Image de fond -->
+                <img src="images/fond%20overlay%20hero.jpg" 
+                     alt="Background" 
+                     class="overlay-bg">
+                <div class="dark-overlay"></div>
+                <div class="neon-glow-overlay"></div>
+                <!-- Texte néon mobile -->
+                <div class="mobile-neon-text">
+                    <span class="neon-line" data-text="Family">
+                        <span class="neon-letter">F</span><span class="neon-letter">a</span><span class="neon-letter">m</span><span class="neon-letter">i</span><span class="neon-letter">l</span><span class="neon-letter">y</span>
+                    </span>
+                    <span class="neon-line" data-text="Custom">
+                        <span class="neon-letter">C</span><span class="neon-letter">u</span><span class="neon-letter">s</span><span class="neon-letter">t</span><span class="neon-letter">o</span><span class="neon-letter">m</span>
+                    </span>
+                    <span class="neon-subtitle" data-i18n="hero.subtitle">Créations personnalisées</span>
+                </div>
+            </div>
+            <!-- Image placeholder - remplace l'URL par ta propre image -->
+            <img src="https://images.unsplash.com/photo-1609220136736-443140cffec6?w=1920&q=80" 
+                 alt="Famille avec produits personnalisés" 
+                 class="hero-image">
+        </div>
+        <div class="hero-content">
+        </div>
+        <div class="hero-scroll">
+            <span data-i18n="hero.scroll">Découvrir</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+    <!-- ========== FIN HERO ========== -->
+    
+    <!-- ========== SECTION CATÉGORIES ========== -->
+    <section id="categories" class="categories-section">
+        <h2 class="section-title ducks-font" data-i18n="categories.title">Nos Créations</h2>
+        <p class="section-subtitle" data-i18n="categories.subtitle">Découvrez nos univers et trouvez l'objet personnalisé parfait</p>
+        
+        <div class="categories-carousel-wrapper">
+            <button class="carousel-arrow carousel-prev" aria-label="Précédent" data-i18n-aria="categories.prev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="categories-carousel" id="categories-grid">
+                <!-- Catégories chargées dynamiquement depuis Firebase -->
+            </div>
+            <button class="carousel-arrow carousel-next" aria-label="Suivant" data-i18n-aria="categories.next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="carousel-dots" id="carousel-dots"></div>
+    </section>
+    
+    <!-- Popup Catégorie -->
+    <div id="category-popup" class="category-popup">
+        <div class="popup-overlay"></div>
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2><i class="fas fa-th"></i> <span data-i18n="categories.popup.title">Catégorie</span></h2>
+                <button class="popup-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="popup-body">
+                <!-- Produits injectés par JS -->
+            </div>
+        </div>
+    </div>
+    <!-- ========== FIN CATÉGORIES ========== -->
+
+    <!-- Features Section -->
+    <section id="how-it-works" class="features">
+        <div class="section-header">
+            <span class="section-label" data-i18n="features.label">Pourquoi Nous</span>
+            <h2 class="section-title" data-i18n="features.title">L'excellence artisanale</h2>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-pencil-ruler"></i>
+                </div>
+                <h4 data-i18n="features.custom.title">100% Personnalisé</h4>
+                <p data-i18n="features.custom.desc">Chaque création est unique, faite selon vos envies.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <h4 data-i18n="features.quality.title">Qualité Premium</h4>
+                <p data-i18n="features.quality.desc">Des matériaux soigneusement sélectionnés pour un rendu parfait.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h4 data-i18n="features.shipping.title">Livraison Soignée</h4>
+                <p data-i18n="features.shipping.desc">Emballage sécurisé, expédition dans toute l'Europe.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h4 data-i18n="features.support.title">Support Réactif</h4>
+                <p data-i18n="features.support.desc">Une question ? On vous répond en 24h max.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="newsletter-inner">
+            <span class="newsletter-badge" data-i18n="newsletter.badge">🎁 -10% sur votre 1ère commande</span>
+            <h3 data-i18n="newsletter.title">Rejoignez la famille !</h3>
+            <p class="newsletter-subtitle" data-i18n="newsletter.subtitle">Recevez nos offres exclusives et nouveautés en avant-première</p>
+            <form class="newsletter-form" id="newsletter-form">
+                <input type="email" placeholder="Votre adresse email" data-i18n-placeholder="newsletter.placeholder" required>
+                <button type="submit"><i class="fas fa-paper-plane"></i> <span data-i18n="newsletter.button">S'inscrire</span></button>
+            </form>
+            <p class="newsletter-privacy"><i class="fas fa-lock"></i> <span data-i18n="newsletter.privacy">Vos données restent confidentielles</span></p>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <img src="images/IMG_3402.jpeg" alt="Family Custom" class="footer-logo-img">
+                    <p data-i18n="footer.desc">Créations personnalisées haut de gamme. Néons et bois, faits avec passion.</p>
+                    <div class="footer-social">
+                        <a href="https://www.instagram.com/familycustom/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h5 data-i18n="footer.nav">Navigation</h5>
+                    <ul>
+                        <li><a href="index.html" data-i18n="footer.home">Accueil</a></li>
+                        <li><a href="#categories" data-i18n="nav.creations">Nos Créations</a></li>
+                        <li><a href="panier.html" data-i18n="footer.cart">Mon Panier</a></li>
+                        <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h5 data-i18n="footer.info">Informations</h5>
+                    <ul>
+                        <li><a href="#" data-i18n="footer.faq">FAQ</a></li>
+                        <li><a href="suivi-commande.html" data-i18n="footer.shipping">Livraison</a></li>
+                        <li><a href="retours.html" data-i18n="footer.returns">Retours</a></li>
+                        <li><a href="cgv.html" data-i18n="footer.terms">CGV</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h5 data-i18n="footer.contact">Contact</h5>
+                    <ul>
+                        <li><a href="mailto:support@family-custom.com">support@family-custom.com</a></li>
+                        <li>42330 Saint-Galmier</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2026 Family Custom. <span data-i18n="footer.rights">Tous droits réservés.</span></p>
+                <p data-i18n="footer.french">🇫🇷 Entreprise Française</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    
+    <script src="js/cart.js"></script>
+    <script src="js/features.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/recently-viewed.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/conversion.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/promo-banner.js"></script>
+</body>
+</html>

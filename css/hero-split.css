@@ -1,0 +1,899 @@
+/* ============================================
+   FAMILY CUSTOM - Hero Split Screen Interactif
+   Section révolutionnaire avec configurateur live
+   ============================================ */
+
+/* ===== VARIABLES ===== */
+:root {
+    /* Bois */
+    --wood-bg: #f5ebe0;
+    --wood-accent: #a68a64;
+    --wood-dark: #5c4033;
+    --wood-texture: #d4b896;
+    
+    /* Néon */
+    --neon-bg: #0a0a0f;
+    --neon-pink: #ff2d75;
+    --neon-blue: #00f0ff;
+    --neon-purple: #bf00ff;
+    --neon-glow: rgba(255, 45, 117, 0.8);
+}
+
+/* ===== HERO SPLIT CONTAINER ===== */
+.hero-split {
+    width: 100%;
+    height: 100vh;
+    min-height: 700px;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ===== PANELS ===== */
+.split-panel {
+    position: relative;
+    height: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    overflow: hidden;
+    transition: flex 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+/* Hover states */
+.hero-split:hover .split-panel {
+    flex: 0.6;
+}
+
+.hero-split .split-panel:hover {
+    flex: 1.4;
+}
+
+/* ===== PANEL BOIS ===== */
+.panel-bois {
+    background: 
+        /* Grain de bois principal */
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='wood'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.15' numOctaves='3' seed='1' result='noise'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.82 0 0 0 0 0.68 0 0 0 0 0.5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23wood)'/%3E%3C/svg%3E"),
+        /* Couleur de base */
+        linear-gradient(180deg, #e8d4bc 0%, #d4bc9a 100%);
+    background-blend-mode: overlay;
+}
+
+.panel-bois::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        /* Lignes de grain horizontales */
+        repeating-linear-gradient(
+            180deg,
+            transparent 0px,
+            transparent 8px,
+            rgba(139, 90, 43, 0.03) 8px,
+            rgba(139, 90, 43, 0.03) 9px,
+            transparent 9px,
+            transparent 20px
+        ),
+        /* Variations de teinte */
+        repeating-linear-gradient(
+            180deg,
+            rgba(212, 168, 116, 0.1) 0px,
+            transparent 2px,
+            transparent 30px,
+            rgba(139, 90, 43, 0.05) 30px,
+            rgba(139, 90, 43, 0.05) 32px,
+            transparent 32px,
+            transparent 80px
+        ),
+        /* Noeuds du bois simulés */
+        radial-gradient(ellipse 40px 20px at 20% 30%, rgba(139, 90, 43, 0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 30px 15px at 70% 60%, rgba(139, 90, 43, 0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 25px 12px at 40% 80%, rgba(139, 90, 43, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Overlay subtil pour adoucir */
+.panel-bois::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        /* Veines fines du bois */
+        repeating-linear-gradient(
+            2deg,
+            transparent 0px,
+            transparent 3px,
+            rgba(92, 64, 51, 0.02) 3px,
+            rgba(92, 64, 51, 0.02) 4px
+        ),
+        /* Dégradé de lumière naturelle */
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(0, 0, 0, 0.05) 100%);
+    pointer-events: none;
+}
+
+/* ===== PANEL NÉON ===== */
+.panel-neon {
+    background: 
+        /* Dégradé de base sombre */
+        radial-gradient(ellipse at 50% 100%, #1a1a3a 0%, #0a0a0f 60%),
+        linear-gradient(180deg, #0d0d1a 0%, #0a0a0f 100%);
+    overflow: hidden;
+}
+
+.panel-neon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        /* Halo néon principal */
+        radial-gradient(ellipse 60% 50% at 50% 60%, rgba(255, 45, 117, 0.2) 0%, transparent 50%),
+        /* Halo bleu secondaire */
+        radial-gradient(ellipse 50% 40% at 30% 30%, rgba(0, 240, 255, 0.15) 0%, transparent 50%),
+        /* Halo violet accent */
+        radial-gradient(ellipse 40% 30% at 70% 70%, rgba(191, 0, 255, 0.12) 0%, transparent 50%),
+        /* Brume lumineuse basse */
+        linear-gradient(0deg, rgba(255, 45, 117, 0.08) 0%, transparent 30%);
+    pointer-events: none;
+    animation: neonAmbiance 8s ease-in-out infinite alternate;
+}
+
+@keyframes neonAmbiance {
+    0% {
+        background: 
+            radial-gradient(ellipse 60% 50% at 50% 60%, rgba(255, 45, 117, 0.2) 0%, transparent 50%),
+            radial-gradient(ellipse 50% 40% at 30% 30%, rgba(0, 240, 255, 0.15) 0%, transparent 50%),
+            radial-gradient(ellipse 40% 30% at 70% 70%, rgba(191, 0, 255, 0.12) 0%, transparent 50%),
+            linear-gradient(0deg, rgba(255, 45, 117, 0.08) 0%, transparent 30%);
+    }
+    100% {
+        background: 
+            radial-gradient(ellipse 70% 60% at 45% 55%, rgba(255, 45, 117, 0.25) 0%, transparent 50%),
+            radial-gradient(ellipse 45% 35% at 70% 25%, rgba(0, 240, 255, 0.2) 0%, transparent 50%),
+            radial-gradient(ellipse 50% 40% at 25% 75%, rgba(191, 0, 255, 0.15) 0%, transparent 50%),
+            linear-gradient(0deg, rgba(0, 240, 255, 0.06) 0%, transparent 25%);
+    }
+}
+
+/* Grille perspective cyberpunk */
+.panel-neon::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        /* Grille horizontale */
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 49px,
+            rgba(0, 240, 255, 0.04) 49px,
+            rgba(0, 240, 255, 0.04) 50px
+        ),
+        /* Grille verticale */
+        repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            transparent 49px,
+            rgba(0, 240, 255, 0.04) 49px,
+            rgba(0, 240, 255, 0.04) 50px
+        ),
+        /* Lignes perspective vers le bas */
+        linear-gradient(180deg, transparent 50%, rgba(0, 240, 255, 0.02) 100%);
+    pointer-events: none;
+    mask-image: linear-gradient(180deg, transparent 0%, black 30%, black 70%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 30%, black 70%, transparent 100%);
+}
+
+/* Particules / étoiles scintillantes */
+.panel-neon .stars {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(2px 2px at 20% 15%, rgba(255, 255, 255, 0.8) 0%, transparent 100%),
+        radial-gradient(2px 2px at 80% 25%, rgba(255, 45, 117, 0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 65% 45%, rgba(0, 240, 255, 0.9) 0%, transparent 100%),
+        radial-gradient(2px 2px at 35% 70%, rgba(255, 255, 255, 0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 60%, rgba(191, 0, 255, 0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 10% 85%, rgba(0, 240, 255, 0.7) 0%, transparent 100%),
+        radial-gradient(2px 2px at 50% 10%, rgba(255, 45, 117, 0.6) 0%, transparent 100%);
+    animation: starsTwinkle 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes starsTwinkle {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* ===== CONTENU DES PANELS ===== */
+.panel-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    max-width: 500px;
+    padding: 2rem;
+}
+
+/* Titres */
+.panel-title {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.panel-bois .panel-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--wood-dark);
+}
+
+.panel-neon .panel-title {
+    font-family: 'Bungee Shade', sans-serif;
+    color: #fff;
+    text-shadow: 
+        0 0 10px var(--neon-pink),
+        0 0 30px var(--neon-pink);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    animation: neonFlickerInit 2s ease-out forwards;
+}
+
+/* Flicker effect à l'initialisation */
+@keyframes neonFlickerInit {
+    0% {
+        opacity: 0;
+        text-shadow: none;
+    }
+    10% {
+        opacity: 1;
+        text-shadow: 
+            0 0 10px var(--neon-pink),
+            0 0 30px var(--neon-pink);
+    }
+    12% {
+        opacity: 0.3;
+        text-shadow: none;
+    }
+    20% {
+        opacity: 1;
+        text-shadow: 
+            0 0 10px var(--neon-pink),
+            0 0 30px var(--neon-pink);
+    }
+    25% {
+        opacity: 0.5;
+        text-shadow: 
+            0 0 5px var(--neon-pink);
+    }
+    30% {
+        opacity: 1;
+        text-shadow: 
+            0 0 10px var(--neon-pink),
+            0 0 30px var(--neon-pink);
+    }
+    32% {
+        opacity: 0.8;
+        text-shadow: 
+            0 0 5px var(--neon-pink);
+    }
+    35% {
+        opacity: 1;
+        text-shadow: 
+            0 0 10px var(--neon-pink),
+            0 0 30px var(--neon-pink);
+    }
+    50% {
+        opacity: 0.9;
+        text-shadow: 
+            0 0 8px var(--neon-pink),
+            0 0 20px var(--neon-pink);
+    }
+    55% {
+        opacity: 1;
+        text-shadow: 
+            0 0 10px var(--neon-pink),
+            0 0 30px var(--neon-pink),
+            0 0 50px var(--neon-pink);
+    }
+    100% {
+        opacity: 1;
+        text-shadow: 
+            0 0 10px var(--neon-pink),
+            0 0 30px var(--neon-pink),
+            0 0 50px var(--neon-pink);
+    }
+}
+
+.panel-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    opacity: 0.7;
+}
+
+.panel-bois .panel-subtitle {
+    color: var(--wood-accent);
+}
+
+.panel-neon .panel-subtitle {
+    color: var(--neon-blue);
+}
+
+/* ===== ZONE D'APERÇU DU TEXTE ===== */
+.preview-zone {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem 0;
+    position: relative;
+}
+
+/* ===== EFFET GRAVURE BOIS ===== */
+.wood-preview {
+    position: relative;
+    padding: 2rem 3rem;
+    background: linear-gradient(145deg, #e8d5c4, #d4c4b0);
+    border-radius: 12px;
+    box-shadow: 
+        inset 3px 3px 6px rgba(92, 64, 51, 0.2),
+        inset -3px -3px 6px rgba(255, 255, 255, 0.5),
+        0 10px 40px rgba(92, 64, 51, 0.2);
+    min-width: 280px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Texture bois sur le cadre */
+.wood-preview::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(139, 90, 43, 0.03) 2px,
+        rgba(139, 90, 43, 0.03) 4px
+    );
+    pointer-events: none;
+}
+
+.wood-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    color: transparent;
+    background: linear-gradient(180deg, #8b5a2b 0%, #5c4033 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-shadow: 
+        1px 1px 1px rgba(255, 255, 255, 0.4),
+        -1px -1px 1px rgba(92, 64, 51, 0.3);
+    letter-spacing: 0.05em;
+    position: relative;
+}
+
+/* Effet d'incrustation */
+.wood-text::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: transparent;
+    background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    pointer-events: none;
+}
+
+.wood-placeholder {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--wood-accent);
+    opacity: 0.5;
+    font-style: italic;
+}
+
+/* ===== EFFET NÉON GLOW ===== */
+.neon-preview {
+    position: relative;
+    padding: 2rem 3rem;
+    min-width: 280px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 10, 15, 0.8);
+    border: 1px solid rgba(255, 45, 117, 0.3);
+    border-radius: 12px;
+    box-shadow: 
+        0 0 30px rgba(255, 45, 117, 0.1),
+        inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Support mural simulé */
+.neon-preview::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 8px;
+    background: linear-gradient(180deg, #333, #1a1a1a);
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.neon-text {
+    font-family: 'Pacifico', 'Brush Script MT', cursive;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    color: #fff;
+    text-shadow: 
+        0 0 5px #fff,
+        0 0 10px #fff,
+        0 0 20px var(--neon-pink),
+        0 0 40px var(--neon-pink),
+        0 0 60px var(--neon-pink),
+        0 0 80px var(--neon-pink),
+        0 0 100px var(--neon-pink);
+    animation: neonFlicker 3s ease-in-out infinite;
+    letter-spacing: 0.02em;
+}
+
+@keyframes neonFlicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        text-shadow: 
+            0 0 5px #fff,
+            0 0 10px #fff,
+            0 0 20px var(--neon-pink),
+            0 0 40px var(--neon-pink),
+            0 0 60px var(--neon-pink),
+            0 0 80px var(--neon-pink),
+            0 0 100px var(--neon-pink);
+    }
+    20%, 24%, 55% {
+        text-shadow: 
+            0 0 2px #fff,
+            0 0 5px var(--neon-pink),
+            0 0 10px var(--neon-pink);
+    }
+}
+
+.neon-placeholder {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+}
+
+/* Reflet néon */
+.neon-preview::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 30px;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 45, 117, 0.3) 0%,
+        transparent 100%
+    );
+    filter: blur(10px);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* ===== BOUTONS CTA ===== */
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* CTA Bois */
+.cta-wood {
+    background: var(--wood-dark);
+    color: #fff;
+    box-shadow: 0 8px 30px rgba(92, 64, 51, 0.3);
+}
+
+.cta-wood:hover {
+    background: #4a3428;
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(92, 64, 51, 0.4);
+}
+
+.cta-wood::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.cta-wood:hover::before {
+    left: 100%;
+}
+
+/* CTA Néon */
+.cta-neon {
+    background: transparent;
+    color: #fff;
+    border: 2px solid var(--neon-pink);
+    box-shadow: 
+        0 0 20px rgba(255, 45, 117, 0.3),
+        inset 0 0 20px rgba(255, 45, 117, 0.1);
+}
+
+.cta-neon:hover {
+    background: var(--neon-pink);
+    transform: translateY(-4px);
+    box-shadow: 
+        0 0 40px rgba(255, 45, 117, 0.6),
+        0 15px 40px rgba(255, 45, 117, 0.4);
+}
+
+.cta-neon i {
+    transition: transform 0.3s;
+}
+
+.cta-neon:hover i {
+    transform: translateX(5px);
+}
+
+/* ===== CONFIGURATEUR CENTRAL ===== */
+.central-configurator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    width: 100%;
+    max-width: 400px;
+    padding: 0 1rem;
+}
+
+.config-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.config-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f5f5f5;
+    text-align: center;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.config-subtitle {
+    display: none;
+}
+
+.config-input-wrapper {
+    position: relative;
+}
+
+.config-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    border: 2px solid #e5e5e5;
+    border-radius: 10px;
+    background: #fafafa;
+    color: #f5f5f5;
+    text-align: center;
+    transition: border-color 0.2s ease;
+    outline: none;
+}
+
+.config-input::placeholder {
+    color: #999;
+    font-weight: 500;
+}
+
+.config-input:focus {
+    border-color: #f5f5f5;
+    background: #fff;
+}
+
+.config-hint {
+    display: none;
+}
+
+/* Indicateurs de couleur */
+.color-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.color-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    border: 2px solid transparent;
+}
+
+.color-dot:hover {
+    transform: scale(1.15);
+}
+
+.color-dot.active {
+    border-color: #f5f5f5;
+}
+
+.color-dot.pink { background: var(--neon-pink); }
+.color-dot.blue { background: var(--neon-blue); }
+.color-dot.purple { background: var(--neon-purple); }
+.color-dot.white { background: #fff; border-color: #ddd; }
+.color-dot.yellow { background: #ffe135; }
+
+/* ===== DIVISEUR CENTRAL ===== */
+.split-divider {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(
+        180deg,
+        var(--wood-accent) 0%,
+        rgba(255, 255, 255, 0.8) 30%,
+        rgba(255, 255, 255, 0.8) 70%,
+        var(--neon-pink) 100%
+    );
+    z-index: 50;
+    opacity: 0.6;
+    transition: opacity 0.5s;
+}
+
+.hero-split:hover .split-divider {
+    opacity: 0.3;
+}
+
+/* ===== ÉLÉMENTS DÉCORATIFS ===== */
+/* Feuilles bois */
+.decor-wood {
+    position: absolute;
+    color: var(--wood-accent);
+    opacity: 0.15;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.decor-wood.leaf-1 {
+    top: 10%;
+    left: 10%;
+    font-size: 4rem;
+    transform: rotate(-20deg);
+}
+
+.decor-wood.leaf-2 {
+    bottom: 15%;
+    right: 10%;
+    font-size: 3rem;
+    transform: rotate(30deg);
+}
+
+.decor-wood.ring {
+    top: 50%;
+    left: 5%;
+    width: 100px;
+    height: 100px;
+    border: 3px solid var(--wood-accent);
+    border-radius: 50%;
+    opacity: 0.1;
+}
+
+/* Éléments néon */
+.decor-neon {
+    position: absolute;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.decor-neon.star-1 {
+    top: 15%;
+    right: 15%;
+    color: var(--neon-pink);
+    font-size: 1.5rem;
+    text-shadow: 0 0 20px var(--neon-pink);
+    animation: twinkle 2s ease-in-out infinite;
+}
+
+.decor-neon.star-2 {
+    bottom: 20%;
+    left: 20%;
+    color: var(--neon-blue);
+    font-size: 1rem;
+    text-shadow: 0 0 15px var(--neon-blue);
+    animation: twinkle 2.5s ease-in-out infinite 0.5s;
+}
+
+.decor-neon.circle {
+    bottom: 30%;
+    right: 10%;
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--neon-blue);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 20px var(--neon-blue),
+        inset 0 0 20px rgba(0, 240, 255, 0.1);
+    opacity: 0.3;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+    .hero-split {
+        flex-direction: column;
+    }
+    
+    .split-panel {
+        flex: 1 !important;
+        min-height: 50vh;
+    }
+    
+    .hero-split:hover .split-panel {
+        flex: 1 !important;
+    }
+    
+    .hero-split .split-panel:hover {
+        flex: 1.2 !important;
+    }
+    
+    .split-divider {
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        transform: translateY(-50%);
+        background: linear-gradient(
+            90deg,
+            var(--wood-accent) 0%,
+            rgba(255, 255, 255, 0.8) 30%,
+            rgba(255, 255, 255, 0.8) 70%,
+            var(--neon-pink) 100%
+        );
+    }
+    
+    .central-configurator {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        order: -1;
+        padding: 1rem;
+        margin: -60px auto 0;
+        z-index: 100;
+    }
+    
+    .hero-split {
+        padding-top: 80px;
+    }
+    
+    .panel-content {
+        padding: 1rem;
+    }
+    
+    .preview-zone {
+        min-height: 120px;
+        margin: 1rem 0;
+    }
+    
+    .wood-preview,
+    .neon-preview {
+        min-width: 200px;
+        min-height: 80px;
+        padding: 1rem 1.5rem;
+    }
+    
+    .wood-text,
+    .neon-text {
+        font-size: 1.8rem !important;
+    }
+    
+    .config-card {
+        padding: 1.5rem;
+    }
+    
+    .cta-button {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .panel-title {
+        font-size: 1.2rem;
+    }
+    
+    .wood-text,
+    .neon-text {
+        font-size: 1.5rem !important;
+    }
+    
+    .config-input {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+    
+    .color-indicators {
+        gap: 0.75rem;
+    }
+    
+    .color-dot {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* ===== ANIMATIONS D'ENTRÉE ===== */
+.hero-split.loaded .panel-content {
+    animation: slideUp 0.8s ease forwards;
+}
+
+.hero-split.loaded .central-configurator {
+    animation: fadeIn 1s ease 0.3s forwards;
+    opacity: 0;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+

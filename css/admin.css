@@ -2495,6 +2495,43 @@ body {
     background: #fff5f8;
 }
 
+/* Item variants dans commande */
+.item-variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.item-variants .variant-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: var(--gray-100);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
+}
+
+.item-variants .variant-tag i {
+    font-size: 0.7rem;
+    color: var(--gray-500);
+}
+
+.item-variants .variant-tag.color-tag {
+    background: linear-gradient(135deg, #fff5f3, #fff9f0);
+    border-color: #e07a5f40;
+}
+
+.item-variants .color-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
 /* Image client dans commande */
 .order-customer-img {
     width: 60px;

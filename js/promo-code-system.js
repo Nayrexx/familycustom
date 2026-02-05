@@ -6,7 +6,10 @@
 const FCPromoCode = (function() {
     'use strict';
     
-    const db = window.FirebaseDB;
+    // Fonction pour obtenir db dynamiquement (évite les problèmes de timing)
+    function getDB() {
+        return window.FirebaseDB;
+    }
     
     // Types de réduction
     const DISCOUNT_TYPES = {
@@ -19,6 +22,7 @@ const FCPromoCode = (function() {
      * Créer un nouveau code promo
      */
     async function createPromoCode(promoData) {
+        const db = getDB();
         if (!db) {
             throw new Error('Firebase non disponible');
         }
@@ -59,19 +63,29 @@ const FCPromoCode = (function() {
     /**
      * Valider un code promo
      */
-    async function validateCode(code, orderTotal = 0) {
+    async function validateCode(code, orderTotal = 0, userEmail = null) {
         if (!code || code.trim() === '') {
             return { valid: false, error: 'Code requis' };
         }
         
         code = code.toUpperCase().trim();
         
+        const db = getDB();
         if (!db) {
             // Mode démo sans Firebase
             return getDemoPromo(code, orderTotal);
         }
         
         try {
+            // D'abord, vérifier si c'est un code de la roue de la fortune (WHEEL-XXXXXX)
+            if (code.startsWith('WHEEL-') || code.startsWith('FC-')) {
+                const wheelResult = await validateWheelCode(code, orderTotal, userEmail);
+                if (wheelResult.valid || wheelResult.error !== 'Code non trouvé') {
+                    return wheelResult;
+                }
+            }
+            
+            // Sinon, chercher dans les codes promo classiques
             const snapshot = await db.collection('promoCodes')
                 .where('code', '==', code)
                 .limit(1)
@@ -128,6 +142,87 @@ const FCPromoCode = (function() {
     }
     
     /**
+     * Valider un code de la roue de la fortune
+     */
+    async function validateWheelCode(code, orderTotal = 0, userEmail = null) {
+        const db = getDB();
+        if (!db) {
+            return { valid: false, error: 'Firebase non disponible' };
+        }
+        
+        try {
+            // Les codes de la roue sont stockés avec leur code comme ID du document
+            const docRef = db.collection('promo_codes').doc(code);
+            const doc = await docRef.get();
+            
+            console.log('🔍 Recherche code roue:', code, '- Trouvé:', doc.exists);
+            
+            if (!doc.exists) {
+                return { valid: false, error: 'Code non trouvé' };
+            }
+            
+            const wheelCode = doc.data();
+            
+            // Vérifier si déjà utilisé
+            if (wheelCode.used) {
+                return { valid: false, error: 'Ce code a déjà été utilisé' };
+            }
+            
+            // Vérifier l'expiration
+            if (wheelCode.expiresAt) {
+                const expirationDate = wheelCode.expiresAt.toDate ? wheelCode.expiresAt.toDate() : new Date(wheelCode.expiresAt);
+                if (expirationDate < new Date()) {
+                    return { valid: false, error: 'Ce code a expiré' };
+                }
+            }
+            
+            // Calculer la réduction selon le type
+            let discount = 0;
+            let discountType = wheelCode.type;
+            
+            if (wheelCode.type === 'percent') {
+                discount = (orderTotal * wheelCode.discount) / 100;
+                discountType = 'percentage';
+            } else if (wheelCode.type === 'free_shipping') {
+                discount = 9.90; // Frais de port standard
+            }
+            
+            // Créer un objet promo compatible avec le système existant
+            const promo = {
+                id: doc.id,
+                code: wheelCode.code,
+                discountType: discountType,
+                discountValue: wheelCode.discount,
+                description: `Code roue de la fortune (${wheelCode.prize})`,
+                source: 'wheel',
+                email: wheelCode.email
+            };
+            
+            return {
+                valid: true,
+                promo: promo,
+                discount: discount,
+                message: getWheelSuccessMessage(wheelCode, discount),
+                isWheelCode: true
+            };
+            
+        } catch (error) {
+            console.error('Erreur validation code roue:', error);
+            return { valid: false, error: 'Erreur de validation' };
+        }
+    }
+    
+    /**
+     * Message de succès pour code roue
+     */
+    function getWheelSuccessMessage(wheelCode, discount) {
+        if (wheelCode.type === 'free_shipping') {
+            return '🎡 Livraison gratuite appliquée !';
+        }
+        return `🎡 ${wheelCode.discount}% de réduction appliqué (-${discount.toFixed(2)}€)`;
+    }
+    
+    /**
      * Calculer la réduction
      */
     function calculateDiscount(promo, orderTotal) {
@@ -168,12 +263,30 @@ const FCPromoCode = (function() {
     /**
      * Marquer un code promo comme utilisé
      */
-    async function usePromoCode(code) {
+    async function usePromoCode(code, orderId = null) {
+        const db = getDB();
         if (!db) return;
         
         code = code.toUpperCase().trim();
         
         try {
+            // Vérifier si c'est un code de la roue
+            if (code.startsWith('WHEEL-') || code.startsWith('FC-')) {
+                const docRef = db.collection('promo_codes').doc(code);
+                const doc = await docRef.get();
+                
+                if (doc.exists) {
+                    await docRef.update({
+                        used: true,
+                        usedAt: new Date(),
+                        usedOrderId: orderId
+                    });
+                    console.log('✅ Code roue marqué comme utilisé:', code);
+                    return;
+                }
+            }
+            
+            // Sinon, code promo classique
             const snapshot = await db.collection('promoCodes')
                 .where('code', '==', code)
                 .limit(1)
@@ -185,7 +298,8 @@ const FCPromoCode = (function() {
                 
                 await doc.ref.update({
                     usedCount: currentCount + 1,
-                    lastUsedAt: new Date().toISOString()
+                    lastUsedAt: new Date().toISOString(),
+                    lastOrderId: orderId
                 });
             }
         } catch (error) {
@@ -197,6 +311,7 @@ const FCPromoCode = (function() {
      * Récupérer tous les codes promo (admin)
      */
     async function getAllPromoCodes() {
+        const db = getDB();
         if (!db) return [];
         
         try {
@@ -218,6 +333,7 @@ const FCPromoCode = (function() {
      * Mettre à jour un code promo
      */
     async function updatePromoCode(id, updates) {
+        const db = getDB();
         if (!db) return;
         
         try {
@@ -236,6 +352,7 @@ const FCPromoCode = (function() {
      * Supprimer un code promo
      */
     async function deletePromoCode(id) {
+        const db = getDB();
         if (!db) return;
         
         try {

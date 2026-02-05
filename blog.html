@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Family Custom | Idées cadeaux personnalisés</title>
+    <meta name="description" content="Découvrez nos conseils et idées pour des cadeaux personnalisés uniques. Inspirations déco, guides cadeaux et tendances.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.family-custom.com/blog.html">
+    
+    <meta property="og:title" content="Blog Family Custom - Idées cadeaux personnalisés">
+    <meta property="og:description" content="Inspirations et conseils pour des cadeaux personnalisés uniques.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.family-custom.com/blog.html">
+    <meta property="og:image" content="https://familycustom.fr/images/IMG_3402.jpeg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="images/IMG_3402.jpeg">
+    <link rel="apple-touch-icon" href="images/IMG_3402.jpeg">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <style>
+        .blog-page {
+            min-height: 100vh;
+            padding-top: 100px;
+            background: #f8f8f8;
+        }
+        
+        .blog-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .blog-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .blog-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .blog-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .blog-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        .blog-card-image {
+            height: 180px;
+            background: linear-gradient(135deg, #e07a5f, #c9a87c);
+            overflow: hidden;
+        }
+        
+        .blog-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .blog-card:hover .blog-card-image img {
+            transform: scale(1.05);
+        }
+        
+        .blog-card-content {
+            padding: 1.5rem;
+        }
+        
+        .blog-card-category {
+            display: inline-block;
+            background: rgba(224, 122, 95, 0.1);
+            color: #e07a5f;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        
+        .blog-card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        
+        .blog-card h2 a {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        .blog-card h2 a:hover {
+            color: #e07a5f;
+        }
+        
+        .blog-card-excerpt {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .blog-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: #999;
+        }
+        
+        .blog-card-meta i {
+            margin-right: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .blog-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+            
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="index.html#categories" class="nav-link">Nos Créations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier</a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Créer mon objet</a>
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="blog-page">
+        <div class="blog-container">
+            <div class="blog-header">
+                <h1>Notre Blog</h1>
+                <p>Inspirations, conseils et idées pour des cadeaux personnalisés uniques</p>
+            </div>
+            
+            <div class="blog-grid">
+                <!-- Article 1 -->
+                <article class="blog-card">
+                    <div class="blog-card-image">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=400&fit=crop" alt="Chien mignon avec couverture personnalisée">
+                    </div>
+                    <div class="blog-card-content">
+                        <span class="blog-card-category">Animaux</span>
+                        <h2><a href="blog/idees-cadeaux-chien-personnalises.html">10 idées de cadeaux personnalisés pour les amoureux des chiens</a></h2>
+                        <p class="blog-card-excerpt">Découvrez notre sélection de cadeaux uniques pour gâter votre compagnon à quatre pattes...</p>
+                        <div class="blog-card-meta">
+                            <span><i class="fas fa-calendar"></i> 5 Fév 2026</span>
+                            <span><i class="fas fa-clock"></i> 5 min</span>
+                        </div>
+                    </div>
+                </article>
+                
+                <!-- Article 2 -->
+                <article class="blog-card">
+                    <div class="blog-card-image">
+                        <img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&h=400&fit=crop" alt="Mère et fille cadeau personnalisé">
+                    </div>
+                    <div class="blog-card-content">
+                        <span class="blog-card-category">Occasions</span>
+                        <h2><a href="blog/cadeau-fete-des-meres-personnalise.html">Fête des mères : 5 cadeaux personnalisés qui feront pleurer maman</a></h2>
+                        <p class="blog-card-excerpt">Cette année, offrez un cadeau qui vient vraiment du cœur. Voici nos meilleures idées...</p>
+                        <div class="blog-card-meta">
+                            <span><i class="fas fa-calendar"></i> 3 Fév 2026</span>
+                            <span><i class="fas fa-clock"></i> 4 min</span>
+                        </div>
+                    </div>
+                </article>
+                
+                <!-- Article 3 -->
+                <article class="blog-card">
+                    <div class="blog-card-image">
+                        <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600&h=400&fit=crop" alt="Couple amoureux cadeau personnalisé">
+                    </div>
+                    <div class="blog-card-content">
+                        <span class="blog-card-category">Couple</span>
+                        <h2><a href="blog/cadeaux-couple-personnalises.html">15 cadeaux personnalisés pour couple qui durent toute la vie</a></h2>
+                        <p class="blog-card-excerpt">Des idées originales pour célébrer votre amour avec des créations sur mesure...</p>
+                        <div class="blog-card-meta">
+                            <span><i class="fas fa-calendar"></i> 1 Fév 2026</span>
+                            <span><i class="fas fa-clock"></i> 6 min</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-bottom">
+                <p>© 2026 Family Custom. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script src="js/cart.js"></script>
+</body>
+</html>

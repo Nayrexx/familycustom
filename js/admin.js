@@ -97,6 +97,47 @@
         return `<a href="${customerImage}" target="_blank" class="customer-img-link"><img src="${customerImage}" alt="Photo client" class="order-customer-img"></a>`;
     }
     
+    // Render item variants (color, size, material, etc.) for admin view
+    function renderItemVariants(variants) {
+        if (!variants) return '-';
+        
+        let html = '<div class="item-variants">';
+        
+        // Couleur
+        if (variants.color) {
+            const colorHex = variants.color.hex || variants.color;
+            const colorName = variants.color.name || variants.color;
+            html += `<span class="variant-tag color-tag">
+                <span class="color-dot" style="background:${colorHex};"></span>
+                ${colorName}
+            </span>`;
+        }
+        
+        // Taille
+        if (variants.size) {
+            html += `<span class="variant-tag"><i class="fas fa-ruler"></i> ${variants.size}</span>`;
+        }
+        
+        // Matériau
+        if (variants.material) {
+            html += `<span class="variant-tag"><i class="fas fa-cube"></i> ${variants.material}</span>`;
+        }
+        
+        // Options personnalisées
+        if (variants.customOptions) {
+            for (const [key, value] of Object.entries(variants.customOptions)) {
+                html += `<span class="variant-tag">${key}: ${value}</span>`;
+            }
+        }
+        
+        html += '</div>';
+        
+        // Si aucun variant trouvé
+        if (html === '<div class="item-variants"></div>') return '-';
+        
+        return html;
+    }
+
     function slugify(text) {
         return text.toString().toLowerCase()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -969,6 +1010,7 @@
                         <thead>
                             <tr>
                                 <th>Produit</th>
+                                <th>Options</th>
                                 <th>Personnalisation</th>
                                 <th>Photo client</th>
                                 <th>Qté</th>
@@ -979,6 +1021,7 @@
                             ${(order.items || []).map(item => `
                                 <tr>
                                     <td>${item.name}</td>
+                                    <td>${renderItemVariants(item.variants)}</td>
                                     <td>${item.customization || '-'}</td>
                                     <td>${renderAdminCustomerImages(item.customerImage)}</td>
                                     <td>${item.quantity}</td>
@@ -988,15 +1031,15 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="4">Sous-total</td>
+                                <td colspan="5">Sous-total</td>
                                 <td>${order.subtotal?.toFixed(2) || '0.00'}€</td>
                             </tr>
                             <tr>
-                                <td colspan="4">Livraison</td>
+                                <td colspan="5">Livraison</td>
                                 <td>${order.shipping === 0 ? 'Gratuite' : (order.shipping?.toFixed(2) || '0.00') + '€'}</td>
                             </tr>
                             <tr class="total-row">
-                                <td colspan="4"><strong>Total</strong></td>
+                                <td colspan="5"><strong>Total</strong></td>
                                 <td><strong>${order.total?.toFixed(2) || '0.00'}€</strong></td>
                             </tr>
                         </tfoot>
@@ -1162,14 +1205,34 @@
             day: '2-digit', month: '2-digit', year: 'numeric'
         });
         
-        const itemsHtml = (order.items || []).map(item => `
-            <tr>
-                <td style="padding:8px;border-bottom:1px solid #ddd;">${item.name}</td>
-                <td style="padding:8px;border-bottom:1px solid #ddd;">${item.customization || '-'}</td>
-                <td style="padding:8px;border-bottom:1px solid #ddd;text-align:center;">${item.quantity}</td>
-                <td style="padding:8px;border-bottom:1px solid #ddd;text-align:right;">${(item.priceValue * item.quantity).toFixed(2)}€</td>
-            </tr>
-        `).join('');
+        const itemsHtml = (order.items || []).map(item => {
+            // Format variants for print
+            let variantsText = '';
+            if (item.variants) {
+                const parts = [];
+                if (item.variants.color) {
+                    const colorName = item.variants.color.name || item.variants.color;
+                    parts.push(`🎨 ${colorName}`);
+                }
+                if (item.variants.size) {
+                    parts.push(`📐 ${item.variants.size}`);
+                }
+                if (item.variants.material) {
+                    parts.push(`🧱 ${item.variants.material}`);
+                }
+                if (parts.length > 0) {
+                    variantsText = `<br><small style="color:#666;">${parts.join(' | ')}</small>`;
+                }
+            }
+            return `
+                <tr>
+                    <td style="padding:8px;border-bottom:1px solid #ddd;">${item.name}${variantsText}</td>
+                    <td style="padding:8px;border-bottom:1px solid #ddd;">${item.customization || '-'}</td>
+                    <td style="padding:8px;border-bottom:1px solid #ddd;text-align:center;">${item.quantity}</td>
+                    <td style="padding:8px;border-bottom:1px solid #ddd;text-align:right;">${(item.priceValue * item.quantity).toFixed(2)}€</td>
+                </tr>
+            `;
+        }).join('');
         
         const printContent = `
             <!DOCTYPE html>

@@ -54,4 +54,29 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  <!-- Blog Articles -->
+  <url>
+    <loc>https://www.family-custom.com/blog.html</loc>
+    <lastmod>2026-02-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.family-custom.com/blog/idees-cadeaux-chien-personnalises.html</loc>
+    <lastmod>2026-02-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.family-custom.com/blog/cadeau-fete-des-meres-personnalise.html</loc>
+    <lastmod>2026-02-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.family-custom.com/blog/cadeaux-couple-personnalises.html</loc>
+    <lastmod>2026-02-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

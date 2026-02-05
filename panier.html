@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panier - Family Custom</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="images/IMG_3402.jpeg">
+    <link rel="apple-touch-icon" href="images/IMG_3402.jpeg">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,6 +19,7 @@
     <link rel="stylesheet" href="css/chat.css">
     <link rel="stylesheet" href="css/search.css">
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/social-proof.css">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -344,8 +350,8 @@
                         </div>
                         ` : ''}
                         <div class="summary-row total">
-                            <span>Total</span>
-                            <span>${total.toFixed(2)}€</span>
+                            <span>Total <small style="font-weight: 400; opacity: 0.7;">(hors livraison)</small></span>
+                            <span>${finalSubtotal.toFixed(2)}€</span>
                         </div>
                         
                         <!-- Delivery Estimate -->
@@ -395,5 +401,6 @@
     </script>
     <script src="js/search.js"></script>
     <script src="js/chat.js"></script>
+    <script src="js/social-proof.js"></script>
 </body>
 </html>

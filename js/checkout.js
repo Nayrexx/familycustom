@@ -193,6 +193,160 @@
         return true;
     }
     
+    // Vérifier et appliquer automatiquement le code de la roue
+    function checkAndApplyWheelCode() {
+        // Vérifier si FCWheel est disponible et a un code gagné
+        if (typeof window.FCWheel !== 'undefined' && window.FCWheel.getWonCode) {
+            const wonCode = window.FCWheel.getWonCode();
+            
+            if (wonCode && wonCode.code) {
+                const promoInput = document.getElementById('promo-code');
+                const applyBtn = document.getElementById('apply-promo-btn');
+                
+                // Pré-remplir le code
+                if (promoInput && applyBtn) {
+                    promoInput.value = wonCode.code;
+                    
+                    // Afficher une notification
+                    showWheelCodeNotification(wonCode);
+                    
+                    // Appliquer automatiquement après un court délai
+                    setTimeout(() => {
+                        applyBtn.click();
+                    }, 800);
+                }
+            }
+        } else {
+            // Fallback: vérifier directement le localStorage
+            try {
+                const data = localStorage.getItem('fc_wheel_won_code');
+                if (data) {
+                    const wonCode = JSON.parse(data);
+                    
+                    // Vérifier expiration
+                    if (new Date(wonCode.expiresAt) > new Date()) {
+                        const promoInput = document.getElementById('promo-code');
+                        const applyBtn = document.getElementById('apply-promo-btn');
+                        
+                        if (promoInput && applyBtn) {
+                            promoInput.value = wonCode.code;
+                            showWheelCodeNotification(wonCode);
+                            
+                            setTimeout(() => {
+                                applyBtn.click();
+                            }, 800);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log('Pas de code de roue à appliquer');
+            }
+        }
+    }
+    
+    // Afficher une notification pour le code de la roue
+    function showWheelCodeNotification(wonCode) {
+        const notification = document.createElement('div');
+        notification.className = 'wheel-code-notification';
+        
+        let discountText = '';
+        if (wonCode.type === 'free_shipping') {
+            discountText = 'Livraison gratuite';
+        } else {
+            discountText = `-${wonCode.discount}%`;
+        }
+        
+        notification.innerHTML = `
+            <div class="wheel-notification-content">
+                <span class="wheel-notification-icon">🎡</span>
+                <div class="wheel-notification-text">
+                    <strong>Code de la Roue détecté !</strong>
+                    <span>Votre réduction ${discountText} va être appliquée automatiquement</span>
+                </div>
+            </div>
+        `;
+        
+        // Ajouter les styles si pas déjà présents
+        if (!document.getElementById('wheel-notification-styles')) {
+            const style = document.createElement('style');
+            style.id = 'wheel-notification-styles';
+            style.textContent = `
+                .wheel-code-notification {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #1a1a2e, #16213e);
+                    border: 2px solid #d4af37;
+                    border-radius: 12px;
+                    padding: 15px 20px;
+                    z-index: 10000;
+                    box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
+                    animation: slideInRight 0.5s ease-out, fadeOut 0.5s ease-out 4.5s forwards;
+                    max-width: 350px;
+                }
+                
+                .wheel-notification-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                
+                .wheel-notification-icon {
+                    font-size: 28px;
+                    animation: spin 2s linear infinite;
+                }
+                
+                .wheel-notification-text {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+                
+                .wheel-notification-text strong {
+                    color: #d4af37;
+                    font-size: 14px;
+                }
+                
+                .wheel-notification-text span {
+                    color: #fff;
+                    font-size: 12px;
+                    opacity: 0.9;
+                }
+                
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes fadeOut {
+                    to {
+                        opacity: 0;
+                        transform: translateX(100%);
+                    }
+                }
+                
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(notification);
+        
+        // Supprimer après 5 secondes
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
     // Setup Promo Code / Gift Card
     function setupPromoCode() {
         const promoInput = document.getElementById('promo-code');
@@ -204,6 +358,9 @@
         const appliedAmount = document.getElementById('applied-amount');
         
         if (!applyBtn) return;
+        
+        // Check for wheel code and auto-apply
+        checkAndApplyWheelCode();
         
         // Apply promo code or gift card
         applyBtn.addEventListener('click', async function() {
@@ -889,8 +1046,14 @@
         // Mark promo code as used
         if (appliedPromoCode && typeof FCPromoCode !== 'undefined') {
             try {
-                await FCPromoCode.usePromoCode(appliedPromoCode.code);
+                await FCPromoCode.usePromoCode(appliedPromoCode.code, order.orderNumber || order.id);
                 console.log('Code promo utilisé:', appliedPromoCode.code);
+                
+                // Clear wheel code from localStorage if it's a wheel code
+                if (appliedPromoCode.code && appliedPromoCode.code.startsWith('WHEEL-')) {
+                    localStorage.removeItem('fc_wheel_won_code');
+                    console.log('Code roue effacé du localStorage');
+                }
             } catch (error) {
                 console.error('Erreur utilisation code promo:', error);
             }

@@ -267,15 +267,16 @@
 .customization-section {
     background: white;
     border-radius: 20px;
-    padding: 2.5rem;
+    padding: 1.5rem 2rem;
     box-shadow: 0 10px 40px rgba(0,0,0,0.08);
 }
 
 .customization-section h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 2rem;
+    font-size: 1.6rem;
     color: #2d2a26;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
 }
 
 /* Header row with title and wishlist button */
@@ -297,18 +298,19 @@
 }
 
 .product-description {
-    color: #555555;
-    line-height: 1.6;
-    margin-bottom: 1rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
 }
 
 .product-price-tag {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: var(--color-accent, #e07a5f);
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 2px solid #ddd;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
 }
 
 /* Prix en promo */
@@ -333,50 +335,60 @@
 
 /* Steps */
 .customization-step {
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.customization-step:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0.5rem;
 }
 
 .customization-step h3 {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 1.1rem;
+    gap: 10px;
+    font-size: 0.95rem;
     color: #2d2a26;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .step-number {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     background: linear-gradient(135deg, #e07a5f, #c9a87c);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
 /* ===== VARIANTS SECTION ===== */
 .variants-step .variant-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.variants-step .variant-group:last-child {
+    margin-bottom: 0;
 }
 
 .variants-step .variant-group > label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     font-weight: 600;
     color: #333;
-    margin-bottom: 0.75rem;
-    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
 }
 
 .variants-step .variant-group > label i {
     color: #e07a5f;
+    font-size: 0.85rem;
 }
 
 .variant-options {
@@ -387,14 +399,14 @@
 
 /* Color Options */
 .color-options .variant-btn {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    border: 3px solid transparent;
+    border: 2px solid transparent;
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12);
 }
 
 .color-options .variant-btn:hover {
@@ -428,12 +440,13 @@
 
 /* Size Options */
 .size-options .variant-btn {
-    padding: 0.6rem 1.2rem;
+    padding: 0.4rem 0.9rem;
     background: #fff;
-    border: 2px solid #ddd;
-    border-radius: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
+    font-size: 0.85rem;
     color: #333;
     transition: all 0.2s;
 }
@@ -1183,12 +1196,12 @@
 /* Text Customization */
 #custom-text {
     width: 100%;
-    min-height: 100px;
-    padding: 1rem;
-    border: 2px solid #e8e3db;
-    border-radius: 12px;
+    min-height: 60px;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 0.95rem;
     resize: vertical;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -1214,11 +1227,15 @@
 .add-to-cart-section {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    margin: 2rem 0;
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #2d2d2d, #3a3a3a);
-    border-radius: 16px;
+    gap: 1rem;
+    margin: 1.25rem 0;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #1a1a2e, #2d2d3d);
+    border-radius: 14px;
+    position: sticky;
+    bottom: 10px;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
 }
 
 .quantity-selector {

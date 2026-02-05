@@ -1,0 +1,788 @@
+/* ============================================
+   FAMILY CUSTOM - Social Proof & Conversion CSS
+   ============================================ */
+
+/* =============================================
+   1. VIEWERS COUNT WIDGET
+   ============================================= */
+
+.viewers-widget {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: transparent;
+    border-radius: 4px;
+    margin: 4px 0 8px 0;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.viewers-fire {
+    font-size: 0.85rem;
+    animation: fireFlicker 1.5s ease-in-out infinite;
+}
+
+@keyframes fireFlicker {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.viewers-count {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #e07a5f;
+    transition: all 0.3s ease;
+}
+
+.viewers-count.updating {
+    transform: scale(1.05);
+    color: #d35400;
+}
+
+.viewers-text {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.viewers-pulse {
+    width: 5px;
+    height: 5px;
+    background: #4caf50;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    margin-left: 3px;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(224, 122, 95, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 15px rgba(224, 122, 95, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(224, 122, 95, 0);
+    }
+}
+
+/* =============================================
+   2. FREE SHIPPING PROGRESS BAR
+   ============================================= */
+
+.shipping-progress-container {
+    max-width: 600px;
+    margin: 0 auto 40px;
+    padding: 25px;
+    background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+    border-radius: 16px;
+    border: 1px solid rgba(224, 122, 95, 0.2);
+}
+
+.shipping-progress-bar {
+    position: relative;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: visible;
+    margin-bottom: 15px;
+}
+
+.shipping-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e07a5f, #c9a87c);
+    border-radius: 10px;
+    transition: width 0.6s ease;
+    position: relative;
+}
+
+.shipping-progress-fill.complete {
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.shipping-progress-truck {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    transition: left 0.6s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.shipping-progress-truck.celebrating {
+    animation: truckBounce 0.5s ease infinite;
+}
+
+@keyframes truckBounce {
+    0%, 100% { transform: translate(-50%, -50%) rotate(-5deg); }
+    50% { transform: translate(-50%, -60%) rotate(5deg); }
+}
+
+.shipping-progress-text {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.shipping-message {
+    color: #f5f5f5;
+    font-size: 1rem;
+}
+
+.shipping-message strong {
+    color: #e07a5f;
+}
+
+.shipping-success {
+    color: #2ecc71 !important;
+    font-weight: 600;
+}
+
+.shipping-success strong {
+    color: #2ecc71 !important;
+}
+
+.shipping-progress-markers {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* =============================================
+   3. PRODUCT RATING BADGE
+   ============================================= */
+
+.product-rating-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 5;
+}
+
+.rating-stars {
+    font-size: 0.65rem;
+    letter-spacing: -2px;
+}
+
+.rating-value {
+    font-weight: 700;
+    color: #2d2a26;
+}
+
+.rating-count {
+    color: #888;
+    font-size: 0.7rem;
+}
+
+/* =============================================
+   4. PRODUCT REVIEWS SECTION
+   ============================================= */
+
+.product-reviews-section {
+    margin-top: 50px;
+    padding: 40px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+}
+
+.reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.reviews-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #2d2a26;
+}
+
+.reviews-summary {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.reviews-score {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.score-stars {
+    font-size: 1rem;
+    letter-spacing: -2px;
+}
+
+.score-value {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #2d2a26;
+}
+
+.reviews-count {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Rating Breakdown */
+.reviews-breakdown {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 12px;
+}
+
+.breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.breakdown-row:last-child {
+    margin-bottom: 0;
+}
+
+.breakdown-stars {
+    font-size: 0.85rem;
+    min-width: 50px;
+}
+
+.breakdown-bar {
+    flex: 1;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.breakdown-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e07a5f, #c9a87c);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.breakdown-percent {
+    font-size: 0.85rem;
+    color: #666;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Customer Photos */
+.customer-photos {
+    margin-bottom: 30px;
+}
+
+.customer-photos h4 {
+    font-size: 1rem;
+    color: #2d2a26;
+    margin-bottom: 15px;
+}
+
+.photos-grid {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.customer-photo-item {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.customer-photo-item:hover {
+    transform: scale(1.05);
+}
+
+.customer-photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-placeholder {
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+.customer-photo-item.more-photos {
+    background: linear-gradient(135deg, #e07a5f, #c9a87c);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Reviews List */
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.review-item {
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    transition: box-shadow 0.3s ease;
+}
+
+.review-item:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.review-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #e07a5f, #c9a87c);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.author-name {
+    font-weight: 600;
+    color: #2d2a26;
+}
+
+.verified-badge {
+    font-size: 0.75rem;
+    color: #2ecc71;
+    font-weight: 500;
+}
+
+.review-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+}
+
+.review-stars {
+    font-size: 0.9rem;
+    letter-spacing: -1px;
+}
+
+.review-date {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.review-text {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+.review-photo {
+    max-width: 200px;
+    margin-top: 15px;
+    border-radius: 8px;
+}
+
+.load-more-reviews {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background: transparent;
+    border: 2px solid #e07a5f;
+    color: #e07a5f;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.load-more-reviews:hover {
+    background: #e07a5f;
+    color: white;
+}
+
+/* =============================================
+   5. BUNDLE / PACK SYSTEM
+   ============================================= */
+
+/* Bundles Section on Homepage */
+.bundles-section {
+    padding: 80px 5%;
+    background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+}
+
+.bundles-section .section-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.bundles-section .section-label {
+    display: inline-block;
+    background: linear-gradient(135deg, #e07a5f, #c9a87c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.bundles-section .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: #f5f5f5;
+}
+
+.bundles-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.bundles-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #f5f5f5;
+}
+
+.bundles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.bundle-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bundle-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.bundle-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    z-index: 5;
+}
+
+.bundle-image {
+    height: 180px;
+    background: linear-gradient(135deg, #f8f4f0, #e8e0d8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bundle-placeholder {
+    font-size: 4rem;
+}
+
+.bundle-info {
+    padding: 25px;
+}
+
+.bundle-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #2d2a26;
+    margin-bottom: 8px;
+}
+
+.bundle-desc {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+
+.bundle-pricing {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.bundle-original {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 1rem;
+}
+
+.bundle-price {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #e07a5f;
+}
+
+.bundle-savings {
+    display: block;
+    color: #2ecc71;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.bundle-add-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #e07a5f, #c9a87c);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.bundle-add-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(224, 122, 95, 0.4);
+}
+
+/* Bundle Suggestion in Cart */
+.bundle-suggestion {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+    border-radius: 16px;
+    border: 2px dashed rgba(224, 122, 95, 0.3);
+}
+
+.bundle-suggestion h3 {
+    font-size: 1.2rem;
+    color: #f5f5f5;
+    margin-bottom: 15px;
+}
+
+.suggested-bundle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.suggested-bundle-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.suggestion-tag {
+    display: inline-block;
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.suggested-bundle h4 {
+    color: #f5f5f5;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.suggested-bundle p {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.suggested-pricing {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.suggested-pricing .original {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.suggested-pricing .price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #e07a5f;
+}
+
+.btn-add-bundle {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #e07a5f, #c9a87c);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-add-bundle:hover {
+    transform: scale(1.05);
+}
+
+/* Bundle Notification */
+.bundle-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transform: translateX(120%);
+    transition: transform 0.4s ease;
+    z-index: 10000;
+}
+
+.bundle-notification.show {
+    transform: translateX(0);
+}
+
+.bundle-notif-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bundle-notif-icon {
+    font-size: 2rem;
+}
+
+.bundle-notif-content strong {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 3px;
+}
+
+.savings-highlight {
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+@media (max-width: 768px) {
+    .viewers-widget {
+        padding: 10px 14px;
+    }
+    
+    .viewers-text {
+        font-size: 0.85rem;
+    }
+    
+    .shipping-progress-container {
+        padding: 20px 15px;
+        margin-bottom: 25px;
+    }
+    
+    .product-reviews-section {
+        padding: 25px 15px;
+    }
+    
+    .reviews-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .review-header {
+        flex-direction: column;
+    }
+    
+    .review-meta {
+        align-items: flex-start;
+    }
+    
+    .bundle-card {
+        max-width: 100%;
+    }
+    
+    .suggested-bundle {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-add-bundle {
+        width: 100%;
+        text-align: center;
+    }
+}

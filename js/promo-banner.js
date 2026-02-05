@@ -1,14 +1,12 @@
 /* ============================================
-   PROMO BANNER & POPUP - JavaScript
-   Family Custom - Ouverture -20%
+   PROMO BANNER - JavaScript
+   Family Custom - Livraison gratuite
    ============================================ */
 
 (function() {
     'use strict';
     
-    const PROMO_CODE = 'BIENVENUE20';
-    const PROMO_STORAGE_KEY = 'familycustom_promo_popup_shown';
-    const BANNER_STORAGE_KEY = 'familycustom_promo_banner_closed';
+    const BANNER_STORAGE_KEY = 'familycustom_shipping_banner_closed';
     
     // ===== BANDEAU STICKY =====
     function initPromoBanner() {
@@ -28,14 +26,11 @@
         banner.className = 'promo-banner';
         banner.innerHTML = `
             <div class="promo-banner-content">
-                <span class="promo-icon">🎉</span>
+                <span class="promo-icon">📦</span>
                 <span class="promo-text">
-                    <strong>OUVERTURE</strong> : -20% sur tout le site avec le code
-                    <span class="promo-code" onclick="copyPromoCode(this, '${PROMO_CODE}')" title="Cliquer pour copier">
-                        ${PROMO_CODE}
-                    </span>
+                    <strong>LIVRAISON GRATUITE</strong> dès 69€ d'achat !
                 </span>
-                <span class="promo-icon">🎁</span>
+                <span class="promo-icon">🚚</span>
             </div>
             <button class="promo-banner-close" onclick="closePromoBanner()" aria-label="Fermer">
                 <i class="fas fa-times"></i>
@@ -183,11 +178,9 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 initPromoBanner();
-                initPromoPopup();
             });
         } else {
             initPromoBanner();
-            initPromoPopup();
         }
     }
     

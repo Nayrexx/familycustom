@@ -3,8 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/tracking.js" defer></script>
     <title>Contact - Family Custom</title>
-    <meta name="description" content="Contactez Family Custom pour toute question sur nos créations personnalisées. Nous sommes à votre écoute.">
+    <meta name="description" content="Contactez Family Custom pour toute question sur nos créations personnalisées. Réponse sous 24h.">
+    <link rel="canonical" href="https://www.family-custom.com/contact.html">
+    <link rel="alternate" hreflang="fr-FR" href="https://www.family-custom.com/contact.html">
+    <link rel="alternate" hreflang="x-default" href="https://www.family-custom.com/contact.html">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Family Custom">
+    
+    <!-- Données structurées ContactPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "name": "Contactez Family Custom",
+      "description": "Contactez-nous pour toute question sur nos créations personnalisées.",
+      "url": "https://www.family-custom.com/contact.html",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Family Custom",
+        "email": "contact@family-custom.com",
+        "url": "https://www.family-custom.com"
+      }
+    }
+    </script>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.family-custom.com/contact.html">
+    <meta property="og:title" content="Contact - Family Custom">
+    <meta property="og:description" content="Contactez-nous pour toute question. Réponse sous 24h.">
+    <meta property="og:image" content="https://www.family-custom.com/images/IMG_3402.jpeg">
+    <meta property="og:locale" content="fr_FR">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Contact - Family Custom">
+    <meta name="twitter:description" content="Contactez-nous pour toute question.">
+    
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://www.family-custom.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://www.family-custom.com/contact.html" }
+      ]
+    }
+    </script>
     
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="images/IMG_3402.jpeg">
@@ -23,9 +71,6 @@
     <link rel="stylesheet" href="css/cart.css">
     <link rel="stylesheet" href="css/search.css">
     <link rel="stylesheet" href="css/mobile.css">
-    
-    <link rel="canonical" href="https://www.family-custom.com/contact.html">
-    <meta name="robots" content="index, follow">
     
     <style>
         .contact-page {
@@ -358,8 +403,6 @@
             }
         }
     </style>
-    <!-- Coming Soon Overlay -->
-    <script src="js/coming-soon.js"></script>
 </head>
 <body>
     
@@ -596,10 +639,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
     
-    <!-- Scripts -->
-    <script src="js/script.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/search.js"></script>
+    <script src="js/script.js" defer></script>
+    <script src="js/analytics.js" defer></script>
+    <script src="js/cart.js" defer></script>
     
     
     <script>

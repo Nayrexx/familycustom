@@ -49,6 +49,8 @@ const FCPromoCode = (function() {
             isActive: true,
             startDate: promoData.startDate || new Date().toISOString(),
             endDate: promoData.endDate || null,
+            restrictToCategory: promoData.restrictToCategory || null,
+            categoryName: promoData.categoryName || null,
             createdAt: new Date().toISOString()
         };
         
@@ -62,8 +64,12 @@ const FCPromoCode = (function() {
     
     /**
      * Valider un code promo
+     * @param {string} code - Le code promo
+     * @param {number} orderTotal - Montant total de la commande
+     * @param {string} userEmail - Email utilisateur (optionnel)
+     * @param {Array} cartItems - Items du panier pour vérifier les restrictions de catégorie
      */
-    async function validateCode(code, orderTotal = 0, userEmail = null) {
+    async function validateCode(code, orderTotal = 0, userEmail = null, cartItems = []) {
         if (!code || code.trim() === '') {
             return { valid: false, error: 'Code requis' };
         }
@@ -73,7 +79,7 @@ const FCPromoCode = (function() {
         const db = getDB();
         if (!db) {
             // Mode démo sans Firebase
-            return getDemoPromo(code, orderTotal);
+            return getDemoPromo(code, orderTotal, cartItems);
         }
         
         try {
@@ -115,6 +121,26 @@ const FCPromoCode = (function() {
             // Vérifier le nombre d'utilisations
             if (promo.maxUses > 0 && promo.usedCount >= promo.maxUses) {
                 return { valid: false, error: 'Ce code promo a atteint sa limite d\'utilisation' };
+            }
+            
+            // Vérifier la restriction de catégorie (si définie)
+            if (promo.restrictToCategory && cartItems && cartItems.length > 0) {
+                const hasValidProduct = cartItems.some(item => {
+                    if (item.categoryIds && Array.isArray(item.categoryIds)) {
+                        return item.categoryIds.includes(promo.restrictToCategory);
+                    }
+                    if (item.categoryId) {
+                        return item.categoryId === promo.restrictToCategory;
+                    }
+                    return false;
+                });
+                
+                if (!hasValidProduct) {
+                    return { 
+                        valid: false, 
+                        error: `Ce code est valable uniquement pour les produits "${promo.categoryName || 'de la catégorie spéciale'}"` 
+                    };
+                }
             }
             
             // Vérifier le montant minimum
@@ -365,11 +391,83 @@ const FCPromoCode = (function() {
     }
     
     /**
-     * Codes promo démo (sans Firebase) - Désactivé
+     * Codes promo démo (fallback sans Firebase)
      */
-    function getDemoPromo(code, orderTotal) {
-        // Mode démo désactivé - nécessite Firebase
-        return { valid: false, error: 'Code promo invalide' };
+    function getDemoPromo(code, orderTotal, cartItems = []) {
+        // Codes promos actifs
+        const demoCodes = {
+            'MAMIE15': {
+                discountType: 'percentage',
+                discountValue: 15,
+                description: 'Fête des Grands-Mères -15%',
+                minOrderAmount: 0,
+                endDate: '2026-03-02T23:59:59', // Valable jusqu'au 2 mars
+                restrictToCategory: 'fete-mamies', // Uniquement pour cette catégorie
+                categoryName: 'Fête des Grands-Mères'
+            },
+            'BIENVENUE10': {
+                discountType: 'percentage',
+                discountValue: 10,
+                description: 'Bienvenue -10%',
+                minOrderAmount: 0,
+                endDate: null
+            },
+            'RESTE10': {
+                discountType: 'percentage',
+                discountValue: 10,
+                description: 'Code exclusif -10%',
+                minOrderAmount: 15,
+                endDate: null
+            }
+        };
+        
+        const promo = demoCodes[code];
+        if (!promo) {
+            return { valid: false, error: 'Code promo invalide' };
+        }
+        
+        // Vérifier la date d'expiration
+        if (promo.endDate && new Date() > new Date(promo.endDate)) {
+            return { valid: false, error: 'Ce code promo a expiré' };
+        }
+        
+        // Vérifier la restriction de catégorie
+        if (promo.restrictToCategory && cartItems.length > 0) {
+            const hasValidProduct = cartItems.some(item => {
+                // Vérifier si le produit appartient à la catégorie requise
+                if (item.categoryIds && Array.isArray(item.categoryIds)) {
+                    return item.categoryIds.includes(promo.restrictToCategory);
+                }
+                if (item.categoryId) {
+                    return item.categoryId === promo.restrictToCategory;
+                }
+                return false;
+            });
+            
+            if (!hasValidProduct) {
+                return { 
+                    valid: false, 
+                    error: `Ce code est valable uniquement pour les produits "${promo.categoryName || 'de la catégorie spéciale'}"` 
+                };
+            }
+        }
+        
+        // Vérifier le minimum de commande
+        if (promo.minOrderAmount && orderTotal < promo.minOrderAmount) {
+            return { 
+                valid: false, 
+                error: `Minimum de commande : ${promo.minOrderAmount}€` 
+            };
+        }
+        
+        return {
+            valid: true,
+            code: code,
+            discountType: promo.discountType,
+            discountValue: promo.discountValue,
+            description: promo.description,
+            restrictToCategory: promo.restrictToCategory
+        };
     }
     
     // API publique

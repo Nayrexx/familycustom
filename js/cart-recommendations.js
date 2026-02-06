@@ -259,7 +259,7 @@
             
             container.querySelectorAll('.recommendation-card').forEach(card => {
                 card.addEventListener('click', () => {
-                    window.location.href = `personnaliser.html?id=${card.dataset.productId}`;
+                    window.location.href = `produit.html?id=${card.dataset.productId}`;
                 });
             });
         },
@@ -300,7 +300,7 @@
          * Redirige vers la page produit (car les produits peuvent avoir des options)
          */
         quickAddToCart(productId) {
-            window.location.href = `personnaliser.html?id=${productId}`;
+            window.location.href = `produit.html?id=${productId}`;
         },
         
         /**

@@ -43,20 +43,432 @@
             return;
         }
         
+        // Tracking pixel: Begin Checkout
+        if (window.FCTracking) {
+            var total = cart.reduce(function(s, i) { return s + (i.price || 0) * (i.quantity || 1); }, 0);
+            FCTracking.beginCheckout({ total: total, items: cart.map(function(i) { return { id: i.id, name: i.name, price: i.price, quantity: i.quantity }; }) });
+        }
+        
         renderOrderSummary();
         initStripe();
         setupForm();
         setupCustomerTypeSelector();
         setupDeliverySelector();
         setupPromoCode();
+        setupProgressBar();
+        setupMultiStepCheckout();
     });
     
+    // ===== Progress Bar =====
+    function setupProgressBar() {
+        const steps = document.querySelectorAll('.progress-step');
+        if (!steps.length) return;
+        
+        // Form field groups for each step
+        const step2Fields = ['firstName', 'lastName', 'email', 'phone'];
+        const step3Indicator = () => {
+            // Step 3 is complete when delivery address is filled or relay point selected
+            const homeDelivery = document.querySelector('input[name="deliveryMethod"][value="home"]');
+            if (homeDelivery && homeDelivery.checked) {
+                const address = document.getElementById('address');
+                const city = document.getElementById('city');
+                const postalCode = document.getElementById('postalCode');
+                return address?.value && city?.value && postalCode?.value;
+            } else {
+                // Relay point selected
+                const selectedRelay = document.querySelector('.mr-point-item.selected');
+                return !!selectedRelay;
+            }
+        };
+        
+        function updateProgressBar() {
+            // Check step 2 (Informations)
+            const step2Complete = step2Fields.every(fieldId => {
+                const field = document.getElementById(fieldId);
+                return field && field.value.trim() !== '';
+            });
+            
+            // Check step 3 (Livraison)
+            const step3Complete = step3Indicator();
+            
+            // Update visual states
+            const step2El = document.querySelector('.progress-step[data-step="2"]');
+            const step3El = document.querySelector('.progress-step[data-step="3"]');
+            const step4El = document.querySelector('.progress-step[data-step="4"]');
+            
+            if (step2Complete) {
+                step2El.classList.remove('active');
+                step2El.classList.add('completed');
+                step2El.querySelector('.step-icon').innerHTML = '<i class="fas fa-check"></i>';
+                
+                if (!step3Complete) {
+                    step3El.classList.add('active');
+                    step3El.classList.remove('completed');
+                }
+            } else {
+                step2El.classList.add('active');
+                step2El.classList.remove('completed');
+                step2El.querySelector('.step-icon').textContent = '2';
+                step3El.classList.remove('active', 'completed');
+                step3El.querySelector('.step-icon').textContent = '3';
+            }
+            
+            if (step3Complete && step2Complete) {
+                step3El.classList.remove('active');
+                step3El.classList.add('completed');
+                step3El.querySelector('.step-icon').innerHTML = '<i class="fas fa-check"></i>';
+                step4El.classList.add('active');
+            } else if (step3Complete) {
+                step3El.classList.remove('active', 'completed');
+                step3El.querySelector('.step-icon').textContent = '3';
+                step4El.classList.remove('active');
+            } else {
+                step4El.classList.remove('active');
+            }
+        }
+        
+        // Listen to all relevant form changes
+        step2Fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', updateProgressBar);
+                field.addEventListener('blur', updateProgressBar);
+            }
+        });
+        
+        // Listen to address fields
+        ['address', 'city', 'postalCode'].forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', updateProgressBar);
+                field.addEventListener('blur', updateProgressBar);
+            }
+        });
+        
+        // Listen to delivery method changes
+        document.querySelectorAll('input[name="deliveryMethod"]').forEach(radio => {
+            radio.addEventListener('change', () => setTimeout(updateProgressBar, 100));
+        });
+        
+        // Observe relay point selection (MutationObserver for dynamic content)
+        const mrResultsList = document.querySelector('.mr-results-list');
+        if (mrResultsList) {
+            const observer = new MutationObserver(updateProgressBar);
+            observer.observe(mrResultsList, { childList: true, subtree: true, attributes: true });
+        }
+        
+        // Also observe clicks on relay points
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.mr-point-item')) {
+                setTimeout(updateProgressBar, 100);
+            }
+        });
+        
+        // Initial check
+        updateProgressBar();
+    }
+    
+    // ===== Multi-Step Checkout =====
+    function setupMultiStepCheckout() {
+        const steps = {
+            info: document.getElementById('step-info'),
+            delivery: document.getElementById('step-delivery'),
+            payment: document.getElementById('step-payment')
+        };
+        
+        // Check if elements exist
+        if (!steps.info || !steps.delivery || !steps.payment) return;
+        
+        // Initially lock delivery and payment steps
+        steps.delivery.classList.add('locked');
+        steps.payment.classList.add('locked');
+        
+        // Make step headers clickable for completed steps
+        Object.keys(steps).forEach(stepName => {
+            const header = steps[stepName].querySelector('.step-header');
+            if (header) {
+                header.addEventListener('click', () => toggleStep(stepName));
+            }
+        });
+    }
+    
+    // Expose validateStep to global scope for onclick handlers
+    window.validateStep = function(stepName) {
+        const steps = {
+            info: document.getElementById('step-info'),
+            delivery: document.getElementById('step-delivery'),
+            payment: document.getElementById('step-payment')
+        };
+        
+        let isValid = true;
+        let errorMessage = '';
+        
+        if (stepName === 'info') {
+            // Validate customer info
+            const firstName = document.getElementById('firstName');
+            const lastName = document.getElementById('lastName');
+            const email = document.getElementById('email');
+            const phone = document.getElementById('phone');
+            
+            const fields = [
+                { el: firstName, name: 'Prénom' },
+                { el: lastName, name: 'Nom' },
+                { el: email, name: 'Email' },
+                { el: phone, name: 'Téléphone' }
+            ];
+            
+            fields.forEach(field => {
+                if (!field.el.value.trim()) {
+                    field.el.classList.add('error');
+                    isValid = false;
+                } else {
+                    field.el.classList.remove('error');
+                }
+            });
+            
+            // Validate email format
+            if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+                email.classList.add('error');
+                isValid = false;
+                errorMessage = 'Veuillez entrer une adresse email valide';
+            }
+            
+            // Validate phone format
+            if (phone.value && !/^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/.test(phone.value.replace(/\s/g, ''))) {
+                phone.classList.add('error');
+                isValid = false;
+                errorMessage = 'Veuillez entrer un numéro de téléphone valide';
+            }
+            
+            // If Pro, validate company fields
+            if (customerType === 'professionnel') {
+                const companyName = document.getElementById('companyName');
+                const siret = document.getElementById('siret');
+                
+                if (!companyName.value.trim()) {
+                    companyName.classList.add('error');
+                    isValid = false;
+                } else {
+                    companyName.classList.remove('error');
+                }
+                
+                if (!siret.value.trim()) {
+                    siret.classList.add('error');
+                    isValid = false;
+                } else {
+                    siret.classList.remove('error');
+                }
+            }
+            
+            if (isValid) {
+                // Mark step as completed
+                steps.info.classList.add('completed');
+                steps.info.classList.remove('active');
+                
+                // Update step header
+                const statusIcon = steps.info.querySelector('.status-icon');
+                if (statusIcon) statusIcon.innerHTML = '<i class="fas fa-check"></i>';
+                
+                // Update summary
+                const summary = steps.info.querySelector('.step-summary');
+                if (summary) {
+                    summary.innerHTML = `
+                        <p><strong>${firstName.value} ${lastName.value}</strong></p>
+                        <p>${email.value} • ${phone.value}</p>
+                        ${customerType === 'professionnel' ? '<p><i class="fas fa-building"></i> Professionnel</p>' : ''}
+                    `;
+                }
+                
+                // === ABANDONED CART CAPTURE ===
+                saveAbandonedCart(email.value, firstName.value, lastName.value, phone.value);
+                
+                // Unlock next step
+                steps.delivery.classList.remove('locked');
+                steps.delivery.classList.add('active');
+                
+                // Scroll to next step
+                steps.delivery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Update progress bar
+                updateProgressBarStep(2);
+            } else {
+                if (!errorMessage) errorMessage = 'Veuillez remplir tous les champs obligatoires';
+                showNotification(errorMessage, 'error');
+            }
+        }
+        
+        if (stepName === 'delivery') {
+            // Check delivery method
+            const homeDelivery = document.querySelector('input[name="deliveryMethod"][value="home"]');
+            const relayDelivery = document.querySelector('input[name="deliveryMethod"][value="relay"]');
+            
+            if (homeDelivery && homeDelivery.checked) {
+                // Validate home address
+                const address = document.getElementById('address');
+                const city = document.getElementById('city');
+                const postalCode = document.getElementById('postalCode');
+                
+                const fields = [
+                    { el: address, name: 'Adresse' },
+                    { el: city, name: 'Ville' },
+                    { el: postalCode, name: 'Code postal' }
+                ];
+                
+                fields.forEach(field => {
+                    if (!field.el.value.trim()) {
+                        field.el.classList.add('error');
+                        isValid = false;
+                    } else {
+                        field.el.classList.remove('error');
+                    }
+                });
+                
+                // Validate postal code format
+                if (postalCode.value && !/^\d{5}$/.test(postalCode.value)) {
+                    postalCode.classList.add('error');
+                    isValid = false;
+                    errorMessage = 'Veuillez entrer un code postal valide (5 chiffres)';
+                }
+                
+                if (isValid) {
+                    const summaryText = `
+                        <p><i class="fas fa-home"></i> Livraison à domicile</p>
+                        <p>${address.value}, ${postalCode.value} ${city.value}</p>
+                    `;
+                    markDeliveryComplete(steps, summaryText);
+                }
+                
+            } else if (relayDelivery && relayDelivery.checked) {
+                // Check if relay point is selected
+                if (!selectedRelayPoint) {
+                    isValid = false;
+                    errorMessage = 'Veuillez sélectionner un point relais';
+                } else {
+                    const summaryText = `
+                        <p><i class="fas fa-store"></i> Point Relais Mondial Relay</p>
+                        <p>${selectedRelayPoint.Nom || selectedRelayPoint.name}</p>
+                        <p>${selectedRelayPoint.Adresse || selectedRelayPoint.address}, ${selectedRelayPoint.CP || selectedRelayPoint.postalCode} ${selectedRelayPoint.Ville || selectedRelayPoint.city}</p>
+                    `;
+                    markDeliveryComplete(steps, summaryText);
+                }
+            } else {
+                isValid = false;
+                errorMessage = 'Veuillez choisir une méthode de livraison';
+            }
+            
+            if (!isValid) {
+                if (!errorMessage) errorMessage = 'Veuillez compléter les informations de livraison';
+                showNotification(errorMessage, 'error');
+            }
+        }
+    };
+    
+    function markDeliveryComplete(steps, summaryText) {
+        // Mark step as completed
+        steps.delivery.classList.add('completed');
+        steps.delivery.classList.remove('active');
+        
+        // Update step header
+        const statusIcon = steps.delivery.querySelector('.status-icon');
+        if (statusIcon) statusIcon.innerHTML = '<i class="fas fa-check"></i>';
+        
+        // Update summary
+        const summary = steps.delivery.querySelector('.step-summary');
+        if (summary) {
+            summary.innerHTML = summaryText;
+        }
+        
+        // Unlock payment step
+        steps.payment.classList.remove('locked');
+        steps.payment.classList.add('active');
+        
+        // Scroll to payment step
+        steps.payment.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Update progress bar
+        updateProgressBarStep(3);
+    }
+    
+    // Expose toggleStep to global scope for onclick handlers
+    window.toggleStep = function(stepName) {
+        const steps = {
+            info: document.getElementById('step-info'),
+            delivery: document.getElementById('step-delivery'),
+            payment: document.getElementById('step-payment')
+        };
+        
+        const step = steps[stepName];
+        if (!step) return;
+        
+        // Only allow toggling if step is completed
+        if (!step.classList.contains('completed')) return;
+        
+        // Toggle expanded/collapsed state
+        if (step.classList.contains('collapsed')) {
+            step.classList.remove('collapsed');
+        } else {
+            step.classList.add('collapsed');
+        }
+    };
+    
+    // Expose togglePromoSection to global scope for onclick handlers
+    window.togglePromoSection = function() {
+        const content = document.getElementById('promo-content');
+        const chevron = document.querySelector('.promo-chevron');
+        
+        if (content.style.display === 'none' || !content.style.display) {
+            content.style.display = 'block';
+            if (chevron) chevron.style.transform = 'rotate(180deg)';
+        } else {
+            content.style.display = 'none';
+            if (chevron) chevron.style.transform = 'rotate(0deg)';
+        }
+    };
+    
+    function updateProgressBarStep(stepNumber) {
+        const progressSteps = document.querySelectorAll('.progress-step');
+        progressSteps.forEach((step, index) => {
+            const stepNum = index + 1;
+            if (stepNum < stepNumber) {
+                step.classList.add('completed');
+                step.classList.remove('active');
+                step.querySelector('.step-icon').innerHTML = '<i class="fas fa-check"></i>';
+            } else if (stepNum === stepNumber) {
+                step.classList.add('active');
+                step.classList.remove('completed');
+            }
+        });
+    }
+
     // Setup customer type selector (Particulier/Pro)
     function setupCustomerTypeSelector() {
         const typeOptions = document.querySelectorAll('.type-option');
         const proFields = document.getElementById('pro-fields');
         const contactTitle = document.getElementById('contact-title');
         
+        // New checkbox-based pro toggle
+        const proCheckbox = document.getElementById('is-pro-checkbox');
+        if (proCheckbox) {
+            proCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    customerType = 'professionnel';
+                    if (proFields) proFields.style.display = 'block';
+                    const companyName = document.getElementById('companyName');
+                    const siret = document.getElementById('siret');
+                    if (companyName) companyName.required = true;
+                    if (siret) siret.required = true;
+                } else {
+                    customerType = 'particulier';
+                    if (proFields) proFields.style.display = 'none';
+                    const companyName = document.getElementById('companyName');
+                    const siret = document.getElementById('siret');
+                    if (companyName) companyName.required = false;
+                    if (siret) siret.required = false;
+                }
+            });
+        }
+        
+        // Legacy radio-based selector (keep for compatibility)
         typeOptions.forEach(option => {
             option.addEventListener('click', function() {
                 // Update selection UI
@@ -73,12 +485,12 @@
                     proFields.style.display = 'block';
                     document.getElementById('companyName').required = true;
                     document.getElementById('siret').required = true;
-                    contactTitle.textContent = 'Contact';
+                    if (contactTitle) contactTitle.textContent = 'Contact';
                 } else {
                     proFields.style.display = 'none';
                     document.getElementById('companyName').required = false;
                     document.getElementById('siret').required = false;
-                    contactTitle.textContent = 'Vos informations';
+                    if (contactTitle) contactTitle.textContent = 'Vos informations';
                 }
             });
         });
@@ -399,7 +811,7 @@
             
             // If not a gift card, try promo code
             if (!applied && typeof FCPromoCode !== 'undefined') {
-                const promoResult = await FCPromoCode.validateCode(code, subtotal);
+                const promoResult = await FCPromoCode.validateCode(code, subtotal, null, cart);
                 
                 if (promoResult.valid) {
                     // Apply promo code discount
@@ -420,16 +832,14 @@
                     showAppliedCode(code, displayAmount, 'promo');
                     showPromoMessage(promoResult.message, 'success');
                     applied = true;
-                } else if (!applied) {
-                    // Show error only if gift card also failed
-                    showPromoMessage(promoResult.error, 'error');
+                } else {
+                    // Show the specific error from promo validation
+                    showPromoMessage(promoResult.error || 'Code invalide', 'error');
                 }
             }
             
             if (!applied && typeof FCPromoCode === 'undefined' && typeof FCGiftCard === 'undefined') {
                 showPromoMessage('Service indisponible', 'error');
-            } else if (!applied) {
-                showPromoMessage('Code invalide', 'error');
             }
             
             if (applied) {
@@ -931,7 +1341,10 @@
                     }
                 }
                 
-                // 6. Rediriger vers la page de succès
+                // 6. Mark abandoned cart as converted
+                markCartConverted();
+                
+                // 7. Rediriger vers la page de succès
                 window.location.href = `success.html?order=${pendingOrder.id || pendingOrder.orderNumber}`;
             }
             
@@ -1115,8 +1528,8 @@
             }
         }
         
-        // Store order locally
-        localStorage.setItem('lastOrder', JSON.stringify(order));
+        // Store order in sessionStorage (cleared when tab closes)
+        sessionStorage.setItem('lastOrder', JSON.stringify(order));
         
         // Clear cart
         FCCart.clearCart();
@@ -1131,6 +1544,114 @@
         const day = date.getDate().toString().padStart(2, '0');
         const random = Math.random().toString(36).substring(2, 6).toUpperCase();
         return `FC${year}${month}${day}-${random}`;
+    }
+    
+    // ===== Notification Helper =====
+    function showNotification(message, type = 'info') {
+        // Remove existing notification
+        const existing = document.querySelector('.checkout-notification');
+        if (existing) existing.remove();
+        
+        const notification = document.createElement('div');
+        notification.className = `checkout-notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => notification.classList.add('show'), 10);
+        
+        // Auto remove
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 4000);
+    }
+    
+    // ===== ABANDONED CART RECOVERY =====
+    let abandonedCartId = null;
+    
+    async function saveAbandonedCart(email, firstName, lastName, phone) {
+        try {
+            const db = window.FirebaseDB;
+            if (!db) return;
+            
+            const cart = FCCart.getCart();
+            if (!cart || cart.length === 0) return;
+            
+            const total = cart.reduce(function(s, item) {
+                var price = item.priceValue || parseFloat((item.price || '0').toString().replace(/[^\d.,]/g, '').replace(',', '.'));
+                return s + price * (item.quantity || 1);
+            }, 0);
+            
+            const data = {
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                phone: phone || '',
+                items: cart.map(function(item) {
+                    return {
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        image: item.image || null,
+                        variants: item.variants || null
+                    };
+                }),
+                total: total,
+                status: 'abandoned', // abandoned | recovered | converted
+                reminderSent: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            if (abandonedCartId) {
+                // Update existing record
+                await db.collection('abandonedCarts').doc(abandonedCartId).update({
+                    ...data,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                // Check if there's already one for this email in last 24h
+                var existing = await db.collection('abandonedCarts')
+                    .where('email', '==', email)
+                    .where('status', '==', 'abandoned')
+                    .orderBy('createdAt', 'desc')
+                    .limit(1)
+                    .get();
+                
+                if (!existing.empty) {
+                    abandonedCartId = existing.docs[0].id;
+                    await db.collection('abandonedCarts').doc(abandonedCartId).update({
+                        ...data,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    var docRef = await db.collection('abandonedCarts').add(data);
+                    abandonedCartId = docRef.id;
+                }
+            }
+            
+            console.log('Abandoned cart saved:', abandonedCartId);
+        } catch (e) {
+            console.error('Error saving abandoned cart:', e);
+        }
+    }
+    
+    async function markCartConverted() {
+        try {
+            var db = window.FirebaseDB;
+            if (!db || !abandonedCartId) return;
+            
+            await db.collection('abandonedCarts').doc(abandonedCartId).update({
+                status: 'converted',
+                convertedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (e) { /* silent */ }
     }
     
 })();

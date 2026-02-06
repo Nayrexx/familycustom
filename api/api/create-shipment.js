@@ -2,16 +2,21 @@
 const crypto = require('crypto');
 
 // Configuration Mondial Relay PRODUCTION
+// Clés stockées dans les variables d'environnement Vercel
 const MR_CONFIG = {
     apiUrl: 'https://api.mondialrelay.com/Web_Services.asmx',
-    enseigne: 'CC23TCRH',  // Code Enseigne PRODUCTION
-    codeMarque: 'CC',  // Marque PRODUCTION
-    privateKey: 'B1qAsW0U'  // Clé privée PRODUCTION
+    enseigne: process.env.MR_ENSEIGNE,
+    codeMarque: process.env.MR_CODE_MARQUE,
+    privateKey: process.env.MR_PRIVATE_KEY
 };
 
 module.exports = async (req, res) => {
     // Handle CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const allowedOrigins = ['https://www.family-custom.com', 'https://family-custom.com'];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
@@ -56,7 +61,7 @@ module.exports = async (req, res) => {
             Expe_Pays: sender?.country || 'FR',
             Expe_Tel1: (sender?.phone || '0600000000').replace(/\s/g, ''),
             Expe_Tel2: '',
-            Expe_Mail: sender?.email || 'contact@familycustom.fr',
+            Expe_Mail: sender?.email || 'contact@family-custom.com',
             Dest_Langage: 'FR',
             Dest_Ad1: recipient.name || '',
             Dest_Ad2: '',

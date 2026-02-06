@@ -102,7 +102,7 @@ async function loadRecommendations() {
 }
 
 function goToProduct(productId, category) {
-    window.location.href = `personnaliser.html?id=${productId}&category=${category}`;
+    window.location.href = `produit.html?id=${productId}&category=${category}`;
 }
 
 function getCategoryName(category) {

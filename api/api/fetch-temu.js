@@ -2,7 +2,11 @@ const https = require('https');
 
 module.exports = async (req, res) => {
     // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const allowedOrigins = ['https://www.family-custom.com', 'https://family-custom.com'];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     

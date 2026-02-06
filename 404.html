@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page introuvable - Family Custom</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="images/IMG_3402.jpeg">
+    <link rel="apple-touch-icon" href="images/IMG_3402.jpeg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #f5f5f5;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .error-container {
+            max-width: 600px;
+        }
+        
+        .error-code {
+            font-family: 'Playfair Display', serif;
+            font-size: 8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e07a5f, #c9a87c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .error-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        
+        .error-message {
+            color: #aaa;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.9rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #e07a5f, #c9a87c);
+            color: white;
+            box-shadow: 0 4px 15px rgba(224, 122, 95, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(224, 122, 95, 0.5);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .suggestions {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .suggestions h3 {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        .suggestions-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .suggestions-links a {
+            color: #c9a87c;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        
+        .suggestions-links a:hover {
+            color: #e07a5f;
+            text-decoration: underline;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #fff;
+        }
+        
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .logo span {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 600px) {
+            .error-code {
+                font-size: 5rem;
+            }
+            
+            .error-icon {
+                font-size: 3rem;
+            }
+            
+            .error-title {
+                font-size: 1.4rem;
+            }
+            
+            .error-message {
+                font-size: 1rem;
+            }
+            
+            .error-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .logo {
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="logo">
+        <img src="images/IMG_3402.jpeg" alt="Family Custom">
+        <span>Family Custom</span>
+    </a>
+    
+    <div class="error-container">
+        <div class="error-icon">🔍</div>
+        <div class="error-code">404</div>
+        <h1 class="error-title">Oups ! Cette page s'est envolée...</h1>
+        <p class="error-message">
+            La page que vous cherchez n'existe pas ou a été déplacée.<br>
+            Pas de panique, nos créations personnalisées vous attendent !
+        </p>
+        
+        <div class="error-actions">
+            <a href="index.html" class="btn btn-primary">
+                <i class="fas fa-home"></i>
+                Retour à l'accueil
+            </a>
+            <a href="index.html#categories" class="btn btn-secondary">
+                <i class="fas fa-th-large"></i>
+                Voir nos créations
+            </a>
+        </div>
+        
+        <div class="suggestions">
+            <h3>Vous cherchiez peut-être :</h3>
+            <div class="suggestions-links">
+                <a href="index.html#categories">Nos créations</a>
+                <a href="panier.html">Mon panier</a>
+                <a href="compte.html">Mon compte</a>
+                <a href="suivi-commande.html">Suivre ma commande</a>
+                <a href="contact.html">Nous contacter</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Redirection automatique après 30 secondes
+        setTimeout(() => {
+            // Afficher un message avant la redirection
+            const msg = document.createElement('p');
+            msg.style.cssText = 'margin-top: 2rem; color: #888; font-size: 0.85rem;';
+            msg.innerHTML = '<i class="fas fa-clock"></i> Redirection automatique dans 5 secondes...';
+            document.querySelector('.error-container').appendChild(msg);
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 5000);
+        }, 25000);
+    </script>
+</body>
+</html>

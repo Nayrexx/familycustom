@@ -2,16 +2,21 @@
 const crypto = require('crypto');
 
 // Configuration Mondial Relay PRODUCTION
+// Clés stockées dans les variables d'environnement Vercel
 const MR_CONFIG = {
     apiUrl: 'https://api.mondialrelay.com/WebService.asmx',
-    enseigne: 'CC23TCRH',  // Code Enseigne PRODUCTION
-    privateKey: 'B1qAsW0U',  // Clé privée PRODUCTION
-    marque: 'CC'  // Marque
+    enseigne: process.env.MR_ENSEIGNE,
+    privateKey: process.env.MR_PRIVATE_KEY,
+    marque: process.env.MR_CODE_MARQUE
 };
 
 module.exports = async (req, res) => {
     // Handle CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const allowedOrigins = ['https://www.family-custom.com', 'https://family-custom.com'];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     

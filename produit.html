@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/tracking.js" defer></script>
+    <title>Produit - Family Custom</title>
+    <meta name="description" content="D&eacute;couvrez ce produit unique et personnalisable chez Family Custom. Cr&eacute;ations artisanales faites avec amour.">
+    <link rel="canonical" href="https://www.family-custom.com/produit.html">
+    <link rel="alternate" hreflang="fr-FR" href="https://www.family-custom.com/produit.html">
+    <link rel="alternate" hreflang="x-default" href="https://www.family-custom.com/produit.html">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="images/IMG_3402.jpeg">
+    <link rel="apple-touch-icon" href="images/IMG_3402.jpeg">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://www.family-custom.com/produit.html">
+    <meta property="og:title" content="Produit - Family Custom">
+    <meta property="og:description" content="D&eacute;couvrez ce produit unique et personnalisable.">
+    <meta property="og:image" content="https://www.family-custom.com/images/IMG_3402.jpeg">
+    <meta property="og:locale" content="fr_FR">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://www.family-custom.com/images/IMG_3402.jpeg">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Family Custom">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Produit Family Custom",
+      "url": "https://www.family-custom.com/produit.html",
+      "description": "Produit personnalisable Family Custom",
+      "brand": { "@type": "Brand", "name": "Family Custom" },
+      "image": "https://www.family-custom.com/images/IMG_3402.jpeg"
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/produit.css">
+    <link rel="stylesheet" href="css/personnaliser.css">
+    <link rel="stylesheet" href="css/reviews.css">
+    <link rel="stylesheet" href="css/social-proof.css">
+    <link rel="stylesheet" href="css/features.css">
+    <link rel="stylesheet" href="css/features-extra.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/IMG_3402.jpeg" alt="Family Custom" class="logo-img">
+                <span class="logo-text">Family Custom</span>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Rechercher un produit..." autocomplete="off">
+                    <button class="search-clear" id="search-clear" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+
+            <nav class="nav">
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links">
+                    <li class="mobile-search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="mobile-search-input" placeholder="Rechercher..." autocomplete="off">
+                        </div>
+                    </li>
+                    <li><a href="index.html#categories" class="nav-link">Nos Cr&eacute;ations</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="compte.html" class="nav-link">Mon Compte</a></li>
+                    <li><a href="panier.html" class="nav-link">Panier <span class="cart-badge-mobile">0</span></a></li>
+                </ul>
+                <a href="index.html#categories" class="nav-cta">Cr&eacute;er mon objet</a>
+                <div class="header-icons">
+                    <a href="compte.html" class="header-icon" title="Mon Compte">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="panier.html" class="header-icon cart-icon-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pdp-page">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav class="pdp-breadcrumb">
+                <a href="index.html">Accueil</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="index.html#categories">Cr&eacute;ations</a>
+                <i class="fas fa-chevron-right"></i>
+                <span class="current" id="pdp-breadcrumb-name">Chargement...</span>
+            </nav>
+
+            <!-- Product Grid -->
+            <div class="pdp-grid">
+                <!-- Left: Gallery -->
+                <div class="pdp-gallery">
+                    <div class="pdp-main-image">
+                        <span class="pdp-badge" id="pdp-badge" style="display:none"></span>
+                        <img src="" alt="Produit" id="pdp-main-img">
+                    </div>
+                    <div class="pdp-thumbs" id="pdp-thumbs"></div>
+                </div>
+
+                <!-- Right: Info -->
+                <div class="pdp-info">
+                    <h1 class="pdp-title" id="pdp-title">Chargement...</h1>
+
+                    <div class="pdp-rating-summary" id="pdp-rating">
+                        <!-- JS fills: stars + count -->
+                    </div>
+
+                    <div class="pdp-price" id="pdp-price">
+                        <!-- JS fills: current price, original, discount badge -->
+                    </div>
+
+                    <div class="pdp-description" id="pdp-description"></div>
+
+                    <div class="pdp-variants-preview" id="pdp-variants">
+                        <!-- JS fills: color dots, size tags, material tags -->
+                    </div>
+
+                    <div class="pdp-cta-section">
+                        <a href="#" class="pdp-btn-personnaliser" id="pdp-cta">
+                            <i class="fas fa-magic"></i> Personnaliser mon objet
+                        </a>
+                    </div>
+
+                    <div class="pdp-trust">
+                        <div class="pdp-trust-item">
+                            <i class="fas fa-globe-europe"></i>
+                            <span>Livraison Europe</span>
+                        </div>
+                        <div class="pdp-trust-item">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            <span>Entreprise fran&ccedil;aise</span>
+                        </div>
+                        <div class="pdp-trust-item">
+                            <i class="fas fa-undo"></i>
+                            <span>Satisfait ou refait</span>
+                        </div>
+                    </div>
+
+                    <div class="pdp-share" id="pdp-share">
+                        <!-- JS fills -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Tabs -->
+            <div class="pdp-details">
+                <div class="pdp-tabs">
+                    <button class="pdp-tab active" data-tab="features"><i class="fas fa-star"></i> Caract&eacute;ristiques</button>
+                    <button class="pdp-tab" data-tab="shipping"><i class="fas fa-truck"></i> Livraison &amp; Retours</button>
+                    <button class="pdp-tab" data-tab="reviews"><i class="fas fa-comments"></i> Avis clients</button>
+                </div>
+                <div class="pdp-tab-panel active" id="pdp-panel-features">
+                    <!-- JS fills -->
+                </div>
+                <div class="pdp-tab-panel" id="pdp-panel-shipping">
+                    <!-- JS fills -->
+                </div>
+                <div class="pdp-tab-panel" id="pdp-panel-reviews">
+                    <div id="product-reviews-section">
+                        <!-- FCReviews.displayProductReviews fills this -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <section class="recommendations-section" style="margin-bottom:2rem">
+                <div class="recommendations-container">
+                    <h2><i class="fas fa-heart"></i> Vous aimerez aussi</h2>
+                    <div class="recommendations-grid" id="recommendations-grid">
+                        <div class="recommendation-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Chargement des recommandations...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recently Viewed -->
+            <div id="recently-viewed-container"></div>
+        </div>
+    </main>
+
+    <!-- Zoom overlay -->
+    <div class="pdp-zoom-overlay" id="pdp-zoom-overlay">
+        <button class="pdp-zoom-close" id="pdp-zoom-close"><i class="fas fa-times"></i></button>
+        <img src="" alt="Zoom" id="pdp-zoom-img">
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <img src="images/IMG_3402.jpeg" alt="Family Custom" class="footer-logo-img">
+                    <p>Cr&eacute;ations personnalis&eacute;es haut de gamme. N&eacute;ons et bois, faits avec passion.</p>
+                    <div class="footer-social">
+                        <a href="https://www.instagram.com/familycustom/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h5>Navigation</h5>
+                    <ul>
+                        <li><a href="index.html">Accueil</a></li>
+                        <li><a href="index.html#categories">Nos Cr&eacute;ations</a></li>
+                        <li><a href="panier.html">Mon Panier</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h5>Informations</h5>
+                    <ul>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="suivi-commande.html">Livraison</a></li>
+                        <li><a href="retours.html">Retours</a></li>
+                        <li><a href="cgv.html">CGV</a></li>
+                        <li><a href="mentions-legales.html">Mentions l&eacute;gales</a></li>
+                        <li><a href="confidentialite.html">Confidentialit&eacute;</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h5>Contact</h5>
+                    <ul>
+                        <li><a href="mailto:support@family-custom.com">support@family-custom.com</a></li>
+                        <li>42330 Saint-Galmier</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Family Custom. Tous droits r&eacute;serv&eacute;s.</p>
+                <p>&#x1F1EB;&#x1F1F7; Entreprise Fran&ccedil;aise</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+
+    <script src="js/script.js" defer></script>
+    <script src="js/analytics.js" defer></script>
+    <script src="js/cart.js" defer></script>
+    <script src="js/wishlist.js" defer></script>
+    <script src="js/recently-viewed.js" defer></script>
+    <script src="js/produit.js" defer></script>
+    <script src="js/recommendations.js" defer></script>
+    <script src="js/social-proof.js" defer></script>
+    <script src="js/reviews.js" defer></script>
+    <script src="js/chat.js" defer></script>
+    <script src="js/search.js" defer></script>
+</body>
+</html>

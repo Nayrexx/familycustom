@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/tracking.js" defer></script>
     <title>Panier - Family Custom</title>
+    <meta name="robots" content="noindex, nofollow">
     
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="images/IMG_3402.jpeg">
@@ -21,11 +23,9 @@
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/social-proof.css">
     <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <!-- Coming Soon Overlay -->
-    <script src="js/coming-soon.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" defer></script>
+    <script src="js/firebase-config.js" defer></script>
 </head>
 <body>
     <!-- Header -->
@@ -84,6 +84,31 @@
 
     <!-- Cart Page -->
     <main class="cart-page">
+        <!-- Progress Bar -->
+        <div class="checkout-progress" style="max-width: 700px; margin: 20px auto 30px; padding: 25px 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px;">
+            <div class="progress-steps" style="display: flex; align-items: center; width: 100%; max-width: 550px; margin: 0 auto;">
+                <div class="progress-step active" data-step="1" style="display: flex; flex-direction: column; align-items: center; flex: 1; position: relative;">
+                    <div class="step-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; background: var(--bg-primary); color: #d4af37; border: 2px solid #d4af37; box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2); z-index: 1;">1</div>
+                    <span class="step-label" style="margin-top: 8px; font-size: 0.75rem; color: #d4af37; font-weight: 600;">Panier</span>
+                    <div style="position: absolute; top: 18px; left: 55%; width: 90%; height: 3px; background: var(--border-color); z-index: 0;"></div>
+                </div>
+                <div class="progress-step" data-step="2" style="display: flex; flex-direction: column; align-items: center; flex: 1; position: relative;">
+                    <div class="step-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; background: var(--bg-tertiary); color: var(--text-muted); border: 2px solid var(--border-color); z-index: 1;">2</div>
+                    <span class="step-label" style="margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Informations</span>
+                    <div style="position: absolute; top: 18px; left: 55%; width: 90%; height: 3px; background: var(--border-color); z-index: 0;"></div>
+                </div>
+                <div class="progress-step" data-step="3" style="display: flex; flex-direction: column; align-items: center; flex: 1; position: relative;">
+                    <div class="step-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; background: var(--bg-tertiary); color: var(--text-muted); border: 2px solid var(--border-color); z-index: 1;">3</div>
+                    <span class="step-label" style="margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Livraison</span>
+                    <div style="position: absolute; top: 18px; left: 55%; width: 90%; height: 3px; background: var(--border-color); z-index: 0;"></div>
+                </div>
+                <div class="progress-step" data-step="4" style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                    <div class="step-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; background: var(--bg-tertiary); color: var(--text-muted); border: 2px solid var(--border-color); z-index: 1;">4</div>
+                    <span class="step-label" style="margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Paiement</span>
+                </div>
+            </div>
+        </div>
+        
         <div class="cart-container">
             <div class="cart-title">
                 <h1><i class="fas fa-shopping-cart"></i> Mon Panier</h1>
@@ -137,8 +162,8 @@
 
     
     <script src="js/script.js"></script>
+    <script src="js/analytics.js"></script>
     <script src="js/cart.js"></script>
-    <script src="js/cart-recommendations.js"></script>
     <script src="js/conversion.js"></script>
     <script src="js/features.js"></script>
     <script>

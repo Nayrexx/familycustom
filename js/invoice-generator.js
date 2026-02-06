@@ -14,8 +14,8 @@ const FCInvoice = (function() {
         city: 'Saint-Galmier',
         country: 'France',
         email: 'support@family-custom.com',
-        siret: 'XXX XXX XXX XXXXX', // À remplacer par ton vrai SIRET
-        vatNumber: 'FR XX XXXXXXXXX', // À remplacer par ton vrai N° TVA
+        siret: 'En cours d\'immatriculation', // À remplacer par ton vrai SIRET quand tu l'auras
+        vatNumber: 'Non assujetti à la TVA - Art. 293B du CGI'
         website: 'www.family-custom.com'
     };
     

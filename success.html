@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/tracking.js" defer></script>
     <title>Commande Confirmée - Family Custom</title>
+    <meta name="robots" content="noindex, nofollow">
     
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="images/IMG_3402.jpeg">
@@ -20,8 +22,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Animations -->
     <script src="js/animations.js"></script>
-    <!-- Coming Soon Overlay -->
-    <script src="js/coming-soon.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -80,6 +80,31 @@
 
     <!-- Success Page -->
     <main class="success-page">
+        <!-- Progress Bar - All Complete -->
+        <div class="checkout-progress" style="max-width: 700px; margin: 20px auto 30px; padding: 25px 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px;">
+            <div class="progress-steps" style="display: flex; align-items: center; width: 100%; max-width: 550px; margin: 0 auto;">
+                <div class="progress-step completed" style="display: flex; flex-direction: column; align-items: center; flex: 1; position: relative;">
+                    <div class="step-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #d4af37, #c9a227); color: white; border: none; z-index: 1;"><i class="fas fa-check"></i></div>
+                    <span class="step-label" style="margin-top: 8px; font-size: 0.75rem; color: var(--text-primary); font-weight: 500;">Panier</span>
+                    <div style="position: absolute; top: 18px; left: 55%; width: 90%; height: 3px; background: linear-gradient(90deg, #d4af37, #c9a227); z-index: 0;"></div>
+                </div>
+                <div class="progress-step completed" style="display: flex; flex-direction: column; align-items: center; flex: 1; position: relative;">
+                    <div class="step-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #d4af37, #c9a227); color: white; border: none; z-index: 1;"><i class="fas fa-check"></i></div>
+                    <span class="step-label" style="margin-top: 8px; font-size: 0.75rem; color: var(--text-primary); font-weight: 500;">Informations</span>
+                    <div style="position: absolute; top: 18px; left: 55%; width: 90%; height: 3px; background: linear-gradient(90deg, #d4af37, #c9a227); z-index: 0;"></div>
+                </div>
+                <div class="progress-step completed" style="display: flex; flex-direction: column; align-items: center; flex: 1; position: relative;">
+                    <div class="step-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #d4af37, #c9a227); color: white; border: none; z-index: 1;"><i class="fas fa-check"></i></div>
+                    <span class="step-label" style="margin-top: 8px; font-size: 0.75rem; color: var(--text-primary); font-weight: 500;">Livraison</span>
+                    <div style="position: absolute; top: 18px; left: 55%; width: 90%; height: 3px; background: linear-gradient(90deg, #d4af37, #c9a227); z-index: 0;"></div>
+                </div>
+                <div class="progress-step completed" style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                    <div class="step-icon" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none; z-index: 1; box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);"><i class="fas fa-check"></i></div>
+                    <span class="step-label" style="margin-top: 8px; font-size: 0.75rem; color: #4CAF50; font-weight: 600;">Confirmé !</span>
+                </div>
+            </div>
+        </div>
+        
         <div class="success-container">
             <div class="success-icon">
                 <i class="fas fa-check"></i>
@@ -129,6 +154,7 @@
     
     <script src="js/script.js"></script>
     <script src="js/invoice-generator.js"></script>
+    <script src="js/reviews.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Lancer les confettis de succès !
@@ -136,13 +162,23 @@
                 FCAnimations.successAnimation();
             }
             
-            // Get order from localStorage
-            const lastOrder = localStorage.getItem('lastOrder');
+            // Get order from sessionStorage (auto-cleared on tab close)
+            const lastOrder = sessionStorage.getItem('lastOrder');
             
             if (lastOrder) {
                 const order = JSON.parse(lastOrder);
                 
                 document.getElementById('order-number').textContent = order.orderNumber;
+                
+                // Tracking pixel: Purchase event
+                if (window.FCTracking) {
+                    FCTracking.purchase(order);
+                }
+                
+                // Post-purchase review prompt
+                if (window.FCReviews) {
+                    FCReviews.showPostPurchasePrompt(order);
+                }
                 
                 // Show invoice section for professional customers
                 if (order.customer && order.customer.customerType === 'professionnel') {

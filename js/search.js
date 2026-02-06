@@ -230,7 +230,7 @@ const FCSearch = (function() {
             const isCategory = item.type === 'category';
             const url = isCategory 
                 ? `categorie.html?id=${item.id}` 
-                : `personnaliser.html?id=${item.id}`;
+                : `produit.html?id=${item.id}`;
             const icon = isCategory 
                 ? (item.icon || 'fa-folder') 
                 : 'fa-cube';

@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
+const { onSchedule } = require('firebase-functions/v2/scheduler');
 const admin = require('firebase-admin');
-const cors = require('cors')({ origin: true });
+const cors = require('cors')({ origin: ['https://www.family-custom.com', 'https://family-custom.com'] });
 const soap = require('soap');
 const crypto = require('crypto');
 
@@ -116,12 +117,13 @@ exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
 // MONDIAL RELAY INTEGRATION
 // ========================================
 
-// Configuration Mondial Relay (TEST)
+// Configuration Mondial Relay
+// Clés stockées dans les variables d'environnement Firebase Functions
 const MR_CONFIG = {
     wsdlUrl: 'https://api.mondialrelay.com/Web_Services.asmx?WSDL',
-    enseigne: 'TTMRSDBX',  // Code Enseigne TEST
-    codeMarque: 'TT',
-    privateKey: '9ytnxVCC'  // Clé privée TEST
+    enseigne: process.env.MR_ENSEIGNE || functions.config().mr?.enseigne || '',
+    codeMarque: process.env.MR_CODE_MARQUE || functions.config().mr?.code_marque || '',
+    privateKey: process.env.MR_PRIVATE_KEY || functions.config().mr?.private_key || ''
 };
 
 /**
@@ -252,7 +254,7 @@ exports.createMondialRelayShipment = functions.https.onRequest(async (req, res) 
                 Expe_Pays: sender?.country || 'FR',
                 Expe_Tel1: sender?.phone || '0100000000',
                 Expe_Tel2: '',
-                Expe_Mail: sender?.email || 'contact@familycustom.fr',
+                Expe_Mail: sender?.email || 'contact@family-custom.com',
                 Dest_Langage: 'FR',
                 Dest_Ad1: recipient.name || '',
                 Dest_Ad2: '',
@@ -468,6 +470,176 @@ exports.trackMondialRelayShipment = functions.https.onRequest(async (req, res) =
 
         } catch (error) {
             console.error('Erreur suivi expédition:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+});
+
+// ========================================
+// ABANDONED CART EMAIL REMINDERS (AUTO)
+// ========================================
+
+// EmailJS REST API configuration
+const EMAILJS_CONFIG = {
+    serviceId: process.env.EMAILJS_SERVICE_ID || 'service_df88l3e',
+    templateId: process.env.EMAILJS_TEMPLATE_ID || 'template_i84v3mq',
+    publicKey: process.env.EMAILJS_PUBLIC_KEY || 'uojT7zPVzrX9dwrTL'
+};
+
+/**
+ * Génère le HTML de l'email de relance panier abandonné
+ */
+function buildAbandonedCartEmailHTML(cart) {
+    const customerName = cart.firstName || 'Client';
+    const itemsHTML = (cart.items || []).map(item => `
+        <div style="display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #3d3d3d;">
+            <div style="width:60px;height:60px;background:#1a1a2e;border-radius:8px;margin-right:15px;display:flex;align-items:center;justify-content:center;">
+                ${item.image ? `<img src="${item.image}" style="max-width:100%;max-height:100%;border-radius:8px;">` : '📦'}
+            </div>
+            <div style="flex:1;">
+                <p style="margin:0;font-weight:600;">${item.name || 'Produit'}</p>
+                <p style="margin:5px 0 0 0;color:#c9a87c;">${typeof item.price === 'number' ? item.price.toFixed(2) + '€' : (item.price || '')}</p>
+            </div>
+        </div>
+    `).join('');
+
+    return `
+        <div style="font-family:'Inter',Arial,sans-serif;max-width:600px;margin:0 auto;background:#1a1a2e;color:#f5f5f5;border-radius:12px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#e07a5f,#c9a87c);padding:30px;text-align:center;">
+                <h1 style="margin:0;color:white;font-size:24px;">🏠 Family Custom</h1>
+            </div>
+            <div style="padding:30px;">
+                <h2 style="color:#e07a5f;margin-bottom:20px;">Votre panier vous attend ! 🛒</h2>
+                <p>Bonjour ${customerName},</p>
+                <p>Vous avez laissé des articles dans votre panier. Ils n'attendent que vous !</p>
+                <div style="background:#2d2d2d;border-radius:10px;padding:20px;margin:20px 0;">
+                    ${itemsHTML}
+                </div>
+                <p style="font-size:18px;font-weight:bold;color:#c9a87c;text-align:center;">Total : ${(cart.total || 0).toFixed(2)} €</p>
+                <div style="margin-top:30px;text-align:center;">
+                    <a href="https://www.family-custom.com/panier.html" style="background:linear-gradient(135deg,#e07a5f,#c9a87c);color:white;padding:15px 30px;border-radius:25px;text-decoration:none;display:inline-block;font-weight:600;">
+                        🛒 Reprendre mon panier
+                    </a>
+                </div>
+            </div>
+            <div style="background:#0d0d15;padding:20px;text-align:center;color:#888;font-size:12px;">
+                <p>© 2026 Family Custom - Créations personnalisées</p>
+                <p>42330 Saint-Galmier, France</p>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Envoie un email via l'API REST EmailJS (server-side)
+ */
+async function sendEmailViaEmailJS(toEmail, subject, htmlContent) {
+    const payload = JSON.stringify({
+        service_id: EMAILJS_CONFIG.serviceId,
+        template_id: EMAILJS_CONFIG.templateId,
+        user_id: EMAILJS_CONFIG.publicKey,
+        template_params: {
+            to_email: toEmail,
+            subject: subject,
+            message_html: htmlContent
+        }
+    });
+
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload
+    });
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`EmailJS error ${response.status}: ${text}`);
+    }
+    return true;
+}
+
+/**
+ * NOTE: Scheduled function désactivée — quota EmailJS limité à 200 emails/mois.
+ * La relance se fait manuellement depuis le panel admin.
+ * Réactiver quand le plan EmailJS sera upgrader ou remplacé par un service sans limite.
+ */
+// exports.sendAbandonedCartReminders = ... (désactivée)
+
+/**
+ * Endpoint HTTP pour déclencher manuellement les relances (depuis l'admin)
+ */
+exports.triggerCartReminders = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'POST') {
+            return res.status(405).json({ error: 'Method not allowed' });
+        }
+        
+        try {
+            // Vérifier l'authentification admin via token Firebase
+            const authHeader = req.headers.authorization;
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'Non autorisé' });
+            }
+            
+            const token = authHeader.split('Bearer ')[1];
+            const decoded = await admin.auth().verifyIdToken(token);
+            
+            // Vérifier que c'est un admin (UIDs autorisés)
+            const ADMIN_UIDS = ['cPWcF35BXFQXETh2Xe0IVqFptQo1', 'kvFTWu906zbdFdXMK0FphVC8zUv2', 'VLDcjlZFVxQhkKfiewmGtKVMaji2', '5wipVx4YFPMWL3kUq5VhieSxlRw1'];
+            if (!ADMIN_UIDS.includes(decoded.uid)) {
+                return res.status(403).json({ error: 'Accès refusé' });
+            }
+            
+            const db = admin.firestore();
+            const { cartId } = req.body;
+            
+            if (cartId) {
+                // Relancer un panier spécifique
+                const doc = await db.collection('abandonedCarts').doc(cartId).get();
+                if (!doc.exists) return res.status(404).json({ error: 'Panier non trouvé' });
+                
+                const cart = doc.data();
+                const html = buildAbandonedCartEmailHTML(cart);
+                await sendEmailViaEmailJS(cart.email, 'Vous avez oublié quelque chose... 🛒', html);
+                
+                await db.collection('abandonedCarts').doc(cartId).update({
+                    reminderSent: true,
+                    reminderSentAt: admin.firestore.FieldValue.serverTimestamp(),
+                    reminderCount: admin.firestore.FieldValue.increment(1)
+                });
+                
+                return res.json({ success: true, sent: 1 });
+            }
+            
+            // Relancer tous les non-relancés
+            const snapshot = await db.collection('abandonedCarts')
+                .where('status', '==', 'abandoned')
+                .where('reminderSent', '==', false)
+                .get();
+            
+            let sent = 0;
+            for (const doc of snapshot.docs) {
+                const cart = doc.data();
+                if (!cart.email) continue;
+                
+                try {
+                    const html = buildAbandonedCartEmailHTML(cart);
+                    await sendEmailViaEmailJS(cart.email, 'Vous avez oublié quelque chose... 🛒', html);
+                    await db.collection('abandonedCarts').doc(doc.id).update({
+                        reminderSent: true,
+                        reminderSentAt: admin.firestore.FieldValue.serverTimestamp(),
+                        reminderCount: admin.firestore.FieldValue.increment(1)
+                    });
+                    sent++;
+                    await new Promise(r => setTimeout(r, 1000));
+                } catch (err) {
+                    console.error('Reminder error:', err);
+                }
+            }
+            
+            res.json({ success: true, sent });
+        } catch (error) {
+            console.error('triggerCartReminders error:', error);
             res.status(500).json({ error: error.message });
         }
     });

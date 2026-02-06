@@ -37,3 +37,15 @@ try {
 } catch (error) {
     console.error('Firebase initialization error:', error);
 }
+
+// ===== Cloudinary Image Optimizer (global) =====
+window.optimizeImageUrl = function(url, width) {
+    if (!url || typeof url !== 'string') return url;
+    // Seulement pour les URLs Cloudinary
+    if (!url.includes('res.cloudinary.com')) return url;
+    // Ne pas doubler les transformations
+    if (url.includes('f_auto')) return url;
+    // Insérer f_auto,q_auto (+ largeur optionnelle) après /upload/
+    var transforms = 'f_auto,q_auto' + (width ? ',w_' + width : '');
+    return url.replace('/upload/', '/upload/' + transforms + '/');
+};

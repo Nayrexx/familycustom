@@ -96,18 +96,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Smooth Scroll for Anchor Links =====
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (!href || href.length < 2 || href.includes('?') || href.includes('/')) return;
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            try {
+                const target = document.querySelector(href);
             
-            if (target) {
-                const headerHeight = header ? header.offsetHeight : 0;
-                const targetPosition = target.offsetTop - headerHeight - 20;
+                if (target) {
+                    const headerHeight = header ? header.offsetHeight : 0;
+                    const targetPosition = target.offsetTop - headerHeight - 20;
                 
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            } catch (err) { /* invalid selector, ignore */ }
         });
     });
     
@@ -402,3 +406,50 @@ window.FamilyCustom = {
         }
     }
 };
+
+// ===== COUNTDOWN FÊTE DES MAMIES =====
+(function() {
+    const countdownEl = document.getElementById('mamie-countdown');
+    if (!countdownEl) return;
+    
+    const targetDate = new Date('2026-03-01T00:00:00');
+    const daysEl = document.getElementById('countdown-days');
+    const hoursEl = document.getElementById('countdown-hours');
+    const minsEl = document.getElementById('countdown-mins');
+    const daysTextEl = document.getElementById('countdown-days-text');
+    
+    function updateCountdown() {
+        const now = new Date();
+        const diff = targetDate - now;
+        
+        // Si la date est passée, cacher le countdown
+        if (diff <= 0) {
+            countdownEl.style.display = 'none';
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        
+        if (daysEl) daysEl.textContent = days;
+        if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+        if (minsEl) minsEl.textContent = mins.toString().padStart(2, '0');
+        
+        // Texte dynamique selon le nombre de jours
+        if (daysTextEl) {
+            if (days <= 1) {
+                daysTextEl.textContent = 'quelques heures';
+            } else if (days <= 3) {
+                daysTextEl.textContent = days + ' jours';
+            } else if (days <= 7) {
+                daysTextEl.textContent = 'une semaine';
+            } else {
+                daysTextEl.textContent = days + ' jours';
+            }
+        }
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 60000); // Update every minute
+})();

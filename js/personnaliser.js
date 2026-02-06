@@ -29,6 +29,15 @@
     let selectedCustomOptions = {};
     let selectedSaleOption = null; // Option de vente sélectionnée (lot, pack)
     
+    // Accordion state
+    let accordionState = {
+        imageValidated: false,
+        textValidated: false
+    };
+    
+    // Auto-save key
+    const AUTOSAVE_KEY = 'fc_custom_' + productId;
+    
     // DOM Elements (initialized in DOMContentLoaded)
     let elements = {};
     
@@ -37,12 +46,12 @@
         // Initialize DOM elements after page load
         elements = {
             productTitle: document.getElementById('product-title'),
-            productDescription: document.getElementById('product-description'),
             productPrice: document.getElementById('product-price'),
             productPreview: document.getElementById('product-preview'),
             breadcrumb: document.getElementById('product-name-breadcrumb'),
             stepImage: document.getElementById('step-image'),
             stepText: document.getElementById('step-text'),
+            stepVariants: document.getElementById('step-variants'),
             textStepNumber: document.getElementById('text-step-number'),
             uploadZone: document.getElementById('upload-zone'),
             imageInput: document.getElementById('image-input'),
@@ -54,12 +63,111 @@
             previewText: document.getElementById('preview-text'),
             customText: document.getElementById('custom-text'),
             quantityDisplay: document.getElementById('quantity'),
-            btnAddCart: document.getElementById('btn-add-cart')
+            btnAddCart: document.getElementById('btn-add-cart'),
+            btnValidateText: document.getElementById('btn-validate-text')
         };
         
         loadProduct();
         setupEventListeners();
     });
+    
+    // ===== AUTO-SAVE / RESTORE =====
+    function autoSave() {
+        try {
+            var data = {
+                text: elements.customText ? elements.customText.value : '',
+                textColor: textColor,
+                textSize: textSize,
+                color: selectedColor,
+                size: selectedSize,
+                material: selectedMaterial,
+                customOptions: selectedCustomOptions,
+                quantity: quantity,
+                ts: Date.now()
+            };
+            sessionStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+        } catch (e) { /* quota exceeded or private mode */ }
+    }
+    
+    function autoRestore() {
+        try {
+            var raw = sessionStorage.getItem(AUTOSAVE_KEY);
+            if (!raw) return;
+            var data = JSON.parse(raw);
+            // Only restore if saved less than 2 hours ago
+            if (Date.now() - (data.ts || 0) > 2 * 3600000) {
+                sessionStorage.removeItem(AUTOSAVE_KEY);
+                return;
+            }
+            // Restore text
+            if (data.text && elements.customText) {
+                elements.customText.value = data.text;
+                updateTextPreview();
+                // Auto-validate text step visually
+                if (data.text.trim()) {
+                    accordionState.textValidated = true;
+                    if (elements.stepText) elements.stepText.classList.add('completed');
+                    if (elements.btnValidateText) {
+                        elements.btnValidateText.innerHTML = '<i class="fas fa-check"></i> Texte validé';
+                        elements.btnValidateText.style.background = '#4CAF50';
+                    }
+                }
+            }
+            // Restore text style
+            if (data.textColor) {
+                textColor = data.textColor;
+                var colorBtn = document.querySelector('.color-btn[data-color="' + textColor + '"]');
+                if (colorBtn) {
+                    document.querySelectorAll('.color-btn').forEach(function(b) { b.classList.remove('active'); });
+                    colorBtn.classList.add('active');
+                }
+            }
+            if (data.textSize) textSize = data.textSize;
+            // Restore quantity
+            if (data.quantity && data.quantity > 1) {
+                quantity = data.quantity;
+                if (elements.quantityDisplay) elements.quantityDisplay.textContent = quantity;
+            }
+            // Restore variant selections (deferred — variants are already rendered by now)
+            if (data.color) {
+                selectedColor = data.color;
+                var colorHex = typeof data.color === 'object' ? data.color.hex : data.color;
+                var cBtn = document.querySelector('#color-options .variant-btn[data-color="' + colorHex + '"]');
+                if (cBtn && !cBtn.disabled) {
+                    document.querySelectorAll('#color-options .variant-btn').forEach(function(b) { b.classList.remove('selected'); });
+                    cBtn.classList.add('selected');
+                }
+            }
+            if (data.size) {
+                selectedSize = data.size;
+                var sBtn = document.querySelector('#size-options .variant-btn[data-size="' + data.size + '"]');
+                if (sBtn && !sBtn.disabled) {
+                    document.querySelectorAll('#size-options .variant-btn').forEach(function(b) { b.classList.remove('selected'); });
+                    sBtn.classList.add('selected');
+                    updatePriceDisplay();
+                }
+            }
+            if (data.material) {
+                selectedMaterial = data.material;
+                var mBtn = document.querySelector('#material-options .variant-btn[data-material="' + data.material + '"]');
+                if (mBtn) {
+                    document.querySelectorAll('#material-options .variant-btn').forEach(function(b) { b.classList.remove('selected'); });
+                    mBtn.classList.add('selected');
+                }
+            }
+            if (data.customOptions) selectedCustomOptions = data.customOptions;
+            
+            // Update button state
+            updateAddToCartButton();
+            
+            // Notify user
+            showToast('Personnalisation restaurée', 'info');
+        } catch (e) { /* corrupted data */ }
+    }
+    
+    function clearAutoSave() {
+        try { sessionStorage.removeItem(AUTOSAVE_KEY); } catch (e) {}
+    }
     
     // Load product from Firebase
     async function loadProduct() {
@@ -80,11 +188,13 @@
             }
             
             product = { id: doc.id, ...doc.data() };
-            renderProduct();
             
-            // Add to recently viewed
-            if (typeof FCRecentlyViewed !== 'undefined') {
-                FCRecentlyViewed.addProduct(product);
+            try {
+                renderProduct();
+                // Restore saved customization after product is fully rendered
+                setTimeout(autoRestore, 300);
+            } catch (renderErr) {
+                console.error('Error rendering product:', renderErr);
             }
             
         } catch (error) {
@@ -107,9 +217,6 @@
     function renderProduct() {
         // Update page info
         elements.productTitle.textContent = product.name;
-        // Préserver les sauts de ligne dans la description
-        const descriptionHtml = (product.description || '').replace(/\n/g, '<br>');
-        elements.productDescription.innerHTML = descriptionHtml;
         
         // Affichage du prix avec promo si applicable
         if (product.originalPrice) {
@@ -119,22 +226,26 @@
             elements.productPrice.textContent = product.price || '';
         }
         
-        elements.breadcrumb.textContent = product.name;
-        document.title = `${product.name} - Family Custom`;
+        // Update breadcrumb with link back to PDP
+        const productLink = 'produit.html?id=' + productId;
+        elements.breadcrumb.textContent = 'Personnalisation';
         
-        // Add wishlist button next to title
-        if (typeof FCWishlist !== 'undefined') {
-            const wishlistBtn = document.createElement('button');
-            wishlistBtn.className = 'wishlist-btn-inline ' + (FCWishlist.isInWishlist(product.id) ? 'active' : '');
-            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i>';
-            wishlistBtn.title = FCWishlist.isInWishlist(product.id) ? 'Retirer des favoris' : 'Ajouter aux favoris';
-            wishlistBtn.onclick = function() {
-                FCWishlist.toggle(product);
-                this.classList.toggle('active');
-                this.title = this.classList.contains('active') ? 'Retirer des favoris' : 'Ajouter aux favoris';
-            };
-            const headerRow = elements.productTitle.parentNode;
-            headerRow.appendChild(wishlistBtn);
+        const breadcrumbProductLink = document.getElementById('breadcrumb-product-link');
+        if (breadcrumbProductLink) {
+            breadcrumbProductLink.href = productLink;
+            breadcrumbProductLink.textContent = product.name;
+        }
+        
+        // Update back-to-product link
+        const backLink = document.getElementById('back-to-product');
+        if (backLink) backLink.href = productLink;
+        
+        document.title = `Personnaliser : ${product.name} - Family Custom`;
+        
+        // Tracking: customization start (viewProduct already tracked on PDP)
+        if (window.FCTracking && typeof FCTracking.viewProduct === 'function') {
+            const priceNum = parseFloat((product.price || '0').toString().replace(/[^\d.,]/g, '').replace(',', '.'));
+            FCTracking.viewProduct({ id: product.id, name: product.name, price: priceNum });
         }
         
         // Hide loading
@@ -191,15 +302,11 @@
         // Configurer le nombre d'images requises
         maxImages = product.requiredImages || (product.requiresImage ? 1 : 0);
         
-        if (maxImages > 0 || product.requiresImage) {
+        const requiresImage = maxImages > 0 || product.requiresImage;
+        
+        if (requiresImage) {
             elements.stepImage.style.display = 'block';
             setupMultiImageUpload(); // Setup multi-image upload UI
-            stepNumber++;
-        }
-        
-        // Setup variants if product has any
-        const hasVariants = renderVariants(stepNumber);
-        if (hasVariants) {
             stepNumber++;
         }
         
@@ -210,7 +317,7 @@
         if (hasText) {
             stepText.style.display = 'block';
             // Update text step number
-            elements.textStepNumber.textContent = stepNumber;
+            elements.textStepNumber.textContent = requiresImage ? 2 : 1;
             
             // Show text color options if enabled for this product
             const textStyleOptions = document.getElementById('text-style-options');
@@ -224,11 +331,241 @@
             } else {
                 textStyleOptions.style.display = 'none';
             }
+            stepNumber++;
         } else {
             stepText.style.display = 'none';
         }
+        
+        // Setup variants if product has any
+        const hasVariants = renderVariants(stepNumber);
+        
+        // Initialize accordion system
+        initAccordion(requiresImage, hasText, hasVariants);
     }
     
+    // ===== ACCORDION SYSTEM =====
+    function initAccordion(requiresImage, hasText, hasVariants) {
+        const stepImage = elements.stepImage;
+        const stepText = elements.stepText;
+        const stepVariants = elements.stepVariants;
+        
+        // Update variants step number
+        if (hasVariants && stepVariants) {
+            const variantsStepNumber = document.getElementById('variants-step-number');
+            let num = 1;
+            if (requiresImage) num++;
+            if (hasText) num++;
+            if (variantsStepNumber) variantsStepNumber.textContent = num;
+        }
+        
+        // Determine which step to open first
+        if (requiresImage) {
+            openStep('image');
+        } else if (hasText) {
+            openStep('text');
+        } else if (hasVariants) {
+            openStep('variants');
+            if (stepVariants) stepVariants.classList.remove('locked');
+        }
+        
+        // If no image required, text step is unlocked
+        if (!requiresImage && hasText) {
+            accordionState.imageValidated = true;
+        }
+        
+        // If no text required, variants are unlocked
+        if (!hasText) {
+            accordionState.textValidated = true;
+            if (stepVariants) stepVariants.classList.remove('locked');
+        }
+        
+        // Setup step header click handlers
+        document.querySelectorAll('.accordion-step .step-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const step = this.dataset.step;
+                const parentStep = this.parentElement;
+                
+                // Don't allow opening locked steps
+                if (parentStep.classList.contains('locked')) {
+                    showToast('Veuillez compléter l\'étape précédente', 'warning');
+                    return;
+                }
+                
+                openStep(step);
+            });
+        });
+        
+        // Setup validate text button
+        if (elements.btnValidateText) {
+            elements.btnValidateText.addEventListener('click', validateTextStep);
+        }
+        
+        // Initialize add to cart button state
+        updateAddToCartButton();
+    }
+    
+    function openStep(stepName) {
+        const allSteps = document.querySelectorAll('.accordion-step');
+        
+        allSteps.forEach(step => {
+            const header = step.querySelector('.step-header');
+            if (header && header.dataset.step === stepName) {
+                step.classList.add('active');
+            } else {
+                step.classList.remove('active');
+            }
+        });
+    }
+    
+    function validateTextStep() {
+        const text = elements.customText.value.trim();
+        
+        if (!text) {
+            showToast('Veuillez entrer votre texte personnalisé', 'warning');
+            elements.customText.focus();
+            return;
+        }
+        
+        // Mark text step as validated
+        accordionState.textValidated = true;
+        elements.stepText.classList.add('completed');
+        elements.stepText.classList.remove('active');
+        
+        // Update button to show it's validated
+        elements.btnValidateText.innerHTML = '<i class="fas fa-check"></i> Texte validé';
+        elements.btnValidateText.style.background = '#4CAF50';
+        
+        // Check if there are variants to show
+        const stepVariants = elements.stepVariants;
+        if (stepVariants && stepVariants.style.display !== 'none') {
+            // Unlock and open variants step
+            stepVariants.classList.remove('locked');
+            openStep('variants');
+            
+            // Smooth scroll to variants
+            setTimeout(() => {
+                stepVariants.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+        
+        showToast('Texte validé ! ✓', 'success');
+        updateAddToCartButton();
+    }
+    
+    function validateImageStep() {
+        if (customerImages.length === 0) {
+            return;
+        }
+        
+        // Mark image step as validated
+        accordionState.imageValidated = true;
+        elements.stepImage.classList.add('completed');
+        
+        // Open text step
+        if (elements.stepText && elements.stepText.style.display !== 'none') {
+            openStep('text');
+            setTimeout(() => {
+                elements.stepText.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+        
+        updateAddToCartButton();
+    }
+    
+    function updateAddToCartButton() {
+        const hasText = product.hasText !== false;
+        const requiresImage = (product.requiredImages || (product.requiresImage ? 1 : 0)) > 0;
+        
+        // Check if all required steps are complete
+        const imageOk = !requiresImage || accordionState.imageValidated;
+        const textOk = !hasText || accordionState.textValidated;
+        
+        if (imageOk && textOk) {
+            elements.btnAddCart.disabled = false;
+            elements.btnAddCart.classList.remove('disabled');
+            elements.btnAddCart.innerHTML = '<i class="fas fa-shopping-cart"></i> Ajouter au panier';
+        } else {
+            elements.btnAddCart.disabled = true;
+            elements.btnAddCart.classList.add('disabled');
+            if (!textOk) {
+                elements.btnAddCart.innerHTML = '<i class="fas fa-lock"></i> Validez votre personnalisation';
+            } else if (!imageOk) {
+                elements.btnAddCart.innerHTML = '<i class="fas fa-lock"></i> Ajoutez votre photo';
+            }
+        }
+        
+        // Update progress bar
+        updateProgress(requiresImage, hasText);
+    }
+    
+    function updateProgress(requiresImage, hasText) {
+        const progressFill = document.querySelector('.progress-fill');
+        const progressLabel = document.getElementById('progress-label');
+        if (!progressFill || !progressLabel) return;
+        
+        // Count total steps and completed steps
+        let totalSteps = 0;
+        let completedSteps = 0;
+        
+        if (requiresImage) {
+            totalSteps++;
+            if (accordionState.imageValidated) completedSteps++;
+        }
+        if (hasText) {
+            totalSteps++;
+            if (accordionState.textValidated) completedSteps++;
+        }
+        
+        // Variants step
+        const hasVariants = elements.stepVariants && elements.stepVariants.style.display !== 'none';
+        if (hasVariants) {
+            totalSteps++;
+            if (elements.stepVariants.classList.contains('completed')) completedSteps++;
+        }
+        
+        if (totalSteps === 0) totalSteps = 1;
+        
+        const pct = Math.round((completedSteps / totalSteps) * 100);
+        progressFill.style.width = pct + '%';
+        
+        if (pct === 100) {
+            progressLabel.textContent = 'Personnalisation terminée — ajoutez au panier !';
+            progressLabel.style.color = '#4CAF50';
+        } else if (pct > 0) {
+            progressLabel.textContent = completedSteps + '/' + totalSteps + ' étape' + (totalSteps > 1 ? 's' : '') + ' complétée' + (completedSteps > 1 ? 's' : '');
+            progressLabel.style.color = '';
+        } else {
+            progressLabel.textContent = 'Complétez les étapes ci-dessous';
+            progressLabel.style.color = '';
+        }
+    }
+    
+    function showToast(message, type = 'info') {
+        // Check if toast function exists
+        if (typeof FCToast !== 'undefined' && FCToast.show) {
+            FCToast.show(message, type);
+        } else {
+            // Simple fallback
+            const toast = document.createElement('div');
+            toast.className = 'simple-toast ' + type;
+            toast.innerHTML = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'success' ? '#4CAF50' : type === 'warning' ? '#ff9800' : '#333'};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 10000;
+                animation: fadeInUp 0.3s ease;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    }
+
     // Setup product gallery with multiple images
     function setupProductGallery(product) {
         const gallery = document.getElementById('product-gallery');
@@ -394,6 +731,7 @@
                     };
                     // Update size availability when color changes
                     updateSizeAvailability(this.dataset.color);
+                    autoSave();
                 });
             });
             
@@ -458,6 +796,7 @@
                     selectedSize = this.dataset.size;
                     // Update price display when size changes
                     updatePriceDisplay();
+                    autoSave();
                 });
             });
             
@@ -488,6 +827,7 @@
                     materialOptions.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
                     selectedMaterial = this.dataset.material;
+                    autoSave();
                 });
             });
         }
@@ -676,8 +1016,11 @@
             btnBuyNow.addEventListener('click', buyNow);
         }
         
-        // Text input - real-time preview
-        elements.customText.addEventListener('input', updateTextPreview);
+        // Text input - real-time preview + auto-save
+        elements.customText.addEventListener('input', function() {
+            updateTextPreview();
+            autoSave();
+        });
         
         // Color picker
         document.querySelectorAll('.color-btn').forEach(btn => {
@@ -865,22 +1208,16 @@
         }
     }
     
-    // ImgBB API Key
-    const IMGBB_API_KEY = '20a899053bc94b383b31359fd6df5a5e';
-    
-    // Upload image to ImgBB
+    // Upload image via proxy serveur (clé API côté serveur)
     async function uploadToImgBB(base64Data) {
         // Remove the data:image/...;base64, prefix
         const base64Image = base64Data.split(',')[1];
         
-        const formData = new FormData();
-        formData.append('image', base64Image);
-        formData.append('key', IMGBB_API_KEY);
-        
         try {
-            const response = await fetch('https://api.imgbb.com/1/upload', {
+            const response = await fetch('https://api-two-pi-35.vercel.app/api/upload-image', {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64Image })
             });
             
             const data = await response.json();
@@ -963,6 +1300,9 @@
                 
                 // Show editor controls
                 showEditorControls();
+                
+                // Validate image step for accordion
+                validateImageStep();
                 
             } catch (error) {
                 console.error('Erreur lors de l\'upload:', error);
@@ -1179,6 +1519,9 @@
                     initDraggable();
                     showEditorControls();
                 }
+                
+                // Validate image step for accordion
+                validateImageStep();
                 
             } catch (error) {
                 console.error('Erreur upload image', index, error);
@@ -1423,6 +1766,7 @@
     function updateQuantity(delta) {
         quantity = Math.max(1, quantity + delta);
         elements.quantityDisplay.textContent = quantity;
+        autoSave();
     }
     
     // Update price display based on selected sale option and size price
@@ -1457,24 +1801,24 @@
     
     // Add to cart
     function addToCart() {
-        // Validate - only require image if product needs it AND upload step is visible
-        const requiredImages = product.requiredImages || (product.requiresImage ? 1 : 0);
-        const uploadedCount = customerImages.filter(img => img).length;
+        // Check if personalization is complete
+        const hasText = product.hasText !== false;
+        const requiresImage = (product.requiredImages || (product.requiresImage ? 1 : 0)) > 0;
         
-        if (requiredImages > 0 && uploadedCount < requiredImages && elements.stepImage.style.display !== 'none') {
-            if (uploadedCount === 0) {
-                const confirmAdd = confirm('Ce produit est conçu pour être personnalisé avec ' + requiredImages + ' photo(s). Voulez-vous continuer sans photo ?');
-                if (!confirmAdd) {
-                    elements.stepImage.scrollIntoView({ behavior: 'smooth' });
-                    return;
-                }
-            } else {
-                const confirmAdd = confirm('Vous avez ajouté ' + uploadedCount + ' photo(s) sur ' + requiredImages + ' requises. Voulez-vous continuer ?');
-                if (!confirmAdd) {
-                    elements.stepImage.scrollIntoView({ behavior: 'smooth' });
-                    return;
-                }
-            }
+        // Validate text if required
+        if (hasText && !accordionState.textValidated) {
+            showToast('Veuillez valider votre texte personnalisé', 'warning');
+            openStep('text');
+            elements.stepText.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        
+        // Validate image if required
+        if (requiresImage && !accordionState.imageValidated) {
+            showToast('Veuillez ajouter votre photo', 'warning');
+            openStep('image');
+            elements.stepImage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
         }
         
         // Filter out null/empty values before passing to cart
@@ -1518,7 +1862,9 @@
             price: finalPrice,
             image: product.image || null,
             variants: Object.keys(variants).length > 0 ? variants : null,
-            saleOptionName: selectedSaleOption ? selectedSaleOption.name : null
+            saleOptionName: selectedSaleOption ? selectedSaleOption.name : null,
+            categoryId: product.categoryId || null,
+            categoryIds: product.categoryIds || []
         };
         
         if (window.FCCart) {
@@ -1530,6 +1876,14 @@
             }
             
             window.FCCart.addToCart(productData, quantity, customization, validImages, textPosition);
+            
+            // Clear auto-save after successful add to cart
+            clearAutoSave();
+            
+            // Tracking pixel: Add to Cart
+            if (window.FCTracking) {
+                FCTracking.addToCart({ id: productData.id, name: productData.name, price: finalPrice }, finalQuantity);
+            }
             
             // Visual feedback
             elements.btnAddCart.innerHTML = '<i class="fas fa-check"></i> Ajouté au panier !';
@@ -1580,7 +1934,9 @@
             name: product.name,
             price: getCurrentPrice(),
             image: product.image || null,
-            variants: Object.keys(variants).length > 0 ? variants : null
+            variants: Object.keys(variants).length > 0 ? variants : null,
+            categoryId: product.categoryId || null,
+            categoryIds: product.categoryIds || []
         };
         
         // Filter out null/empty values before passing to cart

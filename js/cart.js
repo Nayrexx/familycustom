@@ -52,6 +52,8 @@
                 textPosition: textPosition,
                 variants: product.variants || null,
                 deliveryDays: product.deliveryDays || '8-14',
+                categoryId: product.categoryId || null,
+                categoryIds: product.categoryIds || [],
                 addedAt: new Date().toISOString()
             };
             cart.push(newItem);

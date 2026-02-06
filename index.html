@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/tracking.js" defer></script>
     <meta name="google-site-verification" content="syHzPIM7xGnRkxmSCusoOxQlV2I-4JbznKWs-v6FCUc" />
     <title>Family Custom - Créations Personnalisées sur Mesure</title>
     <meta name="description" content="Créez des objets personnalisés uniques : cadeaux sur mesure, créations brodées et déco personnalisée. Artisanat haut de gamme, fait avec amour.">
     <link rel="canonical" href="https://www.family-custom.com/">
+    <link rel="alternate" hreflang="fr-FR" href="https://www.family-custom.com/">
+    <link rel="alternate" hreflang="x-default" href="https://www.family-custom.com/">
     <!-- Balises SEO supplémentaires -->
     <meta name="robots" content="index, follow">
     <meta name="author" content="Family Custom">
@@ -68,18 +71,18 @@
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://familycustom.fr/">
+    <meta property="og:url" content="https://www.family-custom.com/">
     <meta property="og:title" content="Family Custom - Créations Personnalisées sur Mesure">
     <meta property="og:description" content="Créez des objets personnalisés uniques : cadeaux sur mesure, créations brodées et déco personnalisée. Artisanat haut de gamme, fait avec amour.">
-    <meta property="og:image" content="https://familycustom.fr/images/IMG_3402.jpeg">
+    <meta property="og:image" content="https://www.family-custom.com/images/IMG_3402.jpeg">
     <meta property="og:locale" content="fr_FR">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://familycustom.fr/">
+    <meta name="twitter:url" content="https://www.family-custom.com/">
     <meta name="twitter:title" content="Family Custom - Créations Personnalisées sur Mesure">
     <meta name="twitter:description" content="Créez des objets personnalisés uniques : cadeaux sur mesure, créations brodées et déco personnalisée.">
-    <meta name="twitter:image" content="https://familycustom.fr/images/IMG_3402.jpeg">
+    <meta name="twitter:image" content="https://www.family-custom.com/images/IMG_3402.jpeg">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,11 +121,9 @@
     </style>
     
     <!-- Firebase SDK (dans head pour être prêt avant les autres scripts) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <!-- Coming Soon Overlay -->
-    <script src="js/coming-soon.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" defer></script>
+    <script src="js/firebase-config.js" defer></script>
 </head>
 
 <body>
@@ -215,6 +216,29 @@
         </div>
     </section>
     <!-- ========== FIN HERO ========== -->
+
+    <!-- ========== COUNTDOWN FÊTE DES MAMIES ========== -->
+    <div class="mamie-countdown" id="mamie-countdown">
+        <div class="countdown-inner">
+            <span class="countdown-label">🌷 <span class="pink-text">Fête des Grands-Mères</span> — Livré avant le 1er mars :</span>
+            <div class="countdown-timer">
+                <div class="countdown-item">
+                    <span class="countdown-value" id="countdown-days">--</span>
+                    <span class="countdown-unit">jours</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="countdown-hours">--</span>
+                    <span class="countdown-unit">heures</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="countdown-mins">--</span>
+                    <span class="countdown-unit">min</span>
+                </div>
+            </div>
+            <a href="categorie.html" class="countdown-link">Commander →</a>
+        </div>
+    </div>
+    <!-- ========== FIN COUNTDOWN ========== -->
     
     <!-- ========== SECTION CATÉGORIES ========== -->
     <section id="categories" class="categories-section">
@@ -234,20 +258,6 @@
         </div>
         <div class="carousel-dots" id="carousel-dots"></div>
     </section>
-    
-    <!-- Popup Catégorie -->
-    <div id="category-popup" class="category-popup">
-        <div class="popup-overlay"></div>
-        <div class="popup-content">
-            <div class="popup-header">
-                <h2><i class="fas fa-th"></i> <span data-i18n="categories.popup.title">Catégorie</span></h2>
-                <button class="popup-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="popup-body">
-                <!-- Produits injectés par JS -->
-            </div>
-        </div>
-    </div>
     <!-- ========== FIN CATÉGORIES ========== -->
 
     <!-- Features Section -->
@@ -333,10 +343,12 @@
                 <div class="footer-col">
                     <h5 data-i18n="footer.info">Informations</h5>
                     <ul>
-                        <li><a href="#" data-i18n="footer.faq">FAQ</a></li>
+                        <li><a href="faq.html" data-i18n="footer.faq">FAQ</a></li>
                         <li><a href="suivi-commande.html" data-i18n="footer.shipping">Livraison</a></li>
                         <li><a href="retours.html" data-i18n="footer.returns">Retours</a></li>
                         <li><a href="cgv.html" data-i18n="footer.terms">CGV</a></li>
+                        <li><a href="mentions-legales.html">Mentions légales</a></li>
+                        <li><a href="confidentialite.html">Confidentialité</a></li>
                     </ul>
                 </div>
                 
@@ -358,18 +370,20 @@
     
     <!-- Scripts -->
     
-    <script src="js/cart.js"></script>
-    <script src="js/features.js"></script>
-    <script src="js/wishlist.js"></script>
-    <script src="js/recently-viewed.js"></script>
-    <script src="js/script.js"></script>
-    <script src="js/analytics.js"></script>
-    <script src="js/categories.js"></script>
-    <script src="js/conversion.js"></script>
-    <script src="js/chat.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/promo-banner.js"></script>
-    <script src="js/spin-wheel.js"></script>
-    <script src="js/social-proof.js"></script>
+    <script src="js/cart.js" defer></script>
+    <script src="js/features.js" defer></script>
+    <script src="js/wishlist.js" defer></script>
+    <script src="js/recently-viewed.js" defer></script>
+    <script src="js/script.js" defer></script>
+    <script src="js/analytics.js" defer></script>
+    <script src="js/categories.js" defer></script>
+    <script src="js/conversion.js" defer></script>
+    <script src="js/chat.js" defer></script>
+    <script src="js/search.js" defer></script>
+    <script src="js/promo-banner.js" defer></script>
+    <script src="js/spin-wheel.js" defer></script>
+    <script src="js/social-proof.js" defer></script>
+    <script src="js/exit-intent.js" defer></script>
+    <script src="js/mamie-popup.js" defer></script>
 </body>
 </html>

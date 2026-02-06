@@ -1,12 +1,12 @@
 /* ============================================
    PROMO BANNER - JavaScript
-   Family Custom - Livraison gratuite
+   Family Custom - Fête des Grands-Mères
    ============================================ */
 
 (function() {
     'use strict';
     
-    const BANNER_STORAGE_KEY = 'familycustom_shipping_banner_closed';
+    const BANNER_STORAGE_KEY = 'familycustom_promo_banner_closed';
     
     // ===== BANDEAU STICKY =====
     function initPromoBanner() {
@@ -26,11 +26,11 @@
         banner.className = 'promo-banner';
         banner.innerHTML = `
             <div class="promo-banner-content">
-                <span class="promo-icon">📦</span>
+                <span class="promo-icon">🌷</span>
                 <span class="promo-text">
-                    <strong>LIVRAISON GRATUITE</strong> dès 69€ d'achat !
+                    <strong>FÊTE DES MAMIES</strong> -15% avec le code <strong>MAMIE15</strong>
                 </span>
-                <span class="promo-icon">🚚</span>
+                <span class="promo-icon">👵</span>
             </div>
             <button class="promo-banner-close" onclick="closePromoBanner()" aria-label="Fermer">
                 <i class="fas fa-times"></i>

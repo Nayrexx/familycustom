@@ -542,60 +542,10 @@ body.menu-open .success-page {
         font-size: 0.95rem;
         padding: 0 1rem;
     }
-    
-    .categories-carousel-wrapper {
-        padding: 0 1rem;
-    }
-    
-    /* Masquer les flèches sur mobile, utiliser le swipe */
-    .carousel-arrow {
-        display: none;
-    }
-    
-    .categories-carousel {
-        gap: 1rem;
-        padding: 0.5rem 0;
-        scroll-padding: 0 1rem;
-    }
-    
-    .category-tile {
-        min-width: 260px;
-        width: 260px;
-        height: 300px;
-    }
-    
-    /* Dots plus gros pour tactile */
-    .carousel-dots {
-        margin-top: 1.5rem;
-        gap: 12px;
-    }
-    
-    .carousel-dot {
-        width: 12px;
-        height: 12px;
-    }
 }
 
 @media (max-width: 480px) {
-    .category-tile {
-        min-width: 240px;
-        width: 240px;
-        height: 280px;
-    }
-    
-    .category-tile-icon {
-        width: 50px;
-        height: 50px;
-        font-size: 1.3rem;
-    }
-    
-    .category-tile-content h3 {
-        font-size: 1.1rem;
-    }
-    
-    .category-tile-content p {
-        font-size: 0.85rem;
-    }
+    /* Categories handled in categories.css */
 }
 
 /* ===== SECTION "C'EST POUR QUI" MOBILE ===== */
@@ -1115,17 +1065,6 @@ img[loading="lazy"] {
     .nav-link {
         font-size: 1.1rem;
         padding: 0.75rem 1.5rem;
-    }
-}
-
-/* ===== SCROLL SNAP POUR LE CARROUSEL ===== */
-@media (max-width: 768px) {
-    .categories-carousel {
-        scroll-snap-type: x mandatory;
-    }
-    
-    .category-tile {
-        scroll-snap-align: center;
     }
 }
 

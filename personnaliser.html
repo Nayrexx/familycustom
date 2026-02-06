@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/tracking.js" defer></script>
     <title>Personnaliser - Family Custom</title>
     <meta name="description" content="Personnalisez votre création Family Custom : cadeaux uniques et objets sur mesure. Créez votre objet personnalisé en quelques clics.">
     <link rel="canonical" href="https://www.family-custom.com/personnaliser.html">
+    <link rel="alternate" hreflang="fr-FR" href="https://www.family-custom.com/personnaliser.html">
+    <link rel="alternate" hreflang="x-default" href="https://www.family-custom.com/personnaliser.html">
     
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="images/IMG_3402.jpeg">
@@ -13,15 +16,15 @@
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="product">
-    <meta property="og:url" content="https://familycustom.fr/personnaliser.html">
+    <meta property="og:url" content="https://www.family-custom.com/personnaliser.html">
     <meta property="og:title" content="Personnaliser votre création - Family Custom">
     <meta property="og:description" content="Créez votre objet personnalisé unique en quelques clics.">
-    <meta property="og:image" content="https://familycustom.fr/images/IMG_3402.jpeg">
+    <meta property="og:image" content="https://www.family-custom.com/images/IMG_3402.jpeg">
     <meta property="og:locale" content="fr_FR">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://familycustom.fr/images/IMG_3402.jpeg">
+    <meta name="twitter:image" content="https://www.family-custom.com/images/IMG_3402.jpeg">
     <meta name="robots" content="index, follow">
     <meta name="author" content="Family Custom">
     <meta name="keywords" content="personnalisation, néon, bois, cadeau, déco, family custom, création sur mesure, artisanat">
@@ -45,15 +48,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/personnaliser.css">
-    <link rel="stylesheet" href="css/social-proof.css">
-    <link rel="stylesheet" href="css/features.css">
     <link rel="stylesheet" href="css/chat.css">
     <link rel="stylesheet" href="css/search.css">
-    <link rel="stylesheet" href="css/features-extra.css">
-    <link rel="stylesheet" href="css/templates-promo.css">
     <link rel="stylesheet" href="css/mobile.css">
-    <!-- Coming Soon Overlay -->
-    <script src="js/coming-soon.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -113,227 +110,194 @@
     <!-- Main Content -->
     <main class="personnaliser-page">
         <div class="container">
-            <!-- Breadcrumb -->
-            <nav class="breadcrumb">
-                <a href="index.html">Accueil</a>
-                <i class="fas fa-chevron-right"></i>
-                <a href="index.html#categories">Créations</a>
-                <i class="fas fa-chevron-right"></i>
-                <span id="product-name-breadcrumb">Personnalisation</span>
-            </nav>
+            <!-- Top bar: back link + breadcrumb -->
+            <div class="customizer-topbar">
+                <a href="#" class="back-to-product" id="back-to-product">
+                    <i class="fas fa-arrow-left"></i> Retour à la fiche produit
+                </a>
+                <nav class="breadcrumb">
+                    <a href="index.html">Accueil</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <a href="index.html#categories">Créations</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <a href="#" id="breadcrumb-product-link">Produit</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span id="product-name-breadcrumb">Personnalisation</span>
+                </nav>
+            </div>
+
+            <!-- Studio title banner -->
+            <div class="studio-banner">
+                <div class="studio-banner-icon"><i class="fas fa-magic"></i></div>
+                <div class="studio-banner-text">
+                    <h1 id="product-title">Chargement...</h1>
+                    <div class="studio-price" id="product-price"></div>
+                </div>
+                <div class="studio-badge"><i class="fas fa-paint-brush"></i> Studio de personnalisation</div>
+            </div>
 
             <div class="personnaliser-grid">
                 <!-- Left: Product Preview with Editor -->
                 <div class="preview-section">
-                    <div class="preview-3d-container">
-                        <div class="product-preview" id="product-preview">
-                            <!-- Loading state -->
-                            <div class="loading-preview" id="loading-preview">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <p>Chargement...</p>
+                    <div class="preview-card">
+                        <div class="preview-card-label"><i class="fas fa-eye"></i> Aperçu en direct</div>
+                        <div class="preview-3d-container">
+                            <div class="product-preview" id="product-preview">
+                                <!-- Loading state -->
+                                <div class="loading-preview" id="loading-preview">
+                                    <div class="loading-spinner">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </div>
+                                    <p>Chargement de l'éditeur...</p>
+                                </div>
+                                
+                                <!-- Mockup Canvas -->
+                                <div class="mockup-canvas" id="mockup-canvas" style="display: none;">
+                                    <img src="" alt="Produit" class="mockup-background" id="mockup-bg">
+                                    <div class="photo-zone" id="photo-zone">
+                                        <img src="" alt="Votre photo" id="customer-photo">
+                                        <div class="resize-handle resize-nw"></div>
+                                        <div class="resize-handle resize-ne"></div>
+                                        <div class="resize-handle resize-sw"></div>
+                                        <div class="resize-handle resize-se"></div>
+                                    </div>
+                                    <div class="text-zone" id="text-zone">
+                                        <span id="preview-text"></span>
+                                        <div class="resize-handle resize-nw"></div>
+                                        <div class="resize-handle resize-ne"></div>
+                                        <div class="resize-handle resize-sw"></div>
+                                        <div class="resize-handle resize-se"></div>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <!-- Mockup Canvas (editor intégré dans la preview) -->
-                            <div class="mockup-canvas" id="mockup-canvas" style="display: none;">
-                                <img src="" alt="Produit" class="mockup-background" id="mockup-bg">
-                                <div class="photo-zone" id="photo-zone">
-                                    <img src="" alt="Votre photo" id="customer-photo">
-                                    <div class="resize-handle resize-nw"></div>
-                                    <div class="resize-handle resize-ne"></div>
-                                    <div class="resize-handle resize-sw"></div>
-                                    <div class="resize-handle resize-se"></div>
-                                </div>
-                                <div class="text-zone" id="text-zone">
-                                    <span id="preview-text"></span>
-                                    <div class="resize-handle resize-nw"></div>
-                                    <div class="resize-handle resize-ne"></div>
-                                    <div class="resize-handle resize-sw"></div>
-                                    <div class="resize-handle resize-se"></div>
-                                </div>
-                            </div>
+                            <!-- Galerie miniatures -->
+                            <div class="product-gallery" id="product-gallery" style="display: none;"></div>
                         </div>
-                        
-                        <!-- Galerie miniatures -->
-                        <div class="product-gallery" id="product-gallery" style="display: none;">
-                            <!-- Thumbnails dynamiques -->
-                        </div>
+                        <p class="editor-hint" id="editor-hint" style="display: none;"><i class="fas fa-hand-pointer"></i> Glissez et redimensionnez sur l'image</p>
                     </div>
-                    <p class="editor-hint" id="editor-hint" style="display: none;"><i class="fas fa-hand-pointer"></i> Glissez et redimensionnez sur l'image</p>
                 </div>
 
                 <!-- Right: Customization Options -->
                 <div class="customization-section">
-                    <div class="product-header-row">
-                        <h1 id="product-title">Chargement...</h1>
+                    <!-- Progress indicator -->
+                    <div class="customizer-progress">
+                        <div class="progress-bar" id="progress-bar"><div class="progress-fill"></div></div>
+                        <span class="progress-label" id="progress-label">Complétez les étapes ci-dessous</span>
                     </div>
-                    <p class="product-description" id="product-description"></p>
-                    <div class="product-price-tag" id="product-price"></div>
 
                     <!-- Step 1: Upload Image (if required) -->
-                    <div class="customization-step" id="step-image" style="display: none;">
-                        <h3><span class="step-number">1</span> Envoyez votre photo</h3>
-                        <div class="upload-zone" id="upload-zone">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <p>Glissez votre image ici ou <span>parcourir</span></p>
-                            <input type="file" id="image-input" accept="image/*">
+                    <div class="customization-step accordion-step" id="step-image" style="display: none;">
+                        <div class="step-header" data-step="image">
+                            <h3><span class="step-number">1</span> Envoyez votre photo</h3>
+                            <span class="step-status"><i class="fas fa-check"></i></span>
                         </div>
-                        <p class="upload-hint"><i class="fas fa-info-circle"></i> Formats acceptés : JPG, PNG. Qualité recommandée : 300dpi minimum</p>
-                    </div>
-                    
-                    <!-- Step: Variants (colors, sizes, materials) -->
-                    <div class="customization-step variants-step" id="step-variants" style="display: none;">
-                        <h3><span class="step-number" id="variants-step-number">2</span> Choisissez vos options</h3>
-                        
-                        <!-- Colors -->
-                        <div class="variant-group" id="variant-colors" style="display: none;">
-                            <label><i class="fas fa-palette"></i> Couleur</label>
-                            <div class="variant-options color-options" id="color-options">
-                                <!-- Filled by JS -->
+                        <div class="step-content">
+                            <div class="upload-zone" id="upload-zone">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Glissez votre image ici ou <span>parcourir</span></p>
+                                <input type="file" id="image-input" accept="image/*">
                             </div>
-                        </div>
-                        
-                        <!-- Sizes -->
-                        <div class="variant-group" id="variant-sizes" style="display: none;">
-                            <label><i class="fas fa-ruler"></i> Taille</label>
-                            <div class="variant-options size-options" id="size-options">
-                                <!-- Filled by JS -->
-                            </div>
-                        </div>
-                        
-                        <!-- Materials -->
-                        <div class="variant-group" id="variant-materials" style="display: none;">
-                            <label><i class="fas fa-tree"></i> Matériau</label>
-                            <div class="variant-options material-options" id="material-options">
-                                <!-- Filled by JS -->
-                            </div>
-                        </div>
-                        
-                        <!-- Custom Options -->
-                        <div id="custom-variant-options">
-                            <!-- Filled by JS -->
+                            <p class="upload-hint"><i class="fas fa-info-circle"></i> Formats acceptés : JPG, PNG. Qualité recommandée : 300dpi minimum</p>
                         </div>
                     </div>
 
                     <!-- Step: Text Customization -->
-                    <div class="customization-step" id="step-text">
-                        <h3><span class="step-number" id="text-step-number">1</span> Personnalisez votre texte</h3>
-                        <textarea id="custom-text" placeholder="Entrez votre texte personnalisé ici... (prénom, date, message...)"></textarea>
-                        
-                        <!-- Options couleur du texte (affiché selon config admin) -->
-                        <div class="text-style-options" id="text-style-options" style="display: none;">
-                            <div class="style-option">
-                                <label>Couleur du texte</label>
-                                <div class="color-picker" id="text-color-picker">
-                                    <button type="button" class="color-btn" data-color="#ffffff" style="background:#ffffff;"></button>
-                                    <button type="button" class="color-btn active" data-color="#000000" style="background:#000000;"></button>
-                                    <button type="button" class="color-btn" data-color="#e07a5f" style="background:#e07a5f;"></button>
-                                    <button type="button" class="color-btn" data-color="#c9a87c" style="background:#c9a87c;"></button>
-                                    <button type="button" class="color-btn" data-color="#3d5a80" style="background:#3d5a80;"></button>
-                                    <button type="button" class="color-btn" data-color="#ee6c4d" style="background:#ee6c4d;"></button>
+                    <div class="customization-step accordion-step" id="step-text">
+                        <div class="step-header" data-step="text">
+                            <h3><span class="step-number" id="text-step-number">1</span> Personnalisez votre texte</h3>
+                            <span class="step-status"><i class="fas fa-check"></i></span>
+                        </div>
+                        <div class="step-content">
+                            <textarea id="custom-text" placeholder="Entrez votre texte personnalisé ici... (prénom, date, message...)"></textarea>
+                            
+                            <div class="text-style-options" id="text-style-options" style="display: none;">
+                                <div class="style-option">
+                                    <label>Couleur du texte</label>
+                                    <div class="color-picker" id="text-color-picker">
+                                        <button type="button" class="color-btn" data-color="#ffffff" style="background:#ffffff;"></button>
+                                        <button type="button" class="color-btn active" data-color="#000000" style="background:#000000;"></button>
+                                        <button type="button" class="color-btn" data-color="#e07a5f" style="background:#e07a5f;"></button>
+                                        <button type="button" class="color-btn" data-color="#c9a87c" style="background:#c9a87c;"></button>
+                                        <button type="button" class="color-btn" data-color="#3d5a80" style="background:#3d5a80;"></button>
+                                        <button type="button" class="color-btn" data-color="#ee6c4d" style="background:#ee6c4d;"></button>
+                                    </div>
                                 </div>
                             </div>
+                            <p class="text-hint"><i class="fas fa-lightbulb"></i> Glissez le texte sur l'aperçu pour le positionner</p>
+                            <button type="button" class="btn-validate-step" id="btn-validate-text">
+                                <i class="fas fa-check"></i> Valider le texte
+                            </button>
                         </div>
-                        <p class="text-hint"><i class="fas fa-lightbulb"></i> Glissez le texte sur l'aperçu pour le positionner</p>
+                    </div>
+                    
+                    <!-- Step: Variants -->
+                    <div class="customization-step accordion-step locked" id="step-variants" style="display: none;">
+                        <div class="step-header" data-step="variants">
+                            <h3><span class="step-number" id="variants-step-number">2</span> Choisissez vos options</h3>
+                            <span class="step-lock"><i class="fas fa-lock"></i></span>
+                            <span class="step-status"><i class="fas fa-check"></i></span>
+                        </div>
+                        <div class="step-content">
+                            <div class="variant-group" id="variant-colors" style="display: none;">
+                                <label><i class="fas fa-palette"></i> Couleur</label>
+                                <div class="variant-options color-options" id="color-options"></div>
+                            </div>
+                            <div class="variant-group" id="variant-sizes" style="display: none;">
+                                <label><i class="fas fa-ruler"></i> Taille</label>
+                                <div class="variant-options size-options" id="size-options"></div>
+                            </div>
+                            <div class="variant-group" id="variant-materials" style="display: none;">
+                                <label><i class="fas fa-tree"></i> Matériau</label>
+                                <div class="variant-options material-options" id="material-options"></div>
+                            </div>
+                            <div id="custom-variant-options"></div>
+                        </div>
                     </div>
 
                     <!-- Add to Cart -->
                     <div class="add-to-cart-section">
                         <div class="quantity-selector">
-                            <label>Quantité :</label>
+                            <label>Quantité</label>
                             <div class="quantity-controls">
-                                <button type="button" id="qty-minus">-</button>
+                                <button type="button" id="qty-minus"><i class="fas fa-minus"></i></button>
                                 <span id="quantity">1</span>
-                                <button type="button" id="qty-plus">+</button>
+                                <button type="button" id="qty-plus"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
-                        <div class="cart-buttons">
-                            <button type="button" class="btn-add-cart" id="btn-add-cart">
-                                <i class="fas fa-shopping-cart"></i> Ajouter au panier
-                            </button>
-                        </div>
+                        <button type="button" class="btn-add-cart" id="btn-add-cart">
+                            <i class="fas fa-shopping-cart"></i> Ajouter au panier
+                        </button>
                     </div>
 
-                    <div class="guarantees">
-                        <div class="guarantee-item">
-                            <i class="fas fa-globe"></i>
-                            <span>Livraison Europe</span>
-                        </div>
-                        <div class="guarantee-item">
-                            <i class="fas fa-hand-holding-heart"></i>
-                            <span>Entreprise française</span>
-                        </div>
-                        <div class="guarantee-item">
-                            <i class="fas fa-undo"></i>
-                            <span>Satisfait ou refait</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Social Share -->
-                    <div class="social-share">
-                        <span class="social-share-label">Partager :</span>
-                        <div class="social-share-buttons">
-                            <button class="social-share-btn facebook" onclick="shareOnSocial('facebook')" title="Partager sur Facebook">
-                                <i class="fab fa-facebook-f"></i>
-                            </button>
-                            <button class="social-share-btn twitter" onclick="shareOnSocial('twitter')" title="Partager sur Twitter">
-                                <i class="fab fa-twitter"></i>
-                            </button>
-                            <button class="social-share-btn whatsapp" onclick="shareOnSocial('whatsapp')" title="Partager sur WhatsApp">
-                                <i class="fab fa-whatsapp"></i>
-                            </button>
-                            <button class="social-share-btn pinterest" onclick="shareOnSocial('pinterest')" title="Partager sur Pinterest">
-                                <i class="fab fa-pinterest-p"></i>
-                            </button>
-                            <button class="social-share-btn copy-link" onclick="shareOnSocial('copy')" title="Copier le lien">
-                                <i class="fas fa-link"></i>
-                            </button>
-                        </div>
+                    <!-- Trust micro-bar -->
+                    <div class="trust-micro">
+                        <span><i class="fas fa-lock"></i> Paiement sécurisé</span>
+                        <span><i class="fas fa-shipping-fast"></i> Livraison Europe</span>
+                        <span><i class="fas fa-undo"></i> Satisfait ou refait</span>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Recommandations -->
-        <section class="recommendations-section">
-            <div class="recommendations-container">
-                <h2><i class="fas fa-heart"></i> Vous aimerez aussi</h2>
-                <div class="recommendations-grid" id="recommendations-grid">
-                    <!-- Products will be loaded dynamically -->
-                    <div class="recommendation-loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Chargement des recommandations...</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Recently Viewed Products -->
-        <div id="recently-viewed-container"></div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
+    <!-- Footer minimal -->
+    <footer class="footer footer-minimal">
         <div class="footer-content">
-            <p>&copy; 2025 Family Custom. Créations uniques faites avec amour.</p>
+            <p>&copy; 2025 Family Custom &mdash; <a href="cgv.html">CGV</a> &bull; <a href="contact.html">Contact</a> &bull; <a href="retours.html">Retours</a></p>
         </div>
     </footer>
 
     <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
     
-    <script src="js/script.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/animations.js"></script>
-    <script src="js/conversion.js"></script>
-    <script src="js/features.js"></script>
-    <script src="js/wishlist.js"></script>
-    <script src="js/recently-viewed.js"></script>
-    <script src="js/personnaliser.js"></script>
-    <script src="js/recommendations.js"></script>
-    <script src="js/social-proof.js"></script>
-    <script src="js/chat.js"></script>
-    <script src="js/search.js"></script>
+    <script src="js/script.js" defer></script>
+    <script src="js/analytics.js" defer></script>
+    <script src="js/cart.js" defer></script>
+    <script src="js/personnaliser.js" defer></script>
+    <script src="js/chat.js" defer></script>
+    <script src="js/search.js" defer></script>
 </body>
 </html>

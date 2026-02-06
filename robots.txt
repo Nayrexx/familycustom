@@ -1,4 +1,14 @@
 User-agent: *
 Allow: /
 
+# Pages internes / admin - ne pas indexer
+Disallow: /admin.html
+Disallow: /stock-checker.html
+Disallow: /temu-checker.html
+Disallow: /checkout-backup.html
+Disallow: /api/
+Disallow: /temu-extension/
+Disallow: /sw-admin.js
+Disallow: /manifest-admin.json
+
 Sitemap: https://www.family-custom.com/sitemap.xml

@@ -204,27 +204,47 @@ const FCEmailNotifications = (function() {
     }
     
     /**
-     * Envoie un email de panier abandonné
+     * Envoie un email de panier abandonné via le template client existant
+     * Utilise le flag is_reminder pour le contenu conditionnel
      */
     async function sendAbandonedCartEmail(customer, cartItems, promoCode = null) {
         if (!customer.email) return false;
+        if (!initEmailJS()) {
+            console.warn('EmailJS non disponible — email non envoyé');
+            return false;
+        }
         
-        const baseUrl = window.location.origin;
+        // Formater les articles en texte
+        var itemsText = cartItems.map(function(item) {
+            return '• ' + (item.name || 'Produit') + ' x' + (item.quantity || 1) + ' - ' + (item.price || '');
+        }).join('\n');
         
-        const data = {
-            customerName: customer.firstName || customer.name || 'Client',
-            items: cartItems,
-            promoCode: promoCode,
-            cartUrl: `${baseUrl}/panier.html`
-        };
+        var total = cartItems.reduce(function(s, item) {
+            var p = parseFloat((item.price || '0').toString().replace(/[^\d.,]/g, '').replace(',', '.'));
+            return s + p * (item.quantity || 1);
+        }, 0);
         
-        const template = templates.abandonedCart;
-        
-        return await sendEmail({
-            to: customer.email,
-            subject: template.subject(),
-            html: template.body(data)
-        });
+        try {
+            await emailjs.send(
+                EMAILJS_SERVICE_ID,
+                EMAILJS_TEMPLATE_CUSTOMER,
+                {
+                    to_email: customer.email,
+                    email: customer.email,
+                    to_name: customer.firstName || customer.name || 'Client',
+                    is_reminder: 'true',
+                    order_items: itemsText,
+                    total: total.toFixed(2),
+                    promo_code: promoCode || '',
+                    cart_url: 'https://www.family-custom.com/panier.html'
+                }
+            );
+            console.log('Email relance envoyé à:', customer.email);
+            return true;
+        } catch (error) {
+            console.error('EmailJS reminder error:', error);
+            return false;
+        }
     }
     
     /**
@@ -241,33 +261,54 @@ const FCEmailNotifications = (function() {
         return parts.join('<br>');
     }
     
+    // ===== EmailJS Configuration =====
+    const EMAILJS_PUBLIC_KEY = 'uojT7zPVzrX9dwrTL';
+    const EMAILJS_SERVICE_ID = 'service_df88l3e';
+    const EMAILJS_TEMPLATE_CUSTOMER = 'template_i84v3mq'; // Template client (commande + relance)
+    
+    let emailjsInitialized = false;
+    
+    function initEmailJS() {
+        if (emailjsInitialized) return true;
+        if (typeof emailjs === 'undefined') return false;
+        try {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+            emailjsInitialized = true;
+            return true;
+        } catch (e) {
+            console.error('EmailJS init error:', e);
+            return false;
+        }
+    }
+    
     /**
      * Envoie l'email via EmailJS
      */
     async function sendEmail({ to, subject, html }) {
-        // Utiliser EmailJS si disponible
-        if (typeof emailjs !== 'undefined') {
-            try {
-                await emailjs.send(
-                    'service_familycustom', // Service ID
-                    'template_notification', // Template ID
-                    {
-                        to_email: to,
-                        subject: subject,
-                        message_html: html
-                    }
-                );
-                console.log('Email sent to:', to);
-                return true;
-            } catch (error) {
-                console.error('EmailJS error:', error);
-                return false;
-            }
+        if (!initEmailJS()) {
+            console.warn('EmailJS non disponible — email non envoyé');
+            return false;
         }
         
-        // Fallback: log l'email
-        console.log('Email would be sent:', { to, subject });
-        return true;
+        try {
+            await emailjs.send(
+                EMAILJS_SERVICE_ID,
+                EMAILJS_TEMPLATE_CUSTOMER,
+                {
+                    to_email: to,
+                    email: to,
+                    to_name: 'Client',
+                    subject: subject,
+                    message_html: html,
+                    is_reminder: ''
+                }
+            );
+            console.log('Email envoyé à:', to);
+            return true;
+        } catch (error) {
+            console.error('EmailJS error:', error);
+            return false;
+        }
     }
     
     /**

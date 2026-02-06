@@ -1,0 +1,145 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== ADMIN UIDs =====
+    function isAdmin() {
+      return request.auth != null && request.auth.uid in [
+        'cPWcF35BXFQXETh2Xe0IVqFptQo1',
+        'kvFTWu906zbdFdXMK0FphVC8zUv2',
+        'VLDcjlZFVxQhkKfiewmGtKVMaji2',
+        '5wipVx4YFPMWL3kUq5VhieSxlRw1'
+      ];
+    }
+
+    // Products - public read, admin write
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Categories - public read, admin write
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Orders - admin full access, customer can create
+    match /orders/{orderId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Reviews - public read approved, anyone can create, admin can manage all
+    match /reviews/{reviewId} {
+      allow read: if isAdmin() || (resource.data.approved == true);
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Review Stats - public read, admin write
+    match /reviewStats/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Stats / Analytics - public write (increment), admin read
+    match /stats/{docId} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+    match /dailyStats/{docId} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+    match /pageViews/{docId} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+    match /clicks/{docId} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+
+    // Events (analytics) - public write, admin read
+    match /events/{eventId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Visitors - public write, admin read
+    match /visitors/{visitorId} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+
+    // Conversations (support chat) - public access
+    match /conversations/{chatId} {
+      allow read, write: if true;
+    }
+
+    // Legacy support chats
+    match /supportChats/{chatId} {
+      allow read, write: if true;
+    }
+    match /supportChats/{chatId}/messages/{messageId} {
+      allow read, write: if true;
+    }
+
+    // Admin settings
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Promo codes
+    match /promoCodes/{codeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /promo_codes/{codeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Gift cards
+    match /giftCards/{cardId} {
+      allow read, write: if true;
+    }
+
+    // Customer accounts + subcollections
+    match /customers/{customerId} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == customerId);
+      allow create: if true;
+      allow update: if isAdmin() || (request.auth != null && request.auth.uid == customerId);
+      allow delete: if isAdmin();
+
+      match /pointsHistory/{docId} {
+        allow read: if isAdmin() || (request.auth != null && request.auth.uid == customerId);
+        allow write: if isAdmin() || (request.auth != null && request.auth.uid == customerId);
+      }
+    }
+
+    // Customer photos
+    match /customerPhotos/{photoId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Newsletter
+    match /newsletter/{emailId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Abandoned Carts - public create/update, admin full access
+    match /abandonedCarts/{cartId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update: if true;
+      allow delete: if isAdmin();
+    }
+  }
+}

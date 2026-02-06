@@ -89,7 +89,7 @@ const FCRecentlyViewed = (function() {
                 </div>
                 <div class="recently-viewed-list" id="rv-list">
                     ${products.map(product => `
-                        <a href="personnaliser.html?product=${product.id}" class="rv-item">
+                        <a href="produit.html?id=${product.id}" class="rv-item">
                             <div class="rv-image">
                                 ${product.image 
                                     ? `<img src="${product.image}" alt="${product.name}" loading="lazy">`
@@ -136,7 +136,7 @@ const FCRecentlyViewed = (function() {
         if (container) {
             // Récupérer l'ID du produit actuel si on est sur personnaliser.html
             const urlParams = new URLSearchParams(window.location.search);
-            const currentProductId = urlParams.get('product');
+            const currentProductId = urlParams.get('id') || urlParams.get('product');
             render('recently-viewed-container', currentProductId);
         }
     });

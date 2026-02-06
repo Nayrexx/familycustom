@@ -151,7 +151,10 @@
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation-circle'}"></i> ${message}`;
+        const icon = document.createElement('i');
+        icon.className = `fas fa-${type === 'success' ? 'check' : 'exclamation-circle'}`;
+        toast.appendChild(icon);
+        toast.appendChild(document.createTextNode(' ' + message));
         elements.toastContainer.appendChild(toast);
         
         setTimeout(() => {
@@ -203,12 +206,12 @@
         `).join('');
     }
     
-    // ===== UPLOAD IMAGE TO IMGUR (fonctionne depuis navigateur) =====
+    // ===== UPLOAD IMAGE TO CLOUDINARY =====
     
-    // Client ID Imgur pour uploads anonymes (gratuit)
-    const IMGUR_CLIENT_ID = 'fc062ce5a6b4253';
+    const CLOUDINARY_CLOUD_NAME = 'dybynk5am';
+    const CLOUDINARY_UPLOAD_PRESET = 'familycustom';
     
-    async function uploadImageToPostImages(file) {
+    async function uploadImageToCloudinary(file) {
         const progressEl = document.getElementById('upload-progress');
         const progressFill = progressEl?.querySelector('.progress-fill');
         const progressText = progressEl?.querySelector('.progress-text');
@@ -221,49 +224,39 @@
             return null;
         }
         
-        // Vérifier la taille (max 20MB pour Imgur)
-        if (file.size > 20 * 1024 * 1024) {
-            showToast('Image trop lourde (max 20MB)', 'error');
+        // Vérifier la taille (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            showToast('Image trop lourde (max 10MB)', 'error');
             return null;
         }
         
         // Afficher la progression
         if (progressEl) {
             progressEl.classList.remove('hidden', 'success', 'error');
-            if (progressFill) progressFill.style.width = '30%';
+            if (progressFill) progressFill.style.width = '20%';
             if (progressText) progressText.textContent = 'Upload en cours...';
         }
         
         try {
-            // Convertir en base64
-            const base64 = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            formData.append('folder', 'familycustom');
             
-            if (progressFill) progressFill.style.width = '50%';
+            if (progressFill) progressFill.style.width = '40%';
             
-            // Upload vers Imgur
-            const response = await fetch('https://api.imgur.com/3/image', {
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': 'Client-ID ' + IMGUR_CLIENT_ID,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    image: base64,
-                    type: 'base64'
-                })
+                body: formData
             });
             
             if (progressFill) progressFill.style.width = '80%';
             
             const result = await response.json();
             
-            if (result.success && result.data && result.data.link) {
-                const imageUrl = result.data.link;
+            if (result.secure_url) {
+                // Retourner l'URL optimisée (auto format + qualité)
+                const imageUrl = result.secure_url;
                 
                 if (progressEl) {
                     progressEl.classList.add('success');
@@ -273,7 +266,7 @@
                 
                 // Ajouter l'image au produit
                 addProductImage(imageUrl);
-                showToast('Image uploadée !', 'success');
+                showToast('Image uploadée sur Cloudinary !', 'success');
                 
                 // Cacher après 2s
                 setTimeout(() => {
@@ -282,7 +275,7 @@
                 
                 return imageUrl;
             } else {
-                throw new Error(result.data?.error || 'Erreur Imgur');
+                throw new Error(result.error?.message || 'Erreur Cloudinary');
             }
         } catch (error) {
             console.error('Upload error:', error);
@@ -302,8 +295,16 @@
         }
     }
     
-    // Exposer la fonction d'upload
-    window.FCAdmin.uploadImage = uploadImageToPostImages;
+    // Helper: transformer une URL Cloudinary en URL optimisée
+    function optimizeCloudinaryUrl(url, width) {
+        if (!url || !url.includes('cloudinary.com')) return url;
+        // Insérer les transformations auto-format, auto-qualité, largeur
+        return url.replace('/upload/', `/upload/f_auto,q_auto${width ? ',w_' + width : ''}/`);
+    }
+    
+    // Exposer la fonction d'upload et l'optimiseur
+    window.FCAdmin.uploadImage = uploadImageToCloudinary;
+    window.FCAdmin.optimizeUrl = optimizeCloudinaryUrl;
     
     // ===== IMPORT PRODUCT FROM URL =====
     
@@ -942,6 +943,12 @@
                     <td>${date}</td>
                     <td>${order.customer?.firstName || ''} ${order.customer?.lastName || ''}<br>
                         <small>${order.customer?.email || ''}</small></td>
+                    <td>
+                        ${order.shippingMethod === 'relay' ? 
+                            `<span class="delivery-badge-mini relay" title="${order.relayPoint?.name || order.relayPoint?.Nom || 'Point Relais'}"><i class="fas fa-store"></i> Relais</span>` : 
+                            `<span class="delivery-badge-mini home"><i class="fas fa-home"></i> Domicile</span>`
+                        }
+                    </td>
                     <td><strong>${order.total?.toFixed(2) || '0.00'}€</strong></td>
                     <td><span class="order-status ${statusClass}">${statusLabel}</span></td>
                     <td>
@@ -999,8 +1006,21 @@
                 
                 <div class="order-detail-section">
                     <h4><i class="fas fa-truck"></i> Livraison</h4>
-                    <p>${order.customer?.address || ''}</p>
-                    <p>${order.customer?.postalCode || ''} ${order.customer?.city || ''}</p>
+                    ${order.shippingMethod === 'relay' && order.relayPoint ? `
+                        <div class="delivery-badge relay">
+                            <i class="fas fa-store"></i> Point Relais Mondial Relay
+                        </div>
+                        <p><strong>${order.relayPoint.name || order.relayPoint.Nom || ''}</strong></p>
+                        <p>${order.relayPoint.address || order.relayPoint.Adresse || order.relayPoint.Adresse1 || ''}</p>
+                        <p>${order.relayPoint.postalCode || order.relayPoint.CP || ''} ${order.relayPoint.city || order.relayPoint.Ville || ''}</p>
+                        ${order.relayPoint.id || order.relayPoint.ID ? `<p><small>ID: ${order.relayPoint.id || order.relayPoint.ID}</small></p>` : ''}
+                    ` : `
+                        <div class="delivery-badge home">
+                            <i class="fas fa-home"></i> Livraison à domicile
+                        </div>
+                        <p>${order.customer?.address || ''}</p>
+                        <p>${order.customer?.postalCode || ''} ${order.customer?.city || ''}</p>
+                    `}
                     ${order.customer?.notes ? `<p class="notes"><em>Note: ${order.customer.notes}</em></p>` : ''}
                 </div>
                 
@@ -1264,7 +1284,7 @@
                     </div>
                     <div style="text-align:right;">
                         <strong>Family Custom</strong><br>
-                        familycustom.fr
+                        family-custom.com
                     </div>
                 </div>
                 
@@ -1276,9 +1296,17 @@
                 </div>
                 
                 <div class="info-box">
-                    <h3>📦 Adresse de livraison</h3>
-                    <p>${order.customer?.address || ''}</p>
-                    <p><strong>${order.customer?.postalCode || ''} ${order.customer?.city || ''}</strong></p>
+                    <h3>📦 Livraison</h3>
+                    ${order.shippingMethod === 'relay' && order.relayPoint ? `
+                        <p style="color: #00b8e6; font-weight: bold;"><i>🏪 Point Relais Mondial Relay</i></p>
+                        <p><strong>${order.relayPoint.name || order.relayPoint.Nom || ''}</strong></p>
+                        <p>${order.relayPoint.address || order.relayPoint.Adresse || order.relayPoint.Adresse1 || ''}</p>
+                        <p><strong>${order.relayPoint.postalCode || order.relayPoint.CP || ''} ${order.relayPoint.city || order.relayPoint.Ville || ''}</strong></p>
+                    ` : `
+                        <p style="color: #4CAF50; font-weight: bold;"><i>🏠 Livraison à domicile</i></p>
+                        <p>${order.customer?.address || ''}</p>
+                        <p><strong>${order.customer?.postalCode || ''} ${order.customer?.city || ''}</strong></p>
+                    `}
                     ${order.customer?.notes ? `<p style="color:#666;margin-top:10px;"><em>Note: ${order.customer.notes}</em></p>` : ''}
                 </div>
                 
@@ -1357,7 +1385,7 @@
             <body>
                 <div class="label">
                     <div class="from">
-                        <strong>EXP:</strong> Family Custom - familycustom.fr
+                        <strong>EXP:</strong> Family Custom - family-custom.com
                     </div>
                     
                     <div class="to-label">DESTINATAIRE :</div>
@@ -2059,6 +2087,23 @@
         if (usesEl) usesEl.textContent = totalUses;
     }
     
+    // Peupler le select de catégories pour les codes promo
+    function populatePromoCategorySelect() {
+        const select = document.getElementById('pc-category');
+        if (!select) return;
+        
+        // Reset avec option par défaut
+        select.innerHTML = '<option value="">Tous les produits</option>';
+        
+        // Ajouter chaque catégorie
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            select.appendChild(option);
+        });
+    }
+    
     function renderPromoCodes() {
         const tbody = document.getElementById('promocodes-table-body');
         if (!tbody) return;
@@ -2066,7 +2111,7 @@
         if (promoCodes.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="empty-state">
+                    <td colspan="9" class="empty-state">
                         <i class="fas fa-percent"></i>
                         <p>Aucun code promo</p>
                     </td>
@@ -2126,6 +2171,7 @@
                 <tr>
                     <td><code>${pc.code}</code></td>
                     <td><strong>${discountLabel}</strong></td>
+                    <td>${pc.categoryName ? `<span class="badge badge-info" style="font-size:0.7rem;">${pc.categoryName}</span>` : '<span style="color:var(--text-muted);">Tous</span>'}</td>
                     <td>${pc.minOrderAmount > 0 ? pc.minOrderAmount.toFixed(0) + '€' : '-'}</td>
                     <td>${usesLabel}</td>
                     <td>${expirationLabel}</td>
@@ -2158,6 +2204,9 @@
         const maxUses = parseInt(document.getElementById('pc-max-uses').value) || 0;
         const endDate = document.getElementById('pc-end-date').value || null;
         const description = document.getElementById('pc-description').value.trim();
+        const categorySelect = document.getElementById('pc-category');
+        const restrictToCategory = categorySelect ? categorySelect.value : '';
+        const categoryName = categorySelect && categorySelect.value ? categorySelect.options[categorySelect.selectedIndex].text : '';
         
         if (!code || code.length < 3) {
             showToast('Le code doit avoir au moins 3 caractères', 'error');
@@ -2177,7 +2226,9 @@
                 minOrderAmount: minOrderAmount,
                 maxUses: maxUses,
                 endDate: endDate,
-                description: description
+                description: description,
+                restrictToCategory: restrictToCategory || null,
+                categoryName: categoryName || null
             };
             
             await FCPromoCode.createPromoCode(promoData);
@@ -2191,6 +2242,8 @@
             document.getElementById('pc-max-uses').value = '0';
             document.getElementById('pc-end-date').value = '';
             document.getElementById('pc-description').value = '';
+            const catSelect = document.getElementById('pc-category');
+            if (catSelect) catSelect.value = '';
             
             // Reload list
             await loadPromoCodes();
@@ -2913,22 +2966,23 @@
     
     async function loadClickStats() {
         try {
+            if (!elements.statClicks && !elements.categoryClicksList && !elements.productClicksList) return;
             // Get click stats
             const statsDoc = await db.collection('stats').doc('clicks').get();
             
             if (statsDoc.exists) {
                 const data = statsDoc.data();
-                elements.statClicks.textContent = data.total || 0;
+                if (elements.statClicks) elements.statClicks.textContent = data.total || 0;
                 
                 // Render category clicks
-                renderClicksList(data.categories || {}, elements.categoryClicksList, 'category');
+                if (elements.categoryClicksList) renderClicksList(data.categories || {}, elements.categoryClicksList, 'category');
                 
                 // Render product clicks
-                renderClicksList(data.products || {}, elements.productClicksList, 'product');
+                if (elements.productClicksList) renderClicksList(data.products || {}, elements.productClicksList, 'product');
             } else {
-                elements.statClicks.textContent = '0';
-                elements.categoryClicksList.innerHTML = '<p class="empty-text">Aucun clic enregistré</p>';
-                elements.productClicksList.innerHTML = '<p class="empty-text">Aucun clic enregistré</p>';
+                if (elements.statClicks) elements.statClicks.textContent = '0';
+                if (elements.categoryClicksList) elements.categoryClicksList.innerHTML = '<p class="empty-text">Aucun clic enregistré</p>';
+                if (elements.productClicksList) elements.productClicksList.innerHTML = '<p class="empty-text">Aucun clic enregistré</p>';
             }
         } catch (error) {
             console.error('Error loading click stats:', error);
@@ -2992,6 +3046,9 @@
             newsletter: 'Newsletter',
             giftcards: 'Cartes Cadeaux',
             promocodes: 'Codes Promo',
+            analytics: 'Analytics',
+            reviews: 'Avis clients',
+            'abandoned-carts': 'Paniers abandonnés',
             settings: 'Paramètres'
         };
         elements.pageTitle.textContent = titles[sectionId] || 'Admin';
@@ -3005,12 +3062,29 @@
         if (sectionId === 'discounts') {
             loadGiftCards();
             loadPromoCodes();
+            populatePromoCategorySelect();
             initDiscountTabs();
         }
         
         // Initialize support when switching to that section
         if (sectionId === 'support' && typeof AdminSupport !== 'undefined') {
             AdminSupport.init();
+        }
+        
+        // Load analytics when switching to that section
+        if (sectionId === 'analytics' && typeof FCAdminAnalytics !== 'undefined') {
+            FCAdminAnalytics.init();
+        }
+        
+        // Load reviews when switching to that section
+        if (sectionId === 'reviews') {
+            loadAdminReviews();
+        }
+        
+        // Load abandoned carts when switching to that section
+        if (sectionId === 'abandoned-carts') {
+            loadAbandonedCarts();
+            updateMonthlyEmailCount();
         }
     }
     
@@ -3465,26 +3539,53 @@
     }
     
     function handleCategoryImageUpload(file) {
-        // Convertir en base64 pour stockage simple (ou utiliser Firebase Storage si disponible)
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            currentCategoryImageUrl = e.target.result;
-            
-            const imagePreview = document.getElementById('category-image-preview');
-            const uploadPlaceholder = document.querySelector('#category-image-zone .upload-placeholder');
-            
-            imagePreview.innerHTML = `
-                <img src="${currentCategoryImageUrl}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeCategoryImage()" style="margin-top: 10px;">
-                    <i class="fas fa-trash"></i> Supprimer
-                </button>
-            `;
+        // Upload vers Cloudinary
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        formData.append('folder', 'familycustom/categories');
+        
+        // Afficher un placeholder pendant l'upload
+        const imagePreview = document.getElementById('category-image-preview');
+        const uploadPlaceholder = document.querySelector('#category-image-zone .upload-placeholder');
+        if (imagePreview) {
+            imagePreview.innerHTML = '<p style="color: #c9a87c;"><i class="fas fa-spinner fa-spin"></i> Upload en cours...</p>';
             imagePreview.style.display = 'block';
-            if (uploadPlaceholder) uploadPlaceholder.style.display = 'none';
-            
-            updateCategoryPreview();
-        };
-        reader.readAsDataURL(file);
+        }
+        
+        fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (result.secure_url) {
+                currentCategoryImageUrl = result.secure_url;
+                
+                if (imagePreview) {
+                    imagePreview.innerHTML = `
+                        <img src="${currentCategoryImageUrl}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeCategoryImage()" style="margin-top: 10px;">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    `;
+                    imagePreview.style.display = 'block';
+                }
+                if (uploadPlaceholder) uploadPlaceholder.style.display = 'none';
+                
+                updateCategoryPreview();
+                showToast('Image cat\u00e9gorie upload\u00e9e !', 'success');
+            } else {
+                throw new Error(result.error?.message || 'Erreur Cloudinary');
+            }
+        })
+        .catch(error => {
+            console.error('Category image upload error:', error);
+            if (imagePreview) {
+                imagePreview.innerHTML = '<p style="color: #ff6b6b;">Erreur d\'upload</p>';
+            }
+            showToast('Erreur d\'upload cat\u00e9gorie', 'error');
+        });
     }
     
     window.removeCategoryImage = function() {
@@ -4879,11 +4980,44 @@
         // Upload image file
         if (elements.uploadImageFile) {
             elements.uploadImageFile.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    uploadImageToPostImages(file);
-                    // Reset l'input pour pouvoir re-uploader le même fichier
+                const files = e.target.files;
+                if (files.length) {
+                    Array.from(files).forEach(file => uploadImageToCloudinary(file));
                     this.value = '';
+                }
+            });
+        }
+        
+        // Drag & drop zone pour images produit
+        const productDropZone = document.getElementById('product-image-drop-zone');
+        if (productDropZone) {
+            // Click → ouvrir le sélecteur de fichier
+            productDropZone.addEventListener('click', function() {
+                elements.uploadImageFile?.click();
+            });
+            
+            // Drag over
+            productDropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            // Drag leave
+            productDropZone.addEventListener('dragleave', function() {
+                this.classList.remove('dragover');
+            });
+            
+            // Drop
+            productDropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    Array.from(files).forEach(file => {
+                        if (file.type.startsWith('image/')) {
+                            uploadImageToCloudinary(file);
+                        }
+                    });
                 }
             });
         }
@@ -5288,6 +5422,435 @@
         setTimeout(() => {
             closeModal(document.getElementById('modal-import'));
         }, 2000);
+    }
+    
+    // =============================================
+    // ADMIN REVIEWS MANAGEMENT
+    // =============================================
+    
+    async function loadAdminReviews(filter) {
+        filter = filter || document.getElementById('reviews-filter').value || 'pending';
+        const container = document.getElementById('admin-reviews-list');
+        if (!container || !db) return;
+        
+        container.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:2rem"><i class="fas fa-spinner fa-spin"></i> Chargement...</p>';
+        
+        try {
+            let query;
+            if (filter === 'pending') {
+                query = db.collection('reviews').where('approved', '==', false).orderBy('createdAt', 'desc').limit(50);
+            } else if (filter === 'approved') {
+                query = db.collection('reviews').where('approved', '==', true).orderBy('createdAt', 'desc').limit(50);
+            } else {
+                query = db.collection('reviews').orderBy('createdAt', 'desc').limit(50);
+            }
+            
+            const snap = await query.get();
+            
+            if (snap.empty) {
+                container.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:2rem">Aucun avis trouv\u00e9.</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            snap.forEach(doc => {
+                const r = { id: doc.id, ...doc.data() };
+                const date = r.createdAt ? new Date(r.createdAt).toLocaleDateString('fr-FR') : '';
+                const stars = '\u2b50'.repeat(r.rating || 0);
+                
+                const card = document.createElement('div');
+                card.className = 'order-card';
+                card.style.marginBottom = '0.75rem';
+                card.innerHTML = `
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem">
+                        <div>
+                            <strong>${escapeForReview(r.customerName || 'Anonyme')}</strong>
+                            <span style="color:var(--gray-500);font-size:0.8rem;margin-left:0.5rem">${date}</span>
+                            ${r.verified ? '<span style="color:#10b981;font-size:0.75rem;margin-left:0.5rem"><i class="fas fa-check-circle"></i> V\u00e9rifi\u00e9</span>' : ''}
+                            ${r.orderNumber ? `<span style="color:var(--gray-500);font-size:0.75rem;margin-left:0.5rem">Cmd: ${escapeForReview(r.orderNumber)}</span>` : ''}
+                        </div>
+                        <div>
+                            <span style="margin-right:0.5rem">${stars}</span>
+                            <span class="order-status ${r.approved ? 'status-paid' : 'status-pending'}">${r.approved ? 'Approuv\u00e9' : 'En attente'}</span>
+                        </div>
+                    </div>
+                    <p style="margin:0.5rem 0;font-size:0.88rem;color:var(--gray-700)">${escapeForReview(r.text || '')}</p>
+                    ${r.response ? `<div style="background:var(--gray-100);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.82rem;border-left:3px solid var(--primary)"><strong>Votre r\u00e9ponse :</strong> ${escapeForReview(r.response)}</div>` : ''}
+                    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap">
+                        ${!r.approved ? `<button class="btn btn-sm btn-success" onclick="approveReview('${r.id}')"><i class="fas fa-check"></i> Approuver</button>` : `<button class="btn btn-sm" onclick="unapproveReview('${r.id}')"><i class="fas fa-eye-slash"></i> Masquer</button>`}
+                        <button class="btn btn-sm btn-primary" onclick="respondToReview('${r.id}')"><i class="fas fa-reply"></i> R\u00e9pondre</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteReview('${r.id}')"><i class="fas fa-trash"></i> Supprimer</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        } catch (e) {
+            console.error('Load reviews error:', e);
+            container.innerHTML = '<p style="text-align:center;color:var(--danger);padding:2rem">Erreur de chargement.</p>';
+        }
+    }
+    
+    function escapeForReview(text) {
+        const d = document.createElement('div');
+        d.textContent = text;
+        return d.innerHTML;
+    }
+    
+    window.approveReview = async function(reviewId) {
+        try {
+            await db.collection('reviews').doc(reviewId).update({ approved: true });
+            showToast('Avis approuv\u00e9 \u2713');
+            const reviewDoc = await db.collection('reviews').doc(reviewId).get();
+            if (reviewDoc.exists) await updateReviewStats(reviewDoc.data().productId);
+            loadAdminReviews();
+        } catch (e) { showToast('Erreur: ' + e.message); }
+    };
+    
+    window.unapproveReview = async function(reviewId) {
+        try {
+            await db.collection('reviews').doc(reviewId).update({ approved: false });
+            showToast('Avis masqu\u00e9');
+            const reviewDoc = await db.collection('reviews').doc(reviewId).get();
+            if (reviewDoc.exists) await updateReviewStats(reviewDoc.data().productId);
+            loadAdminReviews();
+        } catch (e) { showToast('Erreur: ' + e.message); }
+    };
+    
+    window.deleteReview = async function(reviewId) {
+        if (!confirm('Supprimer cet avis ?')) return;
+        try {
+            const reviewDoc = await db.collection('reviews').doc(reviewId).get();
+            const pid = reviewDoc.exists ? reviewDoc.data().productId : null;
+            await db.collection('reviews').doc(reviewId).delete();
+            showToast('Avis supprim\u00e9');
+            if (pid) await updateReviewStats(pid);
+            loadAdminReviews();
+        } catch (e) { showToast('Erreur: ' + e.message); }
+    };
+    
+    window.respondToReview = async function(reviewId) {
+        const response = prompt('Votre r\u00e9ponse :');
+        if (!response) return;
+        try {
+            await db.collection('reviews').doc(reviewId).update({ response: response });
+            showToast('R\u00e9ponse ajout\u00e9e \u2713');
+            loadAdminReviews();
+        } catch (e) { showToast('Erreur: ' + e.message); }
+    };
+    
+    async function updateReviewStats(productId) {
+        if (!productId) return;
+        try {
+            const snap = await db.collection('reviews')
+                .where('productId', '==', productId)
+                .where('approved', '==', true)
+                .get();
+            let count = 0, total = 0;
+            const breakdown = [0, 0, 0, 0, 0];
+            snap.forEach(doc => {
+                const r = doc.data();
+                count++;
+                total += r.rating || 0;
+                if (r.rating >= 1 && r.rating <= 5) breakdown[r.rating - 1]++;
+            });
+            await db.collection('reviewStats').doc(productId).set({
+                count: count,
+                avg: count > 0 ? total / count : 0,
+                breakdown: breakdown
+            });
+        } catch (e) { console.error('Update review stats error:', e); }
+    }
+    
+    // Reviews filter change
+    const reviewsFilterEl = document.getElementById('reviews-filter');
+    if (reviewsFilterEl) {
+        reviewsFilterEl.addEventListener('change', function() {
+            loadAdminReviews(this.value);
+        });
+    }
+    
+    // ===== ABANDONED CARTS MANAGEMENT =====
+    async function loadAbandonedCarts(filter) {
+        filter = filter || (document.getElementById('abandoned-filter') ? document.getElementById('abandoned-filter').value : 'abandoned');
+        const container = document.getElementById('abandoned-carts-list');
+        if (!container) return;
+        
+        container.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:2rem"><i class="fas fa-spinner fa-spin"></i> Chargement...</p>';
+        
+        try {
+            const db = window.FirebaseDB;
+            if (!db) return;
+            
+            let query;
+            if (filter === 'all') {
+                query = db.collection('abandonedCarts').orderBy('createdAt', 'desc').limit(100);
+            } else {
+                query = db.collection('abandonedCarts').where('status', '==', filter).orderBy('createdAt', 'desc').limit(100);
+            }
+            
+            const snapshot = await query.get();
+            
+            if (snapshot.empty) {
+                container.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:2rem">Aucun panier abandonné</p>';
+                updateAbandonedStats([], filter);
+                return;
+            }
+            
+            const carts = [];
+            snapshot.forEach(function(doc) { carts.push({ id: doc.id, ...doc.data() }); });
+            
+            updateAbandonedStats(carts, filter);
+            
+            container.innerHTML = carts.map(function(cart) {
+                var date = cart.createdAt ? (cart.createdAt.toDate ? cart.createdAt.toDate() : new Date(cart.createdAt)) : new Date();
+                var timeAgo = getTimeAgo(date);
+                var itemsHtml = (cart.items || []).map(function(item) {
+                    return '<span class="order-item-tag">' + (item.name || 'Produit') + ' × ' + (item.quantity || 1) + '</span>';
+                }).join(' ');
+                var statusClass = cart.status === 'converted' ? 'status-paid' : 'status-pending';
+                var statusLabel = cart.status === 'converted' ? 'Converti' : 'Abandonné';
+                var reminderBadge = cart.reminderSent ? '<span style="background:#4CAF50;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:8px"><i class="fas fa-check"></i> Relancé</span>' : '';
+                
+                return '<div class="order-card" data-id="' + cart.id + '">' +
+                    '<div class="order-header">' +
+                        '<div class="order-info">' +
+                            '<strong>' + (cart.firstName || '') + ' ' + (cart.lastName || '') + '</strong>' + reminderBadge +
+                            '<span class="order-date">' + timeAgo + '</span>' +
+                        '</div>' +
+                        '<span class="order-status ' + statusClass + '">' + statusLabel + '</span>' +
+                    '</div>' +
+                    '<div class="order-details">' +
+                        '<p><i class="fas fa-envelope"></i> <a href="mailto:' + (cart.email || '') + '">' + (cart.email || '-') + '</a></p>' +
+                        '<p><i class="fas fa-phone"></i> ' + (cart.phone || '-') + '</p>' +
+                        '<div style="margin-top:0.5rem">' + itemsHtml + '</div>' +
+                        '<p style="margin-top:0.5rem;font-weight:600"><i class="fas fa-euro-sign"></i> ' + (cart.total || 0).toFixed(2) + ' €</p>' +
+                    '</div>' +
+                    (cart.status === 'abandoned' ? '<div class="order-actions">' +
+                        (!cart.reminderSent ? '<button class="btn btn-sm" style="background:#4CAF50;color:#fff;border:none;margin-right:6px" onclick="sendCartReminder(\'' + cart.id + '\')"><i class="fas fa-paper-plane"></i> Relancer</button>' : '<button class="btn btn-sm" style="background:#ff9800;color:#fff;border:none;margin-right:6px" onclick="sendCartReminder(\'' + cart.id + '\')"><i class="fas fa-redo"></i> Re-relancer</button>') +
+                        '<button class="btn btn-sm btn-primary" onclick="deleteAbandonedCart(\'' + cart.id + '\')"><i class="fas fa-trash"></i> Supprimer</button>' +
+                    '</div>' : '') +
+                '</div>';
+            }).join('');
+            
+        } catch (e) {
+            console.error('Load abandoned carts error:', e);
+            container.innerHTML = '<p style="text-align:center;color:var(--error)">Erreur: ' + e.message + '</p>';
+        }
+    }
+    
+    function updateAbandonedStats(carts, filter) {
+        var abandonedCount = document.getElementById('abandoned-count');
+        var abandonedTotal = document.getElementById('abandoned-total');
+        var abandonedConversion = document.getElementById('abandoned-conversion');
+        var abandonedReminded = document.getElementById('abandoned-reminded');
+        if (!abandonedCount) return;
+        
+        var abandoned = carts.filter(function(c) { return c.status === 'abandoned'; });
+        var converted = carts.filter(function(c) { return c.status === 'converted'; });
+        var reminded = carts.filter(function(c) { return c.reminderSent === true; });
+        var totalValue = abandoned.reduce(function(s, c) { return s + (c.total || 0); }, 0);
+        var total = abandoned.length + converted.length;
+        var convRate = total > 0 ? ((converted.length / total) * 100).toFixed(1) : '0';
+        
+        abandonedCount.textContent = abandoned.length;
+        abandonedTotal.textContent = totalValue.toFixed(2) + ' €';
+        abandonedConversion.textContent = convRate + '%';
+        if (abandonedReminded) abandonedReminded.textContent = reminded.length;
+    }
+    
+    function getTimeAgo(date) {
+        var diff = Date.now() - date.getTime();
+        var mins = Math.floor(diff / 60000);
+        if (mins < 60) return 'il y a ' + mins + ' min';
+        var hours = Math.floor(mins / 60);
+        if (hours < 24) return 'il y a ' + hours + 'h';
+        var days = Math.floor(hours / 24);
+        return 'il y a ' + days + 'j';
+    }
+    
+    window.deleteAbandonedCart = async function(cartId) {
+        if (!confirm('Supprimer ce panier abandonné ?')) return;
+        try {
+            await window.FirebaseDB.collection('abandonedCarts').doc(cartId).delete();
+            loadAbandonedCarts();
+        } catch (e) {
+            alert('Erreur: ' + e.message);
+        }
+    };
+    
+    // ===== MONTHLY EMAIL QUOTA TRACKING =====
+    async function updateMonthlyEmailCount() {
+        try {
+            var db = window.FirebaseDB;
+            if (!db) return;
+            
+            var now = new Date();
+            var startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            
+            var snapshot = await db.collection('abandonedCarts')
+                .where('reminderSent', '==', true)
+                .where('reminderSentAt', '>=', startOfMonth)
+                .get();
+            
+            var count = snapshot.size;
+            var el = document.getElementById('email-month-count');
+            if (el) {
+                el.textContent = count;
+                el.style.color = count > 150 ? '#f44336' : count > 100 ? '#ff9800' : '#4CAF50';
+            }
+        } catch (e) {
+            console.log('Email count error:', e);
+        }
+    }
+    
+    // ===== SEND CART REMINDER EMAIL =====
+    window.sendCartReminder = async function(cartId) {
+        try {
+            var db = window.FirebaseDB;
+            if (!db) { alert('Firebase non disponible'); return; }
+            
+            // Get cart data
+            var doc = await db.collection('abandonedCarts').doc(cartId).get();
+            if (!doc.exists) { alert('Panier non trouvé'); return; }
+            var cart = doc.data();
+            
+            if (!cart.email) { alert('Pas d\'email pour ce client'); return; }
+            
+            // Send email via FCEmailNotifications
+            if (typeof FCEmailNotifications === 'undefined' || typeof FCEmailNotifications.sendAbandonedCartEmail !== 'function') {
+                alert('Module email non chargé');
+                return;
+            }
+            
+            var btn = document.querySelector('[data-id="' + cartId + '"] .order-actions button');
+            if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...'; btn.disabled = true; }
+            
+            var result = await FCEmailNotifications.sendAbandonedCartEmail(
+                { email: cart.email, firstName: cart.firstName, name: cart.firstName },
+                (cart.items || []).map(function(item) {
+                    return {
+                        name: item.name || 'Produit',
+                        price: typeof item.price === 'number' ? item.price.toFixed(2) + '€' : (item.price || ''),
+                        image: item.image || null,
+                        quantity: item.quantity || 1
+                    };
+                }),
+                null // pas de code promo par défaut
+            );
+            
+            if (result) {
+                // Mark as reminded in Firestore
+                await db.collection('abandonedCarts').doc(cartId).update({
+                    reminderSent: true,
+                    reminderSentAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    reminderCount: firebase.firestore.FieldValue.increment(1)
+                });
+                alert('✅ Email de relance envoyé à ' + cart.email);
+            } else {
+                alert('❌ Erreur lors de l\'envoi. Vérifiez la config EmailJS.');
+            }
+            
+            updateMonthlyEmailCount();
+            loadAbandonedCarts();
+        } catch (e) {
+            console.error('Send reminder error:', e);
+            alert('Erreur: ' + e.message);
+        }
+    };
+    
+    window.sendAllReminders = async function() {
+        var minAmountEl = document.getElementById('abandoned-min-amount');
+        var minAmount = minAmountEl ? parseFloat(minAmountEl.value) || 0 : 0;
+        
+        var msg = 'Envoyer une relance à tous les paniers abandonnés non relancés';
+        if (minAmount > 0) msg += ' (montant ≥ ' + minAmount + '€)';
+        msg += ' ?';
+        if (!confirm(msg)) return;
+        
+        try {
+            var db = window.FirebaseDB;
+            if (!db) return;
+            
+            var snapshot = await db.collection('abandonedCarts')
+                .where('status', '==', 'abandoned')
+                .where('reminderSent', '==', false)
+                .get();
+            
+            if (snapshot.empty) { alert('Aucun panier à relancer'); return; }
+            
+            // Filter by minimum amount client-side
+            var eligibleDocs = snapshot.docs.filter(function(doc) {
+                var cart = doc.data();
+                return cart.email && (cart.total || 0) >= minAmount;
+            });
+            
+            if (eligibleDocs.length === 0) { alert('Aucun panier ≥ ' + minAmount + '€ à relancer'); return; }
+            
+            var sent = 0, failed = 0;
+            var total = eligibleDocs.length;
+            
+            for (var i = 0; i < eligibleDocs.length; i++) {
+                var doc = eligibleDocs[i];
+                var cart = doc.data();
+                
+                try {
+                    var result = await FCEmailNotifications.sendAbandonedCartEmail(
+                        { email: cart.email, firstName: cart.firstName, name: cart.firstName },
+                        (cart.items || []).map(function(item) {
+                            return {
+                                name: item.name || 'Produit',
+                                price: typeof item.price === 'number' ? item.price.toFixed(2) + '€' : (item.price || ''),
+                                image: item.image || null,
+                                quantity: item.quantity || 1
+                            };
+                        }),
+                        null
+                    );
+                    
+                    if (result) {
+                        await db.collection('abandonedCarts').doc(doc.id).update({
+                            reminderSent: true,
+                            reminderSentAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            reminderCount: firebase.firestore.FieldValue.increment(1)
+                        });
+                        sent++;
+                    } else {
+                        failed++;
+                    }
+                } catch (err) {
+                    console.error('Reminder error for', doc.id, err);
+                    failed++;
+                }
+                
+                // Pause 1s entre chaque envoi (rate limit EmailJS)
+                if (i < eligibleDocs.length - 1) {
+                    await new Promise(function(r) { setTimeout(r, 1000); });
+                }
+            }
+            
+            alert('✅ Relances envoyées: ' + sent + '/' + total + (failed > 0 ? ' (' + failed + ' échecs)' : ''));
+            updateMonthlyEmailCount();
+            loadAbandonedCarts();
+        } catch (e) {
+            console.error('Send all reminders error:', e);
+            alert('Erreur: ' + e.message);
+        }
+    };
+    
+    // Abandoned carts filter change
+    var abandonedFilterEl = document.getElementById('abandoned-filter');
+    if (abandonedFilterEl) {
+        abandonedFilterEl.addEventListener('change', function() {
+            loadAbandonedCarts(this.value);
+        });
+    }
+    var refreshAbandonedBtn = document.getElementById('refresh-abandoned-btn');
+    if (refreshAbandonedBtn) {
+        refreshAbandonedBtn.addEventListener('click', function() { loadAbandonedCarts(); });
+    }
+    var sendAllBtn = document.getElementById('send-all-reminders-btn');
+    if (sendAllBtn) {
+        sendAllBtn.addEventListener('click', function() { sendAllReminders(); });
     }
     
     document.addEventListener('DOMContentLoaded', init);

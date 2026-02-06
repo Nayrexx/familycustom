@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/tracking.js" defer></script>
     <title>Paiement - Family Custom</title>
+    <meta name="robots" content="noindex, nofollow">
     
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="images/IMG_3402.jpeg">
@@ -27,6 +29,238 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        /* Checkout Progress Bar */
+        .checkout-progress {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            border-radius: 12px;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            width: 100%;
+            max-width: 550px;
+        }
+        
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex: 1;
+        }
+        
+        .progress-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 55%;
+            width: 90%;
+            height: 3px;
+            background: var(--border-color);
+            z-index: 0;
+        }
+        
+        .progress-step.completed:not(:last-child)::after {
+            background: linear-gradient(90deg, #d4af37, #c9a227);
+        }
+        
+        .progress-step.active:not(:last-child)::after {
+            background: linear-gradient(90deg, #d4af37 50%, var(--border-color) 50%);
+        }
+        
+        .step-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            border: 2px solid var(--border-color);
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-step.completed .step-icon {
+            background: linear-gradient(135deg, #d4af37, #c9a227);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .progress-step.active .step-icon {
+            background: var(--bg-primary);
+            color: #d4af37;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2);
+        }
+        
+        .step-label {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .progress-step.completed .step-label,
+        .progress-step.active .step-label {
+            color: var(--text-primary);
+        }
+        
+        .progress-step.active .step-label {
+            color: #d4af37;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 600px) {
+            .checkout-progress {
+                padding: 20px 15px;
+                margin: 0 10px 20px;
+            }
+            
+            .step-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+            
+            .step-label {
+                font-size: 0.65rem;
+            }
+            
+            .progress-step:not(:last-child)::after {
+                top: 15px;
+            }
+        }
+        
+        /* Multi-Step Checkout Styles */
+        .checkout-step {
+            transition: all 0.3s ease;
+        }
+        
+        .checkout-step.locked {
+            display: none;
+        }
+        
+        .checkout-step.completed .step-header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(201, 162, 39, 0.05));
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+        
+        .checkout-step.completed .step-header h2 {
+            color: #d4af37;
+        }
+        
+        .checkout-step .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 15px 20px;
+            background: var(--bg-tertiary);
+            border-radius: 12px 12px 0 0;
+            border: 1px solid var(--border-color);
+            margin: -20px -20px 20px -20px;
+        }
+        
+        .checkout-step .step-header h2 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .step-header .step-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .step-header .step-status.validated {
+            color: #4CAF50;
+        }
+        
+        .step-header .edit-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .step-header .edit-btn:hover {
+            border-color: #d4af37;
+            color: #d4af37;
+        }
+        
+        .checkout-step .step-content {
+            transition: all 0.3s ease;
+        }
+        
+        .checkout-step.collapsed .step-content {
+            display: none;
+        }
+        
+        .checkout-step .step-summary {
+            display: none;
+            padding: 15px;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
+            margin-top: -10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .checkout-step.completed.collapsed .step-summary {
+            display: block;
+        }
+        
+        .btn-continue {
+            width: 100%;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #d4af37, #c9a227);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+        }
+        
+        .btn-continue:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
         /* Mondial Relay Custom Picker Styles */
         .mr-picker-container {
             margin-top: 15px;
@@ -203,9 +437,91 @@
             border: 3px solid #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
+        
+        /* Error state for form fields */
+        input.error, select.error, textarea.error {
+            border-color: #e53935 !important;
+            background-color: rgba(229, 57, 53, 0.05) !important;
+            animation: shake 0.4s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        /* Checkout Notification Toast */
+        .checkout-notification {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .checkout-notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .checkout-notification.error {
+            background: linear-gradient(135deg, #e53935, #c62828);
+        }
+        
+        .checkout-notification.success {
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
+        }
+        
+        .checkout-notification i {
+            font-size: 1.2rem;
+        }
+        
+        /* Pro Toggle Styles */
+        .pro-toggle {
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .pro-toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .pro-toggle-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #d4af37;
+            cursor: pointer;
+        }
+        
+        .pro-fields-inline {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
     </style>
-    <!-- Coming Soon Overlay -->
-    <script src="js/coming-soon.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -264,6 +580,28 @@
 
     <!-- Checkout Page -->
     <main class="checkout-page">
+        <!-- Progress Bar -->
+        <div class="checkout-progress">
+            <div class="progress-steps">
+                <div class="progress-step completed" data-step="1">
+                    <div class="step-icon"><i class="fas fa-check"></i></div>
+                    <span class="step-label">Panier</span>
+                </div>
+                <div class="progress-step active" data-step="2">
+                    <div class="step-icon">2</div>
+                    <span class="step-label">Informations</span>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-icon">3</div>
+                    <span class="step-label">Livraison</span>
+                </div>
+                <div class="progress-step" data-step="4">
+                    <div class="step-icon">4</div>
+                    <span class="step-label">Paiement</span>
+                </div>
+            </div>
+        </div>
+        
         <div class="checkout-container">
             <div class="checkout-title">
                 <h1><i class="fas fa-credit-card"></i> Paiement Sécurisé</h1>
@@ -279,63 +617,78 @@
                 <div class="checkout-main-column">
                     
                     <!-- Step 1: Customer Info -->
-                    <div class="form-section">
-                        <h2><i class="fas fa-user"></i> Vos informations</h2>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="firstName">Prénom *</label>
-                                <input type="text" id="firstName" name="firstName" required placeholder="Jean">
-                            </div>
-                            <div class="form-group">
-                                <label for="lastName">Nom *</label>
-                                <input type="text" id="lastName" name="lastName" required placeholder="Dupont">
+                    <div class="form-section checkout-step" id="step-info">
+                        <div class="step-header" onclick="toggleStep('info')">
+                            <h2><i class="fas fa-user"></i> 1. Vos informations</h2>
+                            <div class="step-status" id="step-info-status">
+                                <span class="status-text">À compléter</span>
                             </div>
                         </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="email">Email *</label>
-                                <input type="email" id="email" name="email" required placeholder="jean@exemple.fr">
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">Téléphone *</label>
-                                <input type="tel" id="phone" name="phone" required placeholder="06 12 34 56 78">
-                            </div>
-                        </div>
-                        
-                        <!-- Pro option - discret -->
-                        <div class="pro-toggle">
-                            <label class="pro-toggle-label">
-                                <input type="checkbox" id="is-pro-checkbox">
-                                <span>Je suis un professionnel</span>
-                            </label>
-                        </div>
-                        
-                        <!-- Pro Fields (hidden by default) -->
-                        <div id="pro-fields" class="pro-fields-inline" style="display: none;">
+                        <div class="step-content" id="step-info-content">
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="companyName">Entreprise *</label>
-                                    <input type="text" id="companyName" name="companyName" placeholder="Nom de l'entreprise">
+                                    <label for="firstName">Prénom *</label>
+                                    <input type="text" id="firstName" name="firstName" required placeholder="Jean">
                                 </div>
                                 <div class="form-group">
-                                    <label for="siret">SIRET *</label>
-                                    <input type="text" id="siret" name="siret" placeholder="XXX XXX XXX XXXXX" maxlength="17">
+                                    <label for="lastName">Nom *</label>
+                                    <input type="text" id="lastName" name="lastName" required placeholder="Dupont">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="vatNumber">N° TVA (optionnel)</label>
-                                <input type="text" id="vatNumber" name="vatNumber" placeholder="FR XX XXXXXXXXX">
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="email">Email *</label>
+                                    <input type="email" id="email" name="email" required placeholder="jean@exemple.fr">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Téléphone *</label>
+                                    <input type="tel" id="phone" name="phone" required placeholder="06 12 34 56 78">
+                                </div>
                             </div>
+                            
+                            <!-- Pro option - discret -->
+                            <div class="pro-toggle">
+                                <label class="pro-toggle-label">
+                                    <input type="checkbox" id="is-pro-checkbox">
+                                    <span>Je suis un professionnel</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Pro Fields (hidden by default) -->
+                            <div id="pro-fields" class="pro-fields-inline" style="display: none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="companyName">Entreprise *</label>
+                                        <input type="text" id="companyName" name="companyName" placeholder="Nom de l'entreprise">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="siret">SIRET *</label>
+                                        <input type="text" id="siret" name="siret" placeholder="XXX XXX XXX XXXXX" maxlength="17">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vatNumber">N° TVA (optionnel)</label>
+                                    <input type="text" id="vatNumber" name="vatNumber" placeholder="FR XX XXXXXXXXX">
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn-continue" id="btn-continue-info" onclick="validateStep('info')">
+                                Continuer vers la livraison <i class="fas fa-arrow-right"></i>
+                            </button>
                         </div>
+                        <div class="step-summary" id="step-info-summary"></div>
                     </div>
 
                     <!-- Step 2: Delivery -->
-                    <div class="form-section">
-                        <h2><i class="fas fa-truck"></i> Livraison</h2>
-                        
-                        <!-- Delivery Method Selection -->
+                    <div class="form-section checkout-step locked" id="step-delivery">
+                        <div class="step-header" onclick="toggleStep('delivery')">
+                            <h2><i class="fas fa-truck"></i> 2. Livraison</h2>
+                            <div class="step-status" id="step-delivery-status">
+                                <span class="status-text">En attente</span>
+                            </div>
+                        </div>
+                        <div class="step-content" id="step-delivery-content">
                         <div class="delivery-method-selector">
                             <label class="delivery-option selected" data-method="home">
                                 <input type="radio" name="deliveryMethod" value="home" checked>
@@ -380,11 +733,10 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Relay Point Selection -->
-                    <div id="relay-delivery-section" style="display: none;">
-                        <h3 class="delivery-section-title"><i class="fas fa-search-location"></i> Choisir un point relais</h3>
+                        
+                        <!-- Relay Point Selection (inline) -->
+                        <div id="relay-delivery-section" style="display: none;">
+                            <h3 class="delivery-section-title"><i class="fas fa-search-location"></i> Choisir un point relais</h3>
                         
                         <!-- Custom Mondial Relay Picker -->
                         <div class="mr-picker-container">
@@ -428,38 +780,52 @@
                         
                         <input type="hidden" id="selected-relay-id" name="relayPointId">
                         <input type="hidden" id="selected-relay-data" name="relayPointData">
+                        </div>
+                        
+                        <button type="button" class="btn-continue" id="btn-continue-delivery" onclick="validateStep('delivery')">
+                            Continuer vers le paiement <i class="fas fa-arrow-right"></i>
+                        </button>
+                        </div>
+                        <div class="step-summary" id="step-delivery-summary"></div>
                     </div>
 
-                    <!-- Step 3: Promo Code (collapsible) -->
-                    <div class="form-section promo-section-collapsible">
-                        <div class="promo-header" onclick="togglePromoSection()">
-                            <span><i class="fas fa-tag"></i> Code promo / Carte cadeau</span>
-                            <i class="fas fa-chevron-down promo-chevron"></i>
-                        </div>
-                        <div class="promo-content" id="promo-content" style="display: none;">
-                            <div class="promo-input-group">
-                                <input type="text" id="promo-code" placeholder="Entrez votre code" maxlength="20">
-                                <button type="button" id="apply-promo-btn" class="btn-apply-promo">
-                                    Appliquer
-                                </button>
-                            </div>
-                            <div id="promo-message" class="promo-message"></div>
-                            <div id="promo-applied" class="promo-applied" style="display: none;">
-                                <span class="promo-badge">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span id="applied-code"></span>
-                                    <span id="applied-amount"></span>
-                                </span>
-                                <button type="button" id="remove-promo-btn" class="btn-remove-promo">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                    <!-- Step 3: Payment -->
+                    <div class="form-section checkout-step locked" id="step-payment">
+                        <div class="step-header" onclick="toggleStep('payment')">
+                            <h2><i class="fas fa-credit-card"></i> 3. Paiement</h2>
+                            <div class="step-status" id="step-payment-status">
+                                <span class="status-text">En attente</span>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Step 4: Payment -->
-                    <div class="form-section payment-section" id="payment-section">
-                        <h2><i class="fas fa-credit-card"></i> Paiement</h2>
+                        <div class="step-content" id="step-payment-content">
+                        
+                        <!-- Promo Code Section -->
+                        <div class="promo-section-inline" style="margin-bottom: 20px;">
+                            <div class="promo-header-inline" onclick="togglePromoSection()" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px 15px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 10px;">
+                                <i class="fas fa-tag" style="color: #d4af37;"></i>
+                                <span style="flex: 1; font-weight: 500;">Code promo / Carte cadeau</span>
+                                <i class="fas fa-chevron-down promo-chevron" style="transition: transform 0.3s;"></i>
+                            </div>
+                            <div class="promo-content" id="promo-content" style="display: none; padding: 15px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                <div class="promo-input-group" style="display: flex; gap: 10px;">
+                                    <input type="text" id="promo-code" placeholder="Entrez votre code" maxlength="20" style="flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                    <button type="button" id="apply-promo-btn" class="btn-apply-promo" style="padding: 12px 20px; background: linear-gradient(135deg, #d4af37, #c9a227); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                        Appliquer
+                                    </button>
+                                </div>
+                                <div id="promo-message" class="promo-message" style="margin-top: 10px;"></div>
+                                <div id="promo-applied" class="promo-applied" style="display: none; margin-top: 10px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                                    <span class="promo-badge" style="display: flex; align-items: center; gap: 8px; color: #4CAF50;">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span id="applied-code"></span>
+                                        <span id="applied-amount" style="font-weight: 600;"></span>
+                                    </span>
+                                    <button type="button" id="remove-promo-btn" class="btn-remove-promo" style="background: none; border: none; color: #f44336; cursor: pointer; font-size: 1.1rem;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- Order Summary Inline -->
                         <div class="checkout-summary-inline" id="checkout-summary">
@@ -484,7 +850,8 @@
                             </div>
                         </div>
                         
-                        <div class="form-group">
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label style="margin-bottom: 10px; display: block; font-weight: 500;"><i class="fas fa-credit-card" style="color: #d4af37; margin-right: 8px;"></i> Carte bancaire</label>
                             <div id="card-element">
                                 <!-- Stripe Payment Element -->
                             </div>
@@ -508,6 +875,8 @@
                                 <i class="fab fa-cc-amex"></i>
                             </div>
                         </div>
+                        </div>
+                    </div>
                     </div>
                     
                 </div>
@@ -532,6 +901,7 @@
     
     <script src="js/script.js"></script>
     <script src="js/firebase-config.js"></script>
+    <script src="js/analytics.js"></script>
     <script src="js/search.js"></script>
     <script src="js/email-service.js"></script>
     <script src="js/invoice-generator.js"></script>

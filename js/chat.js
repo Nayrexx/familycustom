@@ -810,8 +810,14 @@ const FCChat = (function() {
     }
     
     function formatText(text) {
-        // Markdown-like formatting
-        return text
+        // Échapper le HTML d'abord pour éviter les injections XSS
+        const escaped = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+        // Markdown-like formatting (sur le texte échappé)
+        return escaped
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
             .replace(/\n/g, '<br>');

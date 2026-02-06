@@ -22,6 +22,10 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
     <!-- Admin Styles -->
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/templates-promo.css">
@@ -39,7 +43,7 @@
             <form id="login-form">
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="login-email" placeholder="admin@familycustom.fr" required>
+                    <input type="email" id="login-email" placeholder="admin@family-custom.com" required>
                 </div>
                 <div class="form-group">
                     <label>Mot de passe</label>
@@ -92,6 +96,18 @@
                 <a href="#" class="nav-item" data-section="discounts">
                     <i class="fas fa-tags"></i>
                     <span>Réductions</span>
+                </a>
+                <a href="#" class="nav-item" data-section="analytics">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-section="reviews">
+                    <i class="fas fa-star"></i>
+                    <span>Avis clients</span>
+                </a>
+                <a href="#" class="nav-item" data-section="abandoned-carts">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Paniers abandonnés</span>
                 </a>
                 <a href="#" class="nav-item" data-section="settings">
                     <i class="fas fa-cog"></i>
@@ -352,6 +368,7 @@
                                 <th>N° Commande</th>
                                 <th>Date</th>
                                 <th>Client</th>
+                                <th>Livraison</th>
                                 <th>Total</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
@@ -616,6 +633,13 @@
                                 <label>Description</label>
                                 <input type="text" id="pc-description" placeholder="Code de bienvenue">
                             </div>
+                            <div class="form-group">
+                                <label>Restreindre à une catégorie</label>
+                                <select id="pc-category">
+                                    <option value="">Tous les produits</option>
+                                </select>
+                                <small style="color: var(--text-muted); font-size: 0.75rem;">Si sélectionné, le code ne fonctionnera que pour les produits de cette catégorie</small>
+                            </div>
                             <button type="submit" class="btn btn-primary btn-sm">
                                 <i class="fas fa-plus"></i> Créer
                             </button>
@@ -629,6 +653,7 @@
                                 <tr>
                                     <th>Code</th>
                                     <th>Réduction</th>
+                                    <th>Catégorie</th>
                                     <th>Min.</th>
                                     <th>Utilisations</th>
                                     <th>Expiration</th>
@@ -639,6 +664,196 @@
                             <tbody id="promocodes-table-body"></tbody>
                         </table>
                     </div>
+                </div>
+            </section>
+            
+            <!-- Analytics Section -->
+            <section id="section-analytics" class="section">
+                <!-- Période -->
+                <div class="analytics-period">
+                    <button class="period-btn active" data-period="7">7 jours</button>
+                    <button class="period-btn" data-period="30">30 jours</button>
+                    <button class="period-btn" data-period="90">90 jours</button>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid stats-primary" style="gap:0.75rem; margin-bottom:1rem">
+                    <div class="stat-card stat-live" style="padding:0.85rem">
+                        <div class="stat-icon"><i class="fas fa-eye"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="analytics-total-views" style="font-size:1.3rem">0</span>
+                            <span class="stat-label">Pages vues</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-revenue" style="padding:0.85rem">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="analytics-unique-visitors" style="font-size:1.3rem">0</span>
+                            <span class="stat-label">Visiteurs uniques</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-profit" style="padding:0.85rem">
+                        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="analytics-conversion-rate" style="font-size:1.3rem">0%</span>
+                            <span class="stat-label">Taux de conversion</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-paid" style="padding:0.85rem">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="analytics-avg-time" style="font-size:1.3rem">0s</span>
+                            <span class="stat-label">Temps moyen / page</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Graphiques -->
+                <div class="analytics-charts-grid">
+                    <!-- Tendance visiteurs -->
+                    <div class="analytics-card analytics-card-large">
+                        <h3><i class="fas fa-chart-line"></i> Tendance visiteurs & pages vues</h3>
+                        <div class="chart-container"><canvas id="chart-visitors-trend"></canvas></div>
+                    </div>
+                    
+                    <!-- Sources de trafic -->
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-globe"></i> Sources de trafic</h3>
+                        <div class="chart-container-sm"><canvas id="chart-traffic-sources"></canvas></div>
+                    </div>
+                    
+                    <!-- Appareils -->
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-mobile-alt"></i> Appareils</h3>
+                        <div class="chart-container-sm"><canvas id="chart-devices"></canvas></div>
+                    </div>
+                </div>
+                
+                <!-- Funnel de conversion -->
+                <div class="analytics-card analytics-card-full">
+                    <h3><i class="fas fa-filter"></i> Funnel de conversion</h3>
+                    <div class="funnel-container" id="funnel-container">
+                        <div class="funnel-step">
+                            <div class="funnel-bar" id="funnel-visitors" style="width:100%">
+                                <span class="funnel-label">Visiteurs</span>
+                                <span class="funnel-value" id="funnel-visitors-val">0</span>
+                            </div>
+                        </div>
+                        <div class="funnel-arrow"><i class="fas fa-chevron-down"></i> <span id="funnel-drop-1">-0%</span></div>
+                        <div class="funnel-step">
+                            <div class="funnel-bar funnel-product" id="funnel-products" style="width:80%">
+                                <span class="funnel-label">Pages produit</span>
+                                <span class="funnel-value" id="funnel-products-val">0</span>
+                            </div>
+                        </div>
+                        <div class="funnel-arrow"><i class="fas fa-chevron-down"></i> <span id="funnel-drop-2">-0%</span></div>
+                        <div class="funnel-step">
+                            <div class="funnel-bar funnel-cart" id="funnel-carts" style="width:50%">
+                                <span class="funnel-label">Ajout panier</span>
+                                <span class="funnel-value" id="funnel-carts-val">0</span>
+                            </div>
+                        </div>
+                        <div class="funnel-arrow"><i class="fas fa-chevron-down"></i> <span id="funnel-drop-3">-0%</span></div>
+                        <div class="funnel-step">
+                            <div class="funnel-bar funnel-checkout" id="funnel-checkouts" style="width:30%">
+                                <span class="funnel-label">Checkout</span>
+                                <span class="funnel-value" id="funnel-checkouts-val">0</span>
+                            </div>
+                        </div>
+                        <div class="funnel-arrow"><i class="fas fa-chevron-down"></i> <span id="funnel-drop-4">-0%</span></div>
+                        <div class="funnel-step">
+                            <div class="funnel-bar funnel-paid" id="funnel-paid" style="width:15%">
+                                <span class="funnel-label">Achat</span>
+                                <span class="funnel-value" id="funnel-paid-val">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top pages + Top produits -->
+                <div class="analytics-charts-grid">
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-file"></i> Top pages</h3>
+                        <div id="top-pages-list" class="analytics-list"></div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-star"></i> Top produits cliqués</h3>
+                        <div id="top-products-list" class="analytics-list"></div>
+                    </div>
+                </div>
+                
+                <!-- Parcours visiteurs récents -->
+                <div class="analytics-card analytics-card-full">
+                    <h3><i class="fas fa-route"></i> Parcours visiteurs récents</h3>
+                    <div id="visitor-journeys" class="journeys-container"></div>
+                </div>
+            </section>
+            
+            <!-- Reviews Section -->
+            <section id="section-reviews" class="section">
+                <div class="section-header">
+                    <div class="filter-group">
+                        <label>Filtre :</label>
+                        <select id="reviews-filter">
+                            <option value="pending">En attente</option>
+                            <option value="approved">Approuvés</option>
+                            <option value="all">Tous</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="admin-reviews-list" class="orders-list" style="margin-top:1rem">
+                    <p style="text-align:center;color:var(--gray-500);padding:2rem">Chargement...</p>
+                </div>
+            </section>
+            
+            <!-- Abandoned Carts Section -->
+            <section id="section-abandoned-carts" class="section">
+                <div class="section-toolbar">
+                    <h2><i class="fas fa-shopping-cart"></i> Paniers abandonnés</h2>
+                    <div class="toolbar-actions">
+                        <select id="abandoned-filter">
+                            <option value="abandoned">Abandonnés</option>
+                            <option value="converted">Convertis</option>
+                            <option value="all">Tous</option>
+                        </select>
+                        <select id="abandoned-min-amount" title="Montant minimum pour relance">
+                            <option value="0">Tous montants</option>
+                            <option value="15" selected>Min 15€</option>
+                            <option value="25">Min 25€</option>
+                            <option value="40">Min 40€</option>
+                        </select>
+                        <button class="btn btn-primary" id="refresh-abandoned-btn">
+                            <i class="fas fa-sync-alt"></i> Actualiser
+                        </button>
+                        <button class="btn btn-success" id="send-all-reminders-btn" style="background:#4CAF50;border-color:#4CAF50">
+                            <i class="fas fa-paper-plane"></i> Relancer tous (≥ seuil)
+                        </button>
+                    </div>
+                </div>
+                <div style="background:#2d2d3d;padding:10px 16px;border-radius:8px;margin-bottom:1rem;display:flex;align-items:center;gap:12px;font-size:13px">
+                    <i class="fas fa-info-circle" style="color:#c9a87c"></i>
+                    <span>Quota EmailJS: <strong id="email-quota-display">200 emails/mois</strong> — Relances envoyées ce mois: <strong id="email-month-count">0</strong></span>
+                </div>
+                <div class="stats-row" style="margin-bottom:1rem">
+                    <div class="stat-card">
+                        <div class="stat-value" id="abandoned-count">-</div>
+                        <div class="stat-label">Paniers abandonnés</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="abandoned-total">-</div>
+                        <div class="stat-label">Valeur totale perdue</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="abandoned-conversion">-</div>
+                        <div class="stat-label">Taux de conversion</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="abandoned-reminded">-</div>
+                        <div class="stat-label">Relances envoyées</div>
+                    </div>
+                </div>
+                <div id="abandoned-carts-list" class="orders-list">
+                    <p style="text-align:center;color:var(--gray-500);padding:2rem">Chargement...</p>
                 </div>
             </section>
             
@@ -824,10 +1039,22 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Image principale <span class="label-hint">(<a href="https://postimages.org/" target="_blank">postimages.org</a>)</span></label>
+                        <label>Images du produit</label>
                         <div class="product-images-container" id="product-images-container"></div>
-                        <div class="add-image-row">
-                            <input type="url" id="product-image-url" placeholder="Coller le lien direct de l'image...">
+                        <div class="product-image-upload-zone" id="product-image-drop-zone">
+                            <input type="file" id="upload-image-file" accept="image/*" multiple style="display:none;">
+                            <div class="upload-placeholder" id="product-upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Glissez une image ici ou <strong>cliquez pour parcourir</strong></span>
+                                <small>PNG, JPG, WebP — max 10 MB</small>
+                            </div>
+                        </div>
+                        <div id="upload-progress" class="upload-progress hidden">
+                            <div class="progress-bar"><div class="progress-fill"></div></div>
+                            <span class="progress-text">Upload en cours...</span>
+                        </div>
+                        <div class="add-image-row" style="margin-top:8px;">
+                            <input type="url" id="product-image-url" placeholder="Ou coller un lien direct d'image...">
                             <button type="button" id="btn-add-image" class="btn-add-image" title="Ajouter"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
@@ -1314,6 +1541,7 @@
     <!-- Admin JS -->
     <script src="js/email-notifications.js"></script>
     <script src="js/admin.js"></script>
+    <script src="js/admin-analytics.js"></script>
     <script src="js/admin-support.js"></script>
     <script src="js/admin-notifications.js"></script>
     <script src="js/gift-card-system.js"></script>

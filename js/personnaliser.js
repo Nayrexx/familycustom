@@ -647,7 +647,10 @@
             const getColorAvailability = (color) => {
                 // If we have a stock matrix, check if any size is available for this color
                 if (product.stockMatrix && product.stockMatrix[color.hex]) {
-                    return Object.values(product.stockMatrix[color.hex]).some(val => val === true);
+                    // Out of stock only if ALL sizes are explicitly false
+                    const values = Object.values(product.stockMatrix[color.hex]);
+                    if (values.length === 0) return color.inStock !== false;
+                    return !values.every(val => val === false);
                 }
                 // Fallback to simple inStock flag
                 return color.inStock !== false;
@@ -685,11 +688,13 @@
                 const sizeOptions = document.getElementById('size-options');
                 if (!sizeOptions) return;
                 
-                const colorStock = product.stockMatrix[colorHex] || {};
+                const colorStock = product.stockMatrix[colorHex];
                 
                 sizeOptions.querySelectorAll('.variant-btn').forEach(btn => {
                     const sizeValue = btn.dataset.size;
-                    const isAvailable = colorStock[sizeValue] === true;
+                    // If this color has no entry in stockMatrix, treat all sizes as available
+                    // Available unless explicitly set to false
+                    const isAvailable = !colorStock || colorStock[sizeValue] !== false;
                     
                     btn.classList.toggle('out-of-stock', !isAvailable);
                     btn.disabled = !isAvailable;
@@ -760,7 +765,8 @@
                 if (product.stockMatrix && selectedColor) {
                     const colorStock = product.stockMatrix[selectedColor.hex];
                     if (colorStock) {
-                        return colorStock[sizeValue] === true;
+                        // Available unless explicitly set to false
+                        return colorStock[sizeValue] !== false;
                     }
                 }
                 // Fallback to simple inStock flag

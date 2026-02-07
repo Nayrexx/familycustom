@@ -4334,6 +4334,9 @@
             
         } else {
             matrixContainer.style.display = 'none';
+            // Clear old matrix checkboxes to prevent stale data from being saved
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
         }
         
         // Setup matrix action buttons
@@ -4578,9 +4581,9 @@
             // Determine if size has any color in stock (if matrix exists)
             let inStock = true;
             if (stockMatrix) {
-                // Size is out of stock only if ALL colors have this size out of stock
+                // Size is out of stock only if ALL colors have this size explicitly out of stock
                 inStock = Object.keys(stockMatrix).some(colorKey => 
-                    stockMatrix[colorKey][sizeValue] === true
+                    stockMatrix[colorKey][sizeValue] !== false
                 );
             }
             
